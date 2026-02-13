@@ -55,11 +55,18 @@ class Bootstrap {
 	/**
 	 * Plugin activation handler.
 	 *
-	 * Sets default options, schedules cron, and prepares rewrite rules.
+	 * Creates database tables, sets default options, schedules cron,
+	 * and generates initial trap pages.
 	 *
 	 * @return void
 	 */
 	public function activate(): void {
+		// Create database tables.
+		Database\Schema::create_tables();
+
+		// Set default options.
+		Database\Options::set_defaults();
+
 		// Clear DI compiled cache on activation.
 		self::clear_di_cache();
 		update_option( 'lby_plugin_version', LABYRINTH_VERSION );

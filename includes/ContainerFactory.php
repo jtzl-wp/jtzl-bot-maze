@@ -75,6 +75,62 @@ class ContainerFactory {
 			},
 
 			ContextInterface::class                   => autowire( WordPressContext::class ),
+
+			// ============================================================
+			// Configuration Values
+			// ============================================================
+
+			'config.lby_enabled'                      => function () {
+				return (bool) get_option( 'lby_enabled', true );
+			},
+
+			'config.lby_trap_base_path'               => function () {
+				return get_option( 'lby_trap_base_path', 'lby' );
+			},
+
+			'config.lby_links_per_page'               => function () {
+				return (int) get_option( 'lby_links_per_page', 3 );
+			},
+
+			'config.lby_injection_method'             => function () {
+				return get_option( 'lby_injection_method', 'content' );
+			},
+
+			'config.lby_max_depth'                    => function () {
+				return (int) get_option( 'lby_max_depth', 5 );
+			},
+
+			'config.lby_links_per_trap_page'          => function () {
+				return (int) get_option( 'lby_links_per_trap_page', 5 );
+			},
+
+			'config.lby_initial_page_count'           => function () {
+				return (int) get_option( 'lby_initial_page_count', 20 );
+			},
+
+			'config.lby_points_per_visit'             => function () {
+				return (int) get_option( 'lby_points_per_visit', 25 );
+			},
+
+			'config.lby_depth_bonus'                  => function () {
+				return (int) get_option( 'lby_depth_bonus', 15 );
+			},
+
+			'config.lby_block_threshold'              => function () {
+				return (int) get_option( 'lby_block_threshold', 100 );
+			},
+
+			'config.lby_log_retention_days'           => function () {
+				return (int) get_option( 'lby_log_retention_days', 30 );
+			},
+
+			'config.lby_robots_txt_enabled'           => function () {
+				return (bool) get_option( 'lby_robots_txt_enabled', true );
+			},
+
+			'config.lby_robots_sitemap_enabled'       => function () {
+				return (bool) get_option( 'lby_robots_sitemap_enabled', false );
+			},
 		);
 	}
 }

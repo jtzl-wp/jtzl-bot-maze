@@ -16,6 +16,12 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 // Load plugin file for constants.
 require_once __DIR__ . '/labyrinth.php';
 
+// Drop all custom tables.
+Labyrinth\Database\Schema::drop_tables();
+
+// Delete all plugin options.
+Labyrinth\Database\Options::delete_all();
+
 // Clear all plugin transients.
 Labyrinth\clear_transients();
 
