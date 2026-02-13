@@ -56,14 +56,10 @@ class Bootstrap {
 			$settings_page = new Admin\SettingsPage();
 			$settings_page->init();
 
-			try {
-				$analytics_dashboard = new Admin\AnalyticsDashboard(
-					$this->container->get( 'Labyrinth\Service\AnalyticsCollector' )
-				);
-				$analytics_dashboard->init();
-			} catch ( \Exception $e ) {
-				// AnalyticsCollector not yet available; skip dashboard registration.
-			}
+			$analytics_dashboard = new Admin\AnalyticsDashboard(
+				$this->container->get( 'Labyrinth\Service\AnalyticsCollector' )
+			);
+			$analytics_dashboard->init();
 
 			// Enqueue admin assets.
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );

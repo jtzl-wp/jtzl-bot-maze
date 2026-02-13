@@ -17,9 +17,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use DI\Container;
 use DI\ContainerBuilder;
+use Labyrinth\Repository\TrapPageRepositoryInterface;
+use Labyrinth\Repository\TrapVisitRepositoryInterface;
+use Labyrinth\Repository\BotScoreRepositoryInterface;
+use Labyrinth\Repository\RequestLogRepositoryInterface;
 use Labyrinth\WordPress\ContextInterface;
 use Labyrinth\WordPress\WordPressContext;
 use function DI\autowire;
+use function DI\get;
 
 /**
  * Dependency Injection Container Factory
@@ -77,6 +82,15 @@ class ContainerFactory {
 			ContextInterface::class                   => autowire( WordPressContext::class ),
 
 			// ============================================================
+			// Repository Layer
+			// ============================================================
+
+			TrapPageRepositoryInterface::class        => autowire( Repository\TrapPageRepository::class ),
+			TrapVisitRepositoryInterface::class       => autowire( Repository\TrapVisitRepository::class ),
+			BotScoreRepositoryInterface::class        => autowire( Repository\BotScoreRepository::class ),
+			RequestLogRepositoryInterface::class      => autowire( Repository\RequestLogRepository::class ),
+
+			// ============================================================
 			// Service Layer
 			// ============================================================
 
@@ -87,6 +101,14 @@ class ContainerFactory {
 					LABYRINTH_VERSION
 				);
 			},
+
+			'Labyrinth\Service\AnalyticsCollector'    => autowire()
+				->constructor(
+					get( TrapPageRepositoryInterface::class ),
+					get( TrapVisitRepositoryInterface::class ),
+					get( BotScoreRepositoryInterface::class ),
+					get( RequestLogRepositoryInterface::class )
+				),
 
 			// ============================================================
 			// Configuration Values
