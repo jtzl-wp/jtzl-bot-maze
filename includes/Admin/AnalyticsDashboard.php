@@ -1,0 +1,93 @@
+<?php
+/**
+ * Analytics Dashboard Admin Page
+ *
+ * @package Labyrinth
+ */
+
+namespace Labyrinth\Admin;
+
+// @codeCoverageIgnoreStart
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+// @codeCoverageIgnoreEnd
+
+use Labyrinth\Service\AnalyticsCollector;
+
+/**
+ * Analytics Dashboard
+ *
+ * Renders the trap analytics admin page with summary stats,
+ * charts, top bots table, and recent activity.
+ */
+class AnalyticsDashboard {
+
+	/**
+	 * Analytics collector service.
+	 *
+	 * @var AnalyticsCollector
+	 */
+	private AnalyticsCollector $collector;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param AnalyticsCollector $collector Analytics data collector.
+	 */
+	public function __construct( AnalyticsCollector $collector ) {
+		$this->collector = $collector;
+	}
+
+	/**
+	 * Initialize the dashboard page.
+	 *
+	 * @return void
+	 */
+	public function init(): void {
+		add_action( 'admin_menu', array( $this, 'register_menu' ) );
+	}
+
+	/**
+	 * Register the analytics submenu page.
+	 *
+	 * @return void
+	 */
+	public function register_menu(): void {
+		add_submenu_page(
+			'labyrinth',
+			__( 'Labyrinth Analytics', 'labyrinth' ),
+			__( 'Analytics', 'labyrinth' ),
+			'manage_options',
+			'labyrinth-analytics',
+			array( $this, 'render_page' )
+		);
+	}
+
+	/**
+	 * Render the analytics dashboard page.
+	 *
+	 * @return void
+	 */
+	public function render_page(): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'labyrinth' ) );
+		}
+
+		$summary    = $this->collector->get_summary_stats();
+		$chart_data = $this->collector->get_chart_data();
+		$top_bots   = $this->collector->get_top_bots();
+		$activity   = $this->collector->get_recent_activity();
+
+		// Pass data to template.
+		$template_data = compact( 'summary', 'chart_data', 'top_bots', 'activity' );
+
+		$template_path = LABYRINTH_PLUGIN_DIR . 'templates/admin-analytics.php';
+
+		if ( file_exists( $template_path ) ) {
+			// phpcs:ignore WordPress.PHP.DontExtract.extract_extract -- Template variable extraction is intentional.
+			extract( $template_data );
+			include $template_path; // @phpstan-ignore include.fileNotFound
+		}
+	}
+}

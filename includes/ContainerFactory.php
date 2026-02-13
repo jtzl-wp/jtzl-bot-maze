@@ -77,6 +77,18 @@ class ContainerFactory {
 			ContextInterface::class                   => autowire( WordPressContext::class ),
 
 			// ============================================================
+			// Service Layer
+			// ============================================================
+
+			'Labyrinth\Service\AssetManager'          => function () {
+				return new Service\AssetManager(
+					LABYRINTH_PLUGIN_DIR,
+					LABYRINTH_PLUGIN_URL,
+					LABYRINTH_VERSION
+				);
+			},
+
+			// ============================================================
 			// Configuration Values
 			// ============================================================
 

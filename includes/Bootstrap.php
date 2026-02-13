@@ -50,6 +50,38 @@ class Bootstrap {
 	public function register_hooks(): void {
 		// Check if we need to flush rewrite rules after activation.
 		add_action( 'init', array( $this, 'maybe_flush_rewrite_rules' ) );
+
+		// Initialize admin pages.
+		if ( is_admin() ) {
+			$settings_page = new Admin\SettingsPage();
+			$settings_page->init();
+
+			try {
+				$analytics_dashboard = new Admin\AnalyticsDashboard(
+					$this->container->get( 'Labyrinth\Service\AnalyticsCollector' )
+				);
+				$analytics_dashboard->init();
+			} catch ( \Exception $e ) {
+				// AnalyticsCollector not yet available; skip dashboard registration.
+			}
+
+			// Enqueue admin assets.
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
+		}
+	}
+
+	/**
+	 * Enqueue admin assets for plugin pages.
+	 *
+	 * @param string $hook_suffix The current admin page hook suffix.
+	 * @return void
+	 */
+	public function enqueue_admin_assets( string $hook_suffix ): void {
+		if ( 'labyrinth_page_labyrinth-analytics' !== $hook_suffix ) {
+			return;
+		}
+
+		$this->container->get( 'Labyrinth\Service\AssetManager' )->enqueue_admin_assets();
 	}
 
 	/**
@@ -105,14 +137,91 @@ class Bootstrap {
 	}
 
 	/**
+	 * Handle regenerate labyrinth AJAX request (business logic only).
+	 *
+	 * Nonce and capability checks are performed by the caller.
+	 *
+	 * @return void
+	 */
+	public function handle_regenerate_ajax(): void {
+		try {
+			$generator = $this->container->get( 'Labyrinth\Service\TrapPageGenerator' );
+			$count     = $generator->regenerate();
+
+			wp_send_json_success(
+				array(
+					'message' => sprintf(
+						/* translators: %d: number of trap pages generated */
+						__( 'Labyrinth regenerated with %d trap pages.', 'labyrinth' ),
+						$count
+					),
+					'count'   => $count,
+				)
+			);
+		} catch ( \Exception $e ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Error logging is appropriate here.
+			error_log( 'Labyrinth: Regenerate error: ' . $e->getMessage() );
+			wp_send_json_error(
+				array(
+					'message' => __( 'An error occurred while regenerating the labyrinth.', 'labyrinth' ),
+				),
+				500
+			);
+		}
+	}
+
+	/**
+	 * Handle refresh analytics AJAX request (business logic only).
+	 *
+	 * Nonce and capability checks are performed by the caller.
+	 *
+	 * @return void
+	 */
+	public function handle_refresh_analytics_ajax(): void {
+		try {
+			$collector = $this->container->get( 'Labyrinth\Service\AnalyticsCollector' );
+
+			wp_send_json_success(
+				array(
+					'summary'         => $collector->get_summary_stats(),
+					'chart_data'      => $collector->get_chart_data(),
+					'top_bots'        => $collector->get_top_bots(),
+					'recent_activity' => $collector->get_recent_activity(),
+				)
+			);
+		} catch ( \Exception $e ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Error logging is appropriate here.
+			error_log( 'Labyrinth: Analytics refresh error: ' . $e->getMessage() );
+			wp_send_json_error(
+				array(
+					'message' => __( 'An error occurred while refreshing analytics.', 'labyrinth' ),
+				),
+				500
+			);
+		}
+	}
+
+	/**
 	 * Handle daily maintenance cron.
 	 *
-	 * Placeholder for future log pruning and trap page maintenance.
+	 * Prunes old request logs and ensures minimum trap pages exist.
 	 *
 	 * @return void
 	 */
 	public function handle_maintenance_cron(): void {
-		// Will be extended to prune logs and ensure minimum trap pages.
+		try {
+			// Prune old request logs.
+			$log_repo       = $this->container->get( 'Labyrinth\Repository\RequestLogRepositoryInterface' );
+			$retention_days = (int) get_option( 'lby_log_retention_days', 30 );
+			$log_repo->prune_old_entries( $retention_days );
+
+			// Ensure minimum trap pages exist.
+			$generator = $this->container->get( 'Labyrinth\Service\TrapPageGenerator' );
+			$generator->ensure_minimum_pages();
+		} catch ( \Exception $e ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Error logging is appropriate here.
+			error_log( 'Labyrinth: Maintenance cron error: ' . $e->getMessage() );
+		}
 	}
 
 	/**
