@@ -49,13 +49,13 @@ interface BotScoreRepositoryInterface {
 	/**
 	 * Update bot score after a visit.
 	 *
-	 * @param int   $id             Score record ID.
-	 * @param float $points_to_add  Points to add.
-	 * @param int   $depth_reached  Depth reached in this visit.
-	 * @param bool  $should_block   Whether to set blocked flag.
+	 * @param int   $id              Score record ID.
+	 * @param float $points_to_add   Points to add.
+	 * @param int   $depth_reached   Depth reached in this visit.
+	 * @param int   $block_threshold Score threshold for auto-blocking (0 = no auto-block).
 	 * @return bool True on success.
 	 */
-	public function update_score( int $id, float $points_to_add, int $depth_reached, bool $should_block = false ): bool;
+	public function update_score( int $id, float $points_to_add, int $depth_reached, int $block_threshold = 0 ): bool;
 
 	/**
 	 * Check if an IP+UA is blocked.

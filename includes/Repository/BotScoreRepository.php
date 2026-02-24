@@ -133,21 +133,25 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 	/**
 	 * Update bot score after a visit.
 	 *
-	 * @param int   $id             Score record ID.
-	 * @param float $points_to_add  Points to add.
-	 * @param int   $depth_reached  Depth reached in this visit.
-	 * @param bool  $should_block   Whether to set blocked flag.
+	 * Blocking is computed atomically in SQL against the real current score
+	 * to avoid TOCTOU races from concurrent requests.
+	 *
+	 * @param int   $id              Score record ID.
+	 * @param float $points_to_add   Points to add.
+	 * @param int   $depth_reached   Depth reached in this visit.
+	 * @param int   $block_threshold Score threshold for auto-blocking (0 = no auto-block).
 	 * @return bool True on success.
 	 */
-	public function update_score( int $id, float $points_to_add, int $depth_reached, bool $should_block = false ): bool {
+	public function update_score( int $id, float $points_to_add, int $depth_reached, int $block_threshold = 0 ): bool {
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$sql = $this->wpdb->prepare(
-			"UPDATE {$this->table_name} SET score = score + %f, trap_visits_count = trap_visits_count + 1, max_depth_reached = GREATEST(max_depth_reached, %d), last_seen_at = %s, is_blocked = GREATEST(is_blocked, %d) WHERE id = %d",
+			"UPDATE {$this->table_name} SET score = score + %f, trap_visits_count = trap_visits_count + 1, max_depth_reached = GREATEST(max_depth_reached, %d), last_seen_at = %s, is_blocked = GREATEST(is_blocked, CASE WHEN (score + %f) >= %d THEN 1 ELSE 0 END) WHERE id = %d",
 			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			$points_to_add,
 			$depth_reached,
 			current_time( 'mysql' ),
-			$should_block ? 1 : 0,
+			$points_to_add,
+			$block_threshold,
 			$id
 		);
 
