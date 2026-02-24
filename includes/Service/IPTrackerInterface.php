@@ -1,0 +1,67 @@
+<?php
+/**
+ * IP Tracker Interface
+ *
+ * Defines the contract for client IP detection and session tracking.
+ *
+ * @package Labyrinth
+ */
+
+namespace Labyrinth\Service;
+
+// @codeCoverageIgnoreStart
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+// @codeCoverageIgnoreEnd
+
+/**
+ * IP Tracker interface.
+ *
+ * Provides methods for detecting client IP addresses,
+ * generating session identifiers, and retrieving request metadata.
+ */
+interface IPTrackerInterface {
+
+	/**
+	 * Get the client's IP address.
+	 *
+	 * @return string The client IP address.
+	 */
+	public function get_client_ip(): string;
+
+	/**
+	 * Generate a session identifier from IP + User Agent.
+	 *
+	 * @return string Session hash.
+	 */
+	public function generate_session_id(): string;
+
+	/**
+	 * Generate a user agent hash.
+	 *
+	 * @return string SHA256-truncated UA hash.
+	 */
+	public function get_user_agent_hash(): string;
+
+	/**
+	 * Get the raw user agent string.
+	 *
+	 * @return string User agent string.
+	 */
+	public function get_user_agent(): string;
+
+	/**
+	 * Get the referrer URL.
+	 *
+	 * @return string Referrer URL.
+	 */
+	public function get_referrer(): string;
+
+	/**
+	 * Get the current request URI.
+	 *
+	 * @return string Request URI.
+	 */
+	public function get_request_uri(): string;
+}

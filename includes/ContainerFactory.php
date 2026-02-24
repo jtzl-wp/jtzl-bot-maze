@@ -21,6 +21,9 @@ use Labyrinth\Repository\TrapPageRepositoryInterface;
 use Labyrinth\Repository\TrapVisitRepositoryInterface;
 use Labyrinth\Repository\BotScoreRepositoryInterface;
 use Labyrinth\Repository\RequestLogRepositoryInterface;
+use Labyrinth\Service\IPTrackerInterface;
+use Labyrinth\Service\DnsResolverInterface;
+use Labyrinth\Service\CrawlerVerifierInterface;
 use Labyrinth\WordPress\ContextInterface;
 use Labyrinth\WordPress\WordPressContext;
 use function DI\autowire;
@@ -101,6 +104,12 @@ class ContainerFactory {
 					LABYRINTH_VERSION
 				);
 			},
+
+			IPTrackerInterface::class                 => autowire( Service\IPTracker::class ),
+
+			DnsResolverInterface::class               => autowire( Service\DnsResolver::class ),
+			CrawlerVerifierInterface::class           => autowire( Service\CrawlerVerifier::class )
+				->constructor( get( DnsResolverInterface::class ) ),
 
 			'Labyrinth\Service\AnalyticsCollector'    => autowire()
 				->constructor(
