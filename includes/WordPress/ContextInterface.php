@@ -117,4 +117,15 @@ interface ContextInterface {
 	 * @return string Plugin directory path with trailing slash.
 	 */
 	public function get_plugin_dir(): string;
+
+	/**
+	 * Register a filter hook callback.
+	 *
+	 * @param string   $hook     Filter hook name.
+	 * @param callable $callback Callback function.
+	 * @param int      $priority Priority.
+	 * @param int      $args     Number of accepted arguments.
+	 * @return void
+	 */
+	public function add_filter( string $hook, callable $callback, int $priority = 10, int $args = 1 ): void;
 }

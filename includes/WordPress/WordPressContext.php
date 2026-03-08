@@ -142,4 +142,17 @@ class WordPressContext implements ContextInterface {
 	public function get_plugin_dir(): string {
 		return LABYRINTH_PLUGIN_DIR;
 	}
+
+	/**
+	 * Register a filter hook callback.
+	 *
+	 * @param string   $hook     Filter hook name.
+	 * @param callable $callback Callback function.
+	 * @param int      $priority Priority.
+	 * @param int      $args     Number of accepted arguments.
+	 * @return void
+	 */
+	public function add_filter( string $hook, callable $callback, int $priority = 10, int $args = 1 ): void {
+		add_filter( $hook, $callback, $priority, $args );
+	}
 }

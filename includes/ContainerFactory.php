@@ -137,6 +137,16 @@ class ContainerFactory {
 					get( RequestLogRepositoryInterface::class )
 				),
 
+			'Labyrinth\Service\TrapLinkInjector'      => autowire()
+				->constructor(
+					get( TrapPageRepositoryInterface::class ),
+					get( 'config.lby_links_per_page' ),
+					get( 'config.lby_injection_method' ),
+					get( 'config.lby_enabled' ),
+					get( 'config.lby_trap_base_path' ),
+					get( ContextInterface::class )
+				),
+
 			// ============================================================
 			// Configuration Values
 			// ============================================================

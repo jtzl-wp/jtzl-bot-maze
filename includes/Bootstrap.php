@@ -16,6 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // @codeCoverageIgnoreEnd
 
 use DI\Container;
+use Labyrinth\WordPress\ContextInterface;
 
 /**
  * Bootstrap Class
@@ -48,8 +49,20 @@ class Bootstrap {
 	 * @return void
 	 */
 	public function register_hooks(): void {
+		$wp = $this->container->get( ContextInterface::class );
+
 		// Check if we need to flush rewrite rules after activation.
 		add_action( 'init', array( $this, 'maybe_flush_rewrite_rules' ) );
+
+		// Initialize trap link injector (hidden links in content/footer).
+		$injector = $this->container->get( 'Labyrinth\Service\TrapLinkInjector' );
+		$wp->add_filter( 'the_content', array( $injector, 'inject_into_content' ) );
+		$wp->add_action(
+			'wp_footer',
+			function () use ( $injector ) {
+				echo $injector->inject_into_footer(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			}
+		);
 
 		// Initialize admin pages.
 		if ( is_admin() ) {
