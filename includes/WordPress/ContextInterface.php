@@ -101,6 +101,13 @@ interface ContextInterface {
 	public function set_404(): void;
 
 	/**
+	 * Clear the 404 state on the current query.
+	 *
+	 * @return void
+	 */
+	public function clear_404(): void;
+
+	/**
 	 * Add an action hook callback.
 	 *
 	 * @param string   $hook     Action hook name.

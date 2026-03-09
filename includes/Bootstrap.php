@@ -52,7 +52,15 @@ class Bootstrap {
 		$wp = $this->container->get( ContextInterface::class );
 
 		// Check if we need to flush rewrite rules after activation.
-		add_action( 'init', array( $this, 'maybe_flush_rewrite_rules' ) );
+		// Late priority ensures trap rewrite rules are registered first.
+		add_action( 'init', array( $this, 'maybe_flush_rewrite_rules' ), 99 );
+
+		// Initialize trap router (rewrite rules, query vars, template loading).
+		$router = $this->container->get( 'Labyrinth\Service\TrapRouter' );
+		$wp->add_action( 'init', array( $router, 'register_rewrite_rules' ) );
+		$wp->add_filter( 'query_vars', array( $router, 'register_query_vars' ) );
+		$wp->add_filter( 'template_include', array( $router, 'template_loader' ) );
+		$wp->add_action( 'template_redirect', array( $router, 'handle_request' ) );
 
 		// Initialize trap link injector (hidden links in content/footer).
 		$injector = $this->container->get( 'Labyrinth\Service\TrapLinkInjector' );
@@ -119,6 +127,10 @@ class Bootstrap {
 		if ( ! wp_next_scheduled( 'lby_maintenance_cron' ) ) {
 			wp_schedule_event( time(), 'daily', 'lby_maintenance_cron' );
 		}
+
+		// Generate initial trap pages (only if below minimum).
+		$generator = $this->container->get( 'Labyrinth\Service\TrapPageGenerator' );
+		$generator->ensure_minimum_pages();
 	}
 
 	/**

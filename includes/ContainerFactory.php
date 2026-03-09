@@ -147,6 +147,32 @@ class ContainerFactory {
 					get( ContextInterface::class )
 				),
 
+			'Labyrinth\Template\ContentPool'          => autowire(),
+
+			'Labyrinth\Service\ContentTemplateEngine' => autowire()
+				->constructor(
+					get( 'Labyrinth\Template\ContentPool' )
+				),
+
+			'Labyrinth\Service\TrapPageGenerator'     => autowire()
+				->constructor(
+					get( TrapPageRepositoryInterface::class ),
+					get( 'Labyrinth\Service\ContentTemplateEngine' ),
+					get( 'config.lby_initial_page_count' ),
+					get( 'config.lby_max_depth' ),
+					get( 'config.lby_links_per_trap_page' )
+				),
+
+			'Labyrinth\Service\TrapRouter'            => autowire()
+				->constructor(
+					get( TrapPageRepositoryInterface::class ),
+					get( 'Labyrinth\Service\BotDetector' ),
+					get( 'Labyrinth\Service\TrapPageGenerator' ),
+					get( 'config.lby_trap_base_path' ),
+					get( 'config.lby_max_depth' ),
+					get( ContextInterface::class )
+				),
+
 			// ============================================================
 			// Configuration Values
 			// ============================================================

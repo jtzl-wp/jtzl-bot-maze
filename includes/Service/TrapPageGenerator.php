@@ -1,0 +1,234 @@
+<?php
+/**
+ * Trap Page Generator Service
+ *
+ * Generates trap pages from content templates.
+ *
+ * @package Labyrinth
+ */
+
+namespace Labyrinth\Service;
+
+// @codeCoverageIgnoreStart
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+// @codeCoverageIgnoreEnd
+
+use Labyrinth\Repository\TrapPageRepositoryInterface;
+
+/**
+ * Trap Page Generator
+ *
+ * Creates initial trap pages, deeper pages, and handles regeneration.
+ */
+class TrapPageGenerator {
+
+	/**
+	 * Trap page repository.
+	 *
+	 * @var TrapPageRepositoryInterface
+	 */
+	private TrapPageRepositoryInterface $repository;
+
+	/**
+	 * Content template engine.
+	 *
+	 * @var ContentTemplateEngine
+	 */
+	private ContentTemplateEngine $engine;
+
+	/**
+	 * Number of initial entry-level pages to generate.
+	 *
+	 * @var int
+	 */
+	private int $initial_page_count;
+
+	/**
+	 * Maximum depth of the labyrinth.
+	 *
+	 * @var int
+	 */
+	private int $max_depth;
+
+	/**
+	 * Number of child links per trap page.
+	 *
+	 * @var int
+	 */
+	private int $links_per_trap_page;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param TrapPageRepositoryInterface $repository          Trap page repository.
+	 * @param ContentTemplateEngine       $engine               Content generation engine.
+	 * @param int                         $initial_page_count  Number of entry pages to generate.
+	 * @param int                         $max_depth           Maximum labyrinth depth.
+	 * @param int                         $links_per_trap_page Links per trap page.
+	 */
+	public function __construct(
+		TrapPageRepositoryInterface $repository,
+		ContentTemplateEngine $engine,
+		int $initial_page_count,
+		int $max_depth,
+		int $links_per_trap_page
+	) {
+		$this->repository          = $repository;
+		$this->engine              = $engine;
+		$this->initial_page_count  = $initial_page_count;
+		$this->max_depth           = $max_depth;
+		$this->links_per_trap_page = $links_per_trap_page;
+	}
+
+	/**
+	 * Generate initial entry-level trap pages.
+	 *
+	 * Called on plugin activation. Only creates entry pages (depth 1).
+	 * Deeper pages are generated lazily when bots visit them.
+	 *
+	 * @return int Number of pages generated.
+	 */
+	public function generate_initial_pages(): int {
+		$count = 0;
+
+		for ( $i = 0; $i < $this->initial_page_count; $i++ ) {
+			$seed = $this->generate_seed();
+			$id   = $this->create_page( $seed, 1, null );
+
+			if ( $id > 0 ) {
+				++$count;
+			}
+		}
+
+		return $count;
+	}
+
+	/**
+	 * Regenerate all trap pages.
+	 *
+	 * Deletes all existing pages and creates fresh entry pages.
+	 *
+	 * @return int Number of new pages generated.
+	 */
+	public function regenerate(): int {
+		$this->repository->delete_all();
+		return $this->generate_initial_pages();
+	}
+
+	/**
+	 * Ensure minimum number of entry pages exist.
+	 *
+	 * Called by daily cron to maintain the labyrinth.
+	 *
+	 * @return int Number of new pages added.
+	 */
+	public function ensure_minimum_pages(): int {
+		$current_count = $this->repository->count_active_entry_pages();
+
+		if ( $current_count >= $this->initial_page_count ) {
+			return 0;
+		}
+
+		$needed = $this->initial_page_count - $current_count;
+		$count  = 0;
+
+		for ( $i = 0; $i < $needed; $i++ ) {
+			$seed = $this->generate_seed();
+			$id   = $this->create_page( $seed, 1, null );
+
+			if ( $id > 0 ) {
+				++$count;
+			}
+		}
+
+		return $count;
+	}
+
+	/**
+	 * Generate child pages for a parent trap page (one level deep).
+	 *
+	 * Called lazily when a bot visits a trap page that has no children yet.
+	 *
+	 * @param int    $parent_id    Parent trap page ID.
+	 * @param string $parent_seed  Parent seed for deriving child seeds.
+	 * @param int    $depth_level  Depth level of the children to create.
+	 * @return array Created child page data arrays (id, slug, title).
+	 */
+	public function generate_children_for( int $parent_id, string $parent_seed, int $depth_level ): array {
+		if ( $depth_level > $this->max_depth ) {
+			return array();
+		}
+
+		// Guard against concurrent requests generating duplicate children.
+		if ( ! empty( $this->repository->get_children( $parent_id ) ) ) {
+			return array();
+		}
+
+		$children = array();
+
+		for ( $i = 0; $i < $this->links_per_trap_page; $i++ ) {
+			$child_seed = md5( $parent_seed . '_d' . $depth_level . '_c' . $i );
+			// Disable slug collision retry: if slug exists, a concurrent request
+			// already created this child page, so skip instead of creating duplicates.
+			$child_id = $this->create_page( $child_seed, $depth_level, $parent_id, false );
+
+			if ( $child_id > 0 ) {
+				$children[] = $child_id;
+			}
+		}
+
+		return $children;
+	}
+
+	/**
+	 * Create a single trap page.
+	 *
+	 * @param string   $seed              Randomization seed.
+	 * @param int      $depth_level       Depth level (1 = entry).
+	 * @param int|null $parent_id         Parent page ID, or null for entry pages.
+	 * @param bool     $retry_on_collision Whether to retry with modified seeds on slug collision.
+	 * @return int Created page ID, or 0 on failure.
+	 */
+	private function create_page( string $seed, int $depth_level, ?int $parent_id, bool $retry_on_collision = true ): int {
+		$effective_seed = $seed;
+		$slug           = $this->engine->generate_slug( $effective_seed );
+
+		if ( $retry_on_collision ) {
+			// Retry with modified seeds to handle legitimate collisions.
+			$attempt = 0;
+			while ( $this->repository->slug_exists( $slug ) && $attempt < 5 ) {
+				++$attempt;
+				$effective_seed = md5( $seed . '_' . $attempt );
+				$slug           = $this->engine->generate_slug( $effective_seed );
+			}
+		}
+
+		if ( $this->repository->slug_exists( $slug ) ) {
+			return 0;
+		}
+
+		return $this->repository->create(
+			array(
+				'slug'           => $slug,
+				'title'          => $this->engine->generate_title( $effective_seed ),
+				'content'        => $this->engine->generate_content( $effective_seed ),
+				'template_id'    => $this->engine->generate_template_id( $effective_seed ),
+				'depth_level'    => $depth_level,
+				'parent_page_id' => $parent_id,
+				'seed'           => $effective_seed,
+				'status'         => 'active',
+			)
+		);
+	}
+
+	/**
+	 * Generate a unique seed string.
+	 *
+	 * @return string Unique seed (32 chars).
+	 */
+	private function generate_seed(): string {
+		return md5( uniqid( 'lby_', true ) . wp_rand() );
+	}
+}

@@ -122,6 +122,16 @@ class WordPressContext implements ContextInterface {
 	}
 
 	/**
+	 * Clear the 404 state on the current query.
+	 *
+	 * @return void
+	 */
+	public function clear_404(): void {
+		global $wp_query;
+		$wp_query->is_404 = false;
+	}
+
+	/**
 	 * Add an action hook callback.
 	 *
 	 * @param string   $hook     Action hook name.
