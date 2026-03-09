@@ -101,7 +101,7 @@ class TrapRouter {
 	 */
 	public function register_rewrite_rules(): void {
 		$this->wp->add_rewrite_rule(
-			'^' . preg_quote( $this->base_path, '/' ) . '/([a-z0-9-]+)/?$',
+			'^' . preg_quote( $this->base_path, '#' ) . '/([a-z0-9-]+)/?$',
 			'index.php?lby_view=trap_page&lby_slug=$matches[1]',
 			'top'
 		);

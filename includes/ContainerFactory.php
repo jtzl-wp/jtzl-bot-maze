@@ -182,7 +182,8 @@ class ContainerFactory {
 			},
 
 			'config.lby_trap_base_path'               => function () {
-				return get_option( 'lby_trap_base_path', 'lby' );
+				$path = sanitize_title( (string) get_option( 'lby_trap_base_path', 'lby' ) );
+				return ! empty( $path ) ? $path : 'lby';
 			},
 
 			'config.lby_links_per_page'               => function () {
