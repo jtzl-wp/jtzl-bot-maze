@@ -56,11 +56,14 @@ class Bootstrap {
 		add_action( 'init', array( $this, 'maybe_flush_rewrite_rules' ), 99 );
 
 		// Initialize trap router (rewrite rules, query vars, template loading).
-		$router = $this->container->get( 'Labyrinth\Service\TrapRouter' );
-		$wp->add_action( 'init', array( $router, 'register_rewrite_rules' ) );
-		$wp->add_filter( 'query_vars', array( $router, 'register_query_vars' ) );
-		$wp->add_filter( 'template_include', array( $router, 'template_loader' ) );
-		$wp->add_action( 'template_redirect', array( $router, 'handle_request' ) );
+		// Only register routing hooks when the labyrinth is enabled.
+		if ( (bool) get_option( 'lby_enabled', true ) ) {
+			$router = $this->container->get( 'Labyrinth\Service\TrapRouter' );
+			$wp->add_action( 'init', array( $router, 'register_rewrite_rules' ) );
+			$wp->add_filter( 'query_vars', array( $router, 'register_query_vars' ) );
+			$wp->add_filter( 'template_include', array( $router, 'template_loader' ) );
+			$wp->add_action( 'template_redirect', array( $router, 'handle_request' ) );
+		}
 
 		// Initialize trap link injector (hidden links in content/footer).
 		$injector = $this->container->get( 'Labyrinth\Service\TrapLinkInjector' );
@@ -128,9 +131,11 @@ class Bootstrap {
 			wp_schedule_event( time(), 'daily', 'lby_maintenance_cron' );
 		}
 
-		// Generate initial trap pages (only if below minimum).
-		$generator = $this->container->get( 'Labyrinth\Service\TrapPageGenerator' );
-		$generator->ensure_minimum_pages();
+		// Generate initial trap pages (only if enabled and below minimum).
+		if ( (bool) get_option( 'lby_enabled', true ) ) {
+			$generator = $this->container->get( 'Labyrinth\Service\TrapPageGenerator' );
+			$generator->ensure_minimum_pages();
+		}
 	}
 
 	/**
@@ -236,9 +241,11 @@ class Bootstrap {
 			$retention_days = (int) get_option( 'lby_log_retention_days', 30 );
 			$log_repo->prune_old_entries( $retention_days );
 
-			// Ensure minimum trap pages exist.
-			$generator = $this->container->get( 'Labyrinth\Service\TrapPageGenerator' );
-			$generator->ensure_minimum_pages();
+			// Ensure minimum trap pages exist (only when enabled).
+			if ( (bool) get_option( 'lby_enabled', true ) ) {
+				$generator = $this->container->get( 'Labyrinth\Service\TrapPageGenerator' );
+				$generator->ensure_minimum_pages();
+			}
 		} catch ( \Exception $e ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Error logging is appropriate here.
 			error_log( 'Labyrinth: Maintenance cron error: ' . $e->getMessage() );

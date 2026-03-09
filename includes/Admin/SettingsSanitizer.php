@@ -55,6 +55,23 @@ class SettingsSanitizer {
 	}
 
 	/**
+	 * Sanitize the enabled checkbox and flag rewrite rules for flush on change.
+	 *
+	 * @param mixed $value The value to sanitize.
+	 * @return bool The sanitized value.
+	 */
+	public static function sanitize_enabled( $value ): bool {
+		$new_value = (bool) $value;
+		$old_value = (bool) get_option( 'lby_enabled', true );
+
+		if ( $new_value !== $old_value ) {
+			update_option( 'lby_flush_rewrite_rules_flag', true );
+		}
+
+		return $new_value;
+	}
+
+	/**
 	 * Sanitize the trap base path.
 	 *
 	 * @param mixed $value The value to sanitize.

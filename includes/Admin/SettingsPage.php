@@ -149,7 +149,7 @@ class SettingsPage {
 			'lby_enabled',
 			array(
 				'type'              => 'boolean',
-				'sanitize_callback' => array( SettingsSanitizer::class, 'sanitize_checkbox' ),
+				'sanitize_callback' => array( SettingsSanitizer::class, 'sanitize_enabled' ),
 				'default'           => true,
 			)
 		);
