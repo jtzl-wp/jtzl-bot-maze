@@ -53,7 +53,7 @@ class Bootstrap {
 
 		// Check if we need to flush rewrite rules after activation.
 		// Late priority ensures trap rewrite rules are registered first.
-		add_action( 'init', array( $this, 'maybe_flush_rewrite_rules' ), 99 );
+		$wp->add_action( 'init', array( $this, 'maybe_flush_rewrite_rules' ), 99 );
 
 		// Initialize trap router (rewrite rules, query vars, template loading).
 		// Only register routing hooks when the labyrinth is enabled.
@@ -76,7 +76,7 @@ class Bootstrap {
 		);
 
 		// Initialize admin pages.
-		if ( is_admin() ) {
+		if ( $wp->is_admin() ) {
 			$settings_page = new Admin\SettingsPage();
 			$settings_page->init();
 
@@ -86,7 +86,7 @@ class Bootstrap {
 			$analytics_dashboard->init();
 
 			// Enqueue admin assets.
-			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
+			$wp->add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
 		}
 	}
 
