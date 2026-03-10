@@ -3,7 +3,7 @@
  * Plugin Name: Labyrinth
  * Plugin URI: https://github.com/labyrinth/labyrinth
  * Description: AI bot protection through invisible trap link labyrinths — hidden links lure bots into a maze of fake content for detection and blocking
- * Version: 1.0.0-alpha.3
+ * Version: 1.0.0-alpha.4
  * Requires at least: 6.9
  * Requires PHP: 8.2
  * Author: Labyrinth
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define plugin constants.
-define( 'LABYRINTH_VERSION', '1.0.0-alpha.3' );
+define( 'LABYRINTH_VERSION', '1.0.0-alpha.4' );
 define( 'LABYRINTH_PLUGIN_FILE', __FILE__ );
 define( 'LABYRINTH_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'LABYRINTH_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
