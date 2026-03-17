@@ -74,12 +74,21 @@ class TrapPageRepository implements TrapPageRepositoryInterface {
 		$parent_page_id = $data['parent_page_id'] ?? null;
 		if ( null !== $parent_page_id ) {
 			$insert_data['parent_page_id'] = $parent_page_id;
-			$format[] = '%d';
+			$format[]                      = '%d';
 		}
 
-		$result = $this->wpdb->insert( $this->table_name, $insert_data, $format );
+		$columns      = implode( ', ', array_keys( $insert_data ) );
+		$placeholders = implode( ', ', $format );
 
-		if ( false === $result ) {
+		// Use INSERT IGNORE so duplicate slug violations return 0 instead of a DB error.
+		$query = $this->wpdb->prepare(
+			"INSERT IGNORE INTO {$this->table_name} ({$columns}) VALUES ({$placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+			array_values( $insert_data )
+		);
+
+		$result = $this->wpdb->query( $query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+		if ( false === $result || 0 === $result ) {
 			return 0;
 		}
 

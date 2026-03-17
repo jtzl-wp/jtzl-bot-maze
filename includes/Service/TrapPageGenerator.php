@@ -203,12 +203,14 @@ class TrapPageGenerator {
 				$effective_seed = md5( $seed . '_' . $attempt );
 				$slug           = $this->engine->generate_slug( $effective_seed );
 			}
+
+			if ( $this->repository->slug_exists( $slug ) ) {
+				return 0;
+			}
 		}
 
-		if ( $this->repository->slug_exists( $slug ) ) {
-			return 0;
-		}
-
+		// For child pages (retry_on_collision=false), skip slug_exists() entirely;
+		// INSERT IGNORE handles duplicates at the DB level.
 		return $this->repository->create(
 			array(
 				'slug'           => $slug,
