@@ -145,13 +145,12 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 	public function update_score( int $id, float $points_to_add, int $depth_reached, int $block_threshold = 0 ): bool {
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$sql = $this->wpdb->prepare(
-			"UPDATE {$this->table_name} SET score = score + %f, trap_visits_count = trap_visits_count + 1, max_depth_reached = GREATEST(max_depth_reached, %d), last_seen_at = %s, is_blocked = GREATEST(is_blocked, CASE WHEN %d > 0 AND (score + %f) >= %d THEN 1 ELSE 0 END) WHERE id = %d",
+			"UPDATE {$this->table_name} SET score = score + %f, trap_visits_count = trap_visits_count + 1, max_depth_reached = GREATEST(max_depth_reached, %d), last_seen_at = %s, is_blocked = GREATEST(is_blocked, CASE WHEN %d > 0 AND score >= %d THEN 1 ELSE 0 END) WHERE id = %d",
 			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			$points_to_add,
 			$depth_reached,
 			current_time( 'mysql' ),
 			$block_threshold,
-			$points_to_add,
 			$block_threshold,
 			$id
 		);
