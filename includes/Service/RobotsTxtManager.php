@@ -73,8 +73,9 @@ class RobotsTxtManager {
 		}
 
 		// Append Disallow directive to the existing User-agent group.
-		// No blank line before — a blank line would start a new record per
-		// RFC 9309, potentially overriding earlier rules for User-agent: *.
+		// Trim trailing whitespace first — WordPress may end with a blank
+		// line which per RFC 9309 would terminate the User-agent: * group.
+		$output  = rtrim( $output ) . "\n";
 		$output .= "# Labyrinth Bot Protection\n";
 		$output .= 'Disallow: ' . $this->home_path . '/' . $this->base_path . "/\n";
 

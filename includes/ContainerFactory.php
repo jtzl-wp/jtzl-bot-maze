@@ -238,10 +238,6 @@ class ContainerFactory {
 			'config.lby_robots_txt_enabled'           => function () {
 				return (bool) get_option( 'lby_robots_txt_enabled', true );
 			},
-
-			'config.lby_robots_sitemap_enabled'       => function () {
-				return (bool) get_option( 'lby_robots_sitemap_enabled', false );
-			},
 		);
 	}
 }

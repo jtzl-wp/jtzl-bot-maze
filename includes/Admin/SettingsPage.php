@@ -537,29 +537,6 @@ class SettingsPage {
 				'description' => __( 'Add a Disallow rule for the trap base path to keep compliant crawlers out of trap URLs.', 'labyrinth' ),
 			)
 		);
-
-		// Advertise trap sitemap in robots.txt.
-		register_setting(
-			self::SETTINGS_GROUP,
-			'lby_robots_sitemap_enabled',
-			array(
-				'type'              => 'boolean',
-				'sanitize_callback' => array( SettingsSanitizer::class, 'sanitize_checkbox' ),
-				'default'           => false,
-			)
-		);
-
-		add_settings_field(
-			'lby_robots_sitemap_enabled',
-			__( 'Advertise Trap Sitemap', 'labyrinth' ),
-			array( $this, 'render_checkbox_field' ),
-			self::PAGE_SLUG,
-			'lby_robots_settings',
-			array(
-				'label_for'   => 'lby_robots_sitemap_enabled',
-				'description' => __( 'Include a fake sitemap URL in robots.txt pointing to trap pages. Disable for safer defaults with search engines.', 'labyrinth' ),
-			)
-		);
 	}
 
 	/**

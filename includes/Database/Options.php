@@ -97,7 +97,6 @@ class Options {
 
 			// robots.txt.
 			'lby_robots_txt_enabled'     => true,
-			'lby_robots_sitemap_enabled' => false,
 		);
 	}
 
