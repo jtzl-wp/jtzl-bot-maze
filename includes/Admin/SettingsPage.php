@@ -534,7 +534,7 @@ class SettingsPage {
 			'lby_robots_settings',
 			array(
 				'label_for'   => 'lby_robots_txt_enabled',
-				'description' => __( 'Add Allow rules and a fake sitemap to robots.txt to lure bots into the labyrinth.', 'labyrinth' ),
+				'description' => __( 'Add a Disallow rule for the trap base path to keep compliant crawlers out of trap URLs.', 'labyrinth' ),
 			)
 		);
 

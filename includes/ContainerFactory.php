@@ -150,6 +150,16 @@ class ContainerFactory {
 					get( ContextInterface::class )
 				),
 
+			'Labyrinth\Service\RobotsTxtManager'      => function ( Container $c ) {
+				$home_path = (string) wp_parse_url( home_url( '/' ), PHP_URL_PATH );
+				$home_path = rtrim( $home_path, '/' );
+				return new Service\RobotsTxtManager(
+					$c->get( 'config.lby_robots_txt_enabled' ),
+					$c->get( 'config.lby_trap_base_path' ),
+					$home_path
+				);
+			},
+
 			'Labyrinth\Template\ContentPool'          => autowire(),
 
 			'Labyrinth\Service\ContentTemplateEngine' => autowire()

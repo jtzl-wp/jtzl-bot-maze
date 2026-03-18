@@ -63,6 +63,10 @@ class Bootstrap {
 			$wp->add_filter( 'query_vars', array( $router, 'register_query_vars' ) );
 			$wp->add_filter( 'template_include', array( $router, 'template_loader' ) );
 			$wp->add_action( 'template_redirect', array( $router, 'handle_request' ) );
+
+			// Initialize robots.txt manager (only when enabled — directives reference trap routes).
+			$robots = $this->container->get( 'Labyrinth\Service\RobotsTxtManager' );
+			$wp->add_filter( 'robots_txt', array( $robots, 'modify_robots_txt' ), 10, 2 );
 		}
 
 		// Initialize trap link injector (hidden links in content/footer).
