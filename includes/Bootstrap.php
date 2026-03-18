@@ -79,6 +79,78 @@ class Bootstrap {
 			}
 		);
 
+		// Initialize bot blocking.
+		$detector  = $this->container->get( 'Labyrinth\Service\BotDetector' );
+		$repo      = $this->container->get( 'Labyrinth\Repository\TrapPageRepositoryInterface' );
+		$generator = $this->container->get( 'Labyrinth\Service\TrapPageGenerator' );
+		$max_depth = $this->container->get( 'config.lby_max_depth' );
+		$base_path = $this->container->get( 'config.lby_trap_base_path' );
+
+		$wp->add_action(
+			'template_redirect',
+			function () use ( $detector, $repo, $generator, $max_depth, $base_path, $wp ) {
+				// Skip blocking entirely when the labyrinth is disabled.
+				if ( ! (bool) $wp->get_option( 'lby_enabled', true ) ) {
+					return;
+				}
+
+				// Allow admins to bypass blocking.
+				if ( $wp->current_user_can( 'manage_options' ) ) {
+					return;
+				}
+
+				if ( $detector->is_visitor_blocked() ) {
+					$behavior = $wp->get_option( 'lby_blocking_behavior', 'block' );
+
+					if ( 'tarpit' === $behavior ) {
+						// Delay to waste bot's time (1 second).
+						sleep( 1 );
+
+						// Get a random trap page to serve.
+						// Use random seed to confuse bot mapping.
+						$pages = $repo->get_random_active( 1, $wp->wp_rand() );
+						$page  = ! empty( $pages ) ? $pages[0] : null;
+
+						if ( $page ) {
+							// Set globals for the trap page template.
+							$GLOBALS['lby_trap_page'] = $page;
+							$children                 = $repo->get_children( $page->id );
+							if ( empty( $children ) && $page->depth_level < $max_depth ) {
+								$generator->generate_children_for( $page->id, $page->seed, $page->depth_level + 1 );
+								$children = $repo->get_children( $page->id );
+							}
+							$GLOBALS['lby_trap_children']  = $children;
+							$GLOBALS['lby_trap_base_path'] = $base_path;
+
+							// Force 200 OK status to keep them crawling.
+							$wp->status_header( 200 );
+
+							// Send noindex/nofollow to prevent indexing of this "page".
+							if ( ! $wp->headers_sent() ) {
+								$wp->header( 'X-Robots-Tag: noindex, nofollow', true );
+								$wp->header( 'Cache-Control: no-store, no-cache, must-revalidate, max-age=0', true );
+							}
+
+							// Load the trap page template and exit.
+							$wp->load_template( LABYRINTH_PLUGIN_DIR . 'templates/trap-page.php' );
+							// @codeCoverageIgnoreStart
+							exit;
+							// @codeCoverageIgnoreEnd
+						}
+					}
+
+					// Default 'block' behavior.
+					$wp->wp_die(
+						'<h1>' . esc_html__( 'Access Denied', 'labyrinth' ) . '</h1>' .
+						'<p>' . esc_html__( 'Your IP address has been blocked due to suspicious activity.', 'labyrinth' ) . '</p>',
+						esc_html__( 'Forbidden', 'labyrinth' ),
+						array( 'response' => 403 )
+					);
+				}
+			},
+			1
+		);
+
 		// Initialize admin pages.
 		if ( $wp->is_admin() ) {
 			$settings_page = new Admin\SettingsPage();

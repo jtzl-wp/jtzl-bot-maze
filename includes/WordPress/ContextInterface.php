@@ -108,6 +108,80 @@ interface ContextInterface {
 	public function clear_404(): void;
 
 	/**
+	 * Add a filter hook callback.
+	 *
+	 * @param string   $hook     Filter hook name.
+	 * @param callable $callback Callback function.
+	 * @param int      $priority Priority.
+	 * @param int      $args     Number of accepted arguments.
+	 * @return void
+	 */
+	public function add_filter( string $hook, callable $callback, int $priority = 10, int $args = 1 ): void;
+
+	/**
+	 * Check if current user has a capability.
+	 *
+	 * @param string $capability Capability name.
+	 * @return bool
+	 */
+	public function current_user_can( string $capability ): bool;
+
+	/**
+	 * Get an option value.
+	 *
+	 * @param string $option        Option name.
+	 * @param mixed  $default_value Default value.
+	 * @return mixed Option value.
+	 */
+	public function get_option( string $option, mixed $default_value = false ): mixed;
+
+	/**
+	 * Generate a random integer.
+	 *
+	 * @param int|null $min Minimum value.
+	 * @param int|null $max Maximum value.
+	 * @return int
+	 */
+	public function wp_rand( ?int $min = null, ?int $max = null ): int;
+
+	/**
+	 * Determine whether headers were already sent.
+	 *
+	 * @return bool
+	 */
+	public function headers_sent(): bool;
+
+	/**
+	 * Send a raw HTTP header.
+	 *
+	 * @param string $header        Header line.
+	 * @param bool   $replace       Replace previous header.
+	 * @param int    $response_code Optional response code.
+	 * @return void
+	 */
+	public function header( string $header, bool $replace = true, int $response_code = 0 ): void;
+
+	/**
+	 * Load a template file.
+	 *
+	 * @param string $template_file Path to template.
+	 * @param bool   $load_once     Whether to use require_once.
+	 * @param array  $args          Optional template args.
+	 * @return void
+	 */
+	public function load_template( string $template_file, bool $load_once = true, array $args = array() ): void;
+
+	/**
+	 * Terminate execution and display an error message.
+	 *
+	 * @param string           $message Error message.
+	 * @param string           $title   Error title.
+	 * @param array|int|string $args    Optional arguments.
+	 * @return void
+	 */
+	public function wp_die( string $message = '', string $title = '', array|int|string $args = array() ): void;
+
+	/**
 	 * Add an action hook callback.
 	 *
 	 * @param string   $hook     Action hook name.
@@ -124,15 +198,4 @@ interface ContextInterface {
 	 * @return string Plugin directory path with trailing slash.
 	 */
 	public function get_plugin_dir(): string;
-
-	/**
-	 * Register a filter hook callback.
-	 *
-	 * @param string   $hook     Filter hook name.
-	 * @param callable $callback Callback function.
-	 * @param int      $priority Priority.
-	 * @param int      $args     Number of accepted arguments.
-	 * @return void
-	 */
-	public function add_filter( string $hook, callable $callback, int $priority = 10, int $args = 1 ): void;
 }
