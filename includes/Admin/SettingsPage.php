@@ -166,6 +166,36 @@ class SettingsPage {
 			)
 		);
 
+		// Trusted proxy header.
+		register_setting(
+			self::SETTINGS_GROUP,
+			'lby_trusted_proxy_header',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => array( SettingsSanitizer::class, 'sanitize_trusted_proxy_header' ),
+				'default'           => '',
+			)
+		);
+
+		add_settings_field(
+			'lby_trusted_proxy_header',
+			__( 'Trusted Proxy Header', 'labyrinth' ),
+			array( $this, 'render_select_field' ),
+			self::PAGE_SLUG,
+			'lby_general_settings',
+			array(
+				'label_for'   => 'lby_trusted_proxy_header',
+				'description' => __( 'Only set this if your site is behind a reverse proxy or CDN. Incorrect configuration can allow IP spoofing.', 'labyrinth' ),
+				'options'     => array(
+					''                 => __( 'None (auto-detect)', 'labyrinth' ),
+					'CF-Connecting-IP' => __( 'Cloudflare', 'labyrinth' ),
+					'X-Real-IP'        => __( 'Nginx / Generic proxy', 'labyrinth' ),
+					'True-Client-IP'   => __( 'Akamai / Cloudflare Enterprise', 'labyrinth' ),
+					'X-Forwarded-For'  => __( 'Standard proxy (rightmost IP)', 'labyrinth' ),
+				),
+			)
+		);
+
 		// Trap base path.
 		register_setting(
 			self::SETTINGS_GROUP,
@@ -407,6 +437,33 @@ class SettingsPage {
 				'label_for'   => 'lby_block_threshold',
 				'description' => __( 'Score at which a visitor is automatically flagged as a bot. Lower = more aggressive.', 'labyrinth' ),
 				'min'         => 10,
+			)
+		);
+
+		// Blocking behavior.
+		register_setting(
+			self::SETTINGS_GROUP,
+			'lby_blocking_behavior',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => array( SettingsSanitizer::class, 'sanitize_blocking_behavior' ),
+				'default'           => 'block',
+			)
+		);
+
+		add_settings_field(
+			'lby_blocking_behavior',
+			__( 'Blocking Behavior', 'labyrinth' ),
+			array( $this, 'render_select_field' ),
+			self::PAGE_SLUG,
+			'lby_scoring_settings',
+			array(
+				'label_for'   => 'lby_blocking_behavior',
+				'description' => __( 'How to respond to blocked bots. <strong>Block</strong> returns 403 Forbidden. <strong>Tarpit</strong> delays the response and serves fake content — uses more server resources (one PHP worker per blocked request).', 'labyrinth' ),
+				'options'     => array(
+					'block'  => __( 'Block (403 Forbidden)', 'labyrinth' ),
+					'tarpit' => __( 'Tarpit (delay + fake content)', 'labyrinth' ),
+				),
 			)
 		);
 	}

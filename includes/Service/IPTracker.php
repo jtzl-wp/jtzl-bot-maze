@@ -23,15 +23,48 @@ if ( ! defined( 'ABSPATH' ) ) {
 class IPTracker implements IPTrackerInterface {
 
 	/**
+	 * Trusted proxy header name (e.g. 'CF-Connecting-IP').
+	 *
+	 * @var string
+	 */
+	private string $trusted_header;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param string $trusted_header Optional trusted proxy header name.
+	 */
+	public function __construct( string $trusted_header = '' ) {
+		$this->trusted_header = $trusted_header;
+	}
+
+	/**
 	 * Get the client's IP address.
 	 *
-	 * Prioritizes REMOTE_ADDR to prevent IP spoofing via headers.
-	 * Only falls back to proxy headers when REMOTE_ADDR is a private/local IP,
-	 * indicating a legitimate reverse proxy setup.
+	 * When a trusted proxy header is configured, reads the real client IP
+	 * from that header directly. Otherwise, prioritizes REMOTE_ADDR and
+	 * only falls back to proxy headers when REMOTE_ADDR is a private/local IP.
 	 *
 	 * @return string The client IP address.
 	 */
 	public function get_client_ip(): string {
+		// If a trusted proxy header is configured, use it directly.
+		if ( '' !== $this->trusted_header ) {
+			$server_key = 'HTTP_' . str_replace( '-', '_', strtoupper( $this->trusted_header ) );
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+			if ( ! empty( $_SERVER[ $server_key ] ) ) {
+				$ip = sanitize_text_field( wp_unslash( $_SERVER[ $server_key ] ) );
+				// For X-Forwarded-For style headers, take the rightmost IP.
+				if ( str_contains( $ip, ',' ) ) {
+					$parts = explode( ',', $ip );
+					$ip    = trim( end( $parts ) );
+				}
+				if ( filter_var( $ip, FILTER_VALIDATE_IP ) ) {
+					return $ip;
+				}
+			}
+		}
+
 		$ip = '';
 
 		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotValidated

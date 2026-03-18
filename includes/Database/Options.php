@@ -75,6 +75,7 @@ class Options {
 			// General.
 			'lby_enabled'                => true,
 			'lby_trap_base_path'         => 'lby',
+			'lby_trusted_proxy_header'   => '',
 
 			// Trap Links.
 			'lby_links_per_page'         => 3,
@@ -89,6 +90,7 @@ class Options {
 			'lby_points_per_visit'       => 25,
 			'lby_depth_bonus'            => 15,
 			'lby_block_threshold'        => 100,
+			'lby_blocking_behavior'      => 'block', // block, tarpit.
 
 			// Maintenance.
 			'lby_log_retention_days'     => 30,

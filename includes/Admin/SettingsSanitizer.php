@@ -94,6 +94,17 @@ class SettingsSanitizer {
 	}
 
 	/**
+	 * Sanitize the trusted proxy header.
+	 *
+	 * @param mixed $value The value to sanitize.
+	 * @return string The sanitized value.
+	 */
+	public static function sanitize_trusted_proxy_header( $value ): string {
+		$valid = array( '', 'CF-Connecting-IP', 'X-Real-IP', 'True-Client-IP', 'X-Forwarded-For' );
+		return in_array( $value, $valid, true ) ? $value : '';
+	}
+
+	/**
 	 * Sanitize the injection method.
 	 *
 	 * @param mixed $value The value to sanitize.
@@ -102,5 +113,16 @@ class SettingsSanitizer {
 	public static function sanitize_injection_method( $value ): string {
 		$valid = array( 'content', 'footer', 'both' );
 		return in_array( $value, $valid, true ) ? $value : 'content';
+	}
+
+	/**
+	 * Sanitize the blocking behavior.
+	 *
+	 * @param mixed $value The value to sanitize.
+	 * @return string The sanitized value.
+	 */
+	public static function sanitize_blocking_behavior( $value ): string {
+		$valid = array( 'block', 'tarpit' );
+		return in_array( $value, $valid, true ) ? $value : 'block';
 	}
 }

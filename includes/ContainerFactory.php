@@ -105,7 +105,10 @@ class ContainerFactory {
 				);
 			},
 
-			IPTrackerInterface::class                 => autowire( Service\IPTracker::class ),
+			IPTrackerInterface::class                 => function () {
+				$header = (string) get_option( 'lby_trusted_proxy_header', '' );
+				return new Service\IPTracker( $header );
+			},
 
 			DnsResolverInterface::class               => autowire( Service\DnsResolver::class ),
 			CrawlerVerifierInterface::class           => autowire( Service\CrawlerVerifier::class )
