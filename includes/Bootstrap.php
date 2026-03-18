@@ -209,8 +209,13 @@ class Bootstrap {
 
 		// Generate initial trap pages (only if enabled and below minimum).
 		if ( (bool) get_option( 'lby_enabled', true ) ) {
-			$generator = $this->container->get( 'Labyrinth\Service\TrapPageGenerator' );
-			$generator->ensure_minimum_pages();
+			try {
+				$generator = $this->container->get( 'Labyrinth\Service\TrapPageGenerator' );
+				$generator->ensure_minimum_pages();
+			} catch ( \Exception $e ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Error logging is appropriate here.
+				error_log( 'Labyrinth: Failed to generate initial trap pages: ' . $e->getMessage() );
+			}
 		}
 	}
 
