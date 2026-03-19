@@ -201,12 +201,16 @@ class BotDetector {
 			return false;
 		}
 
+		if ( ! $this->score_repo->is_blocked( $ip, $ua_hash ) ) {
+			return false;
+		}
+
 		$ua = $this->ip_tracker->get_user_agent();
 
 		if ( $this->crawler_verifier->is_verified_crawler( $ip, $ua ) ) {
 			return false;
 		}
 
-		return $this->score_repo->is_blocked( $ip, $ua_hash );
+		return true;
 	}
 }
