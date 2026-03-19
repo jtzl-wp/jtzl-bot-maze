@@ -179,19 +179,19 @@ class SettingsPage {
 
 		add_settings_field(
 			'lby_trusted_proxy_header',
-			__( 'Trusted Proxy Header', 'labyrinth' ),
+			__( 'Trusted Client IP Header', 'labyrinth' ),
 			array( $this, 'render_select_field' ),
 			self::PAGE_SLUG,
 			'lby_general_settings',
 			array(
 				'label_for'   => 'lby_trusted_proxy_header',
-				'description' => __( 'Only set this if your site is behind a reverse proxy or CDN. Incorrect configuration can allow IP spoofing.', 'labyrinth' ),
+				'description' => __( 'Trust this header as the real client IP only if your site is behind a reverse proxy or CDN that sets it. If you are unsure, leave this on None. Incorrect configuration can allow IP spoofing and affect blocking and analytics.', 'labyrinth' ),
 				'options'     => array(
-					''                 => __( 'None (auto-detect)', 'labyrinth' ),
-					'CF-Connecting-IP' => __( 'Cloudflare', 'labyrinth' ),
-					'X-Real-IP'        => __( 'Nginx / Generic proxy', 'labyrinth' ),
-					'True-Client-IP'   => __( 'Akamai / Cloudflare Enterprise', 'labyrinth' ),
-					'X-Forwarded-For'  => __( 'Standard proxy (rightmost IP)', 'labyrinth' ),
+					''                 => __( 'None (safe default)', 'labyrinth' ),
+					'CF-Connecting-IP' => __( 'Cloudflare (CF-Connecting-IP)', 'labyrinth' ),
+					'X-Real-IP'        => __( 'Nginx / Reverse proxy (X-Real-IP)', 'labyrinth' ),
+					'True-Client-IP'   => __( 'Enterprise CDN (True-Client-IP)', 'labyrinth' ),
+					'X-Forwarded-For'  => __( 'Advanced: X-Forwarded-For (rightmost IP)', 'labyrinth' ),
 				),
 			)
 		);
