@@ -1,0 +1,77 @@
+{
+	"name": "labyrinth-assets",
+	"version": "1.0.0",
+	"description": "Labyrinth plugin assets - JavaScript build system for admin analytics",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "bun run typecheck && bun run build:js && bun run build:css && bun run verify:build",
+		"build:js": "NODE_ENV=production bun run esbuild.config.js",
+		"build:css": "postcss src/styles/admin.css -o build/labyrinth-admin.css && bun run scripts/hash-assets.js",
+		"build:prod": "bun run build",
+		"verify:build": "bun run scripts/verify-build.js",
+		"typecheck": "tsc --noEmit",
+		"typecheck:watch": "tsc --noEmit --watch",
+		"dev": "bun run dev:js & bun run dev:css",
+		"dev:js": "NODE_ENV=development bun run -e \"const { startDevWatch } = require('./esbuild.config.js'); startDevWatch();\"",
+		"dev:css": "bun run scripts/css-watch.js",
+		"watch": "bun run dev",
+		"test": "vitest --run",
+		"test:watch": "vitest",
+		"test:coverage": "vitest --run --coverage",
+		"lint": "eslint src tests scripts --ext .js,.ts,.tsx",
+		"lint:fix": "eslint src tests scripts --ext .js,.ts,.tsx --fix",
+		"format": "prettier --write .",
+		"format:check": "prettier --check .",
+		"format:all": "prettier --write . && eslint . --ext .js,.ts,.tsx --fix",
+		"prepare": "husky"
+	},
+	"devDependencies": {
+		"@playwright/test": "^1.58.2",
+		"@testing-library/dom": "^10.4.0",
+		"@types/node": "^25.2.3",
+		"@typescript-eslint/eslint-plugin": "^8.0.0",
+		"@typescript-eslint/parser": "^8.0.0",
+		"@vitest/coverage-v8": "^2.1.9",
+		"@vitest/ui": "^2.1.8",
+		"@wordpress/eslint-plugin": "^17.12.0",
+		"@wordpress/prettier-config": "^3.5.0",
+		"autoprefixer": "^10.4.21",
+		"chokidar": "^4.0.3",
+		"cssnano": "^7.1.1",
+		"dotenv": "^17.2.4",
+		"esbuild": "^0.23.0",
+		"eslint": "^8.57.0",
+		"eslint-config-prettier": "^9.1.0",
+		"eslint-plugin-import": "^2.29.1",
+		"eslint-plugin-jsx-a11y": "^6.10.2",
+		"eslint-plugin-prettier": "^5.1.3",
+		"eslint-plugin-react": "^7.37.5",
+		"eslint-plugin-react-hooks": "^7.0.1",
+		"husky": "^9.1.7",
+		"jsdom": "^25.0.1",
+		"lint-staged": "^16.1.6",
+		"postcss": "^8.5.6",
+		"postcss-cli": "^11.0.0",
+		"postcss-import": "^16.1.1",
+		"prettier": "^3.3.3",
+		"typescript": "^5.9.3",
+		"vitest": "^2.1.8"
+	},
+	"engines": {
+		"node": "20.x",
+		"bun": ">=1.0.0"
+	},
+	"lint-staged": {
+		"*.{js,ts,tsx}": [
+			"eslint --cache --fix",
+			"prettier --write"
+		],
+		"*.{css,json,md,yml,yaml}": [
+			"prettier --write"
+		],
+		"*.php": [
+			"vendor/bin/phpcbf --standard=phpcs.xml.dist --report=summary --"
+		]
+	}
+}

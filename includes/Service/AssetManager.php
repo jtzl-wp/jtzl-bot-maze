@@ -143,7 +143,7 @@ class AssetManager {
 	 * @return void
 	 */
 	private function enqueue_admin_styles(): void {
-		$css_files = glob( $this->plugin_dir . 'build/admin.*.css' );
+		$css_files = glob( $this->plugin_dir . 'build/labyrinth-admin.*.css' );
 
 		if ( ! empty( $css_files ) ) {
 			$css_file = basename( $css_files[0] );
@@ -156,10 +156,10 @@ class AssetManager {
 			return;
 		}
 
-		if ( file_exists( $this->plugin_dir . 'build/admin.css' ) ) {
+		if ( file_exists( $this->plugin_dir . 'build/labyrinth-admin.css' ) ) {
 			wp_enqueue_style(
 				'lby-admin-style',
-				$this->plugin_url . 'build/admin.css',
+				$this->plugin_url . 'build/labyrinth-admin.css',
 				array(),
 				$this->version
 			);
