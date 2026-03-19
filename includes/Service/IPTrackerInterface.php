@@ -52,14 +52,14 @@ interface IPTrackerInterface {
 	public function get_user_agent(): string;
 
 	/**
-	 * Get the referrer URL.
+	 * Get the referrer URL without query parameters or fragments.
 	 *
 	 * @return string Referrer URL.
 	 */
 	public function get_referrer(): string;
 
 	/**
-	 * Get the current request URI.
+	 * Get the current request URI without query parameters or fragments.
 	 *
 	 * @return string Request URI.
 	 */

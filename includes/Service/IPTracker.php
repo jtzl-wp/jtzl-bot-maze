@@ -127,28 +127,28 @@ class IPTracker implements IPTrackerInterface {
 	}
 
 	/**
-	 * Get the referrer URL.
+	 * Get the referrer URL without query parameters.
 	 *
 	 * @return string Referrer URL.
 	 */
 	public function get_referrer(): string {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		if ( ! empty( $_SERVER['HTTP_REFERER'] ) ) {
-			return esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) );
+			return $this->strip_query_string( esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) );
 		}
 
 		return '';
 	}
 
 	/**
-	 * Get the current request URI.
+	 * Get the current request URI without query parameters.
 	 *
 	 * @return string Request URI.
 	 */
 	public function get_request_uri(): string {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		if ( ! empty( $_SERVER['REQUEST_URI'] ) ) {
-			return sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) );
+			return $this->strip_query_string( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) );
 		}
 
 		return '';
@@ -193,5 +193,15 @@ class IPTracker implements IPTrackerInterface {
 		// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 
 		return null;
+	}
+
+	/**
+	 * Strip query strings and fragments from a URL-like value.
+	 *
+	 * @param string $value URL or path value.
+	 * @return string Value without query strings or fragments.
+	 */
+	private function strip_query_string( string $value ): string {
+		return (string) strtok( $value, '?#' );
 	}
 }
