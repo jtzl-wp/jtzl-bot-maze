@@ -106,11 +106,15 @@ class Bootstrap {
 				}
 
 				if ( $detector->is_visitor_blocked() ) {
-					$behavior = $wp->get_option( 'lby_blocking_behavior', 'block' );
+					$behavior = $wp->get_option( 'lby_blocking_behavior', 'tarpit_light' );
+					$is_light = ( 'tarpit_light' === $behavior );
+					$is_full  = ( 'tarpit' === $behavior );
 
-					if ( 'tarpit' === $behavior ) {
-						// Delay to waste bot's time (1 second).
-						sleep( 1 );
+					if ( $is_light || $is_full ) {
+						// Full tarpit only: delay to waste bot wall-clock (ties up this PHP worker).
+						if ( $is_full ) {
+							sleep( 1 );
+						}
 
 						// Get a random trap page to serve.
 						// Use random seed to confuse bot mapping.
@@ -121,6 +125,7 @@ class Bootstrap {
 							// Set globals for the trap page template.
 							$GLOBALS['lby_trap_page'] = $page;
 							$children                 = $repo->get_children( $page->id );
+							// Match TrapRouter: lazy-generate children when empty so decoy pages keep outbound trap links.
 							if ( empty( $children ) && $page->depth_level < $max_depth ) {
 								$generator->generate_children_for( $page->id, $page->seed, $page->depth_level + 1 );
 								$children = $repo->get_children( $page->id );
@@ -137,7 +142,6 @@ class Bootstrap {
 								$wp->header( 'Cache-Control: no-store, no-cache, must-revalidate, max-age=0', true );
 							}
 
-							// Load the trap page template and exit.
 							$wp->load_template( LABYRINTH_PLUGIN_DIR . 'templates/trap-page.php' );
 							// @codeCoverageIgnoreStart
 							exit;

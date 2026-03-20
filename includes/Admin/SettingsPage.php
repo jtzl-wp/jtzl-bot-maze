@@ -459,7 +459,7 @@ class SettingsPage {
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => array( SettingsSanitizer::class, 'sanitize_blocking_behavior' ),
-				'default'           => 'block',
+				'default'           => 'tarpit_light',
 			)
 		);
 
@@ -471,10 +471,14 @@ class SettingsPage {
 			'lby_scoring_settings',
 			array(
 				'label_for'   => 'lby_blocking_behavior',
-				'description' => __( 'How to respond to blocked bots. <strong>Block</strong> returns 403 Forbidden. <strong>Tarpit</strong> delays the response and serves fake content — uses more server resources (one PHP worker per blocked request).', 'labyrinth' ),
+				'description' => __(
+					'How to respond after a visitor is already flagged as blocked. Every option still loads WordPress to run this check, so very high volumes of blocked traffic can stress PHP workers. Trap/tarpit responses use the same minimal HTML (no theme) as normal labyrinth pages. <strong>Block</strong> — HTTP 403 with a short message; lowest cost. <strong>Light tarpit</strong> (default) — HTTP 200 with trap links; if the random trap page has no child links yet, children are generated the same way as normal labyrinth URLs (bounded by Max Depth and Links per Trap Page). <strong>Full tarpit</strong> — same behavior plus a 1 second delay before the response; holds each PHP worker longer.',
+					'labyrinth'
+				),
 				'options'     => array(
-					'block'  => __( 'Block (403 Forbidden)', 'labyrinth' ),
-					'tarpit' => __( 'Tarpit (delay + fake content)', 'labyrinth' ),
+					'block'        => __( 'Block — 403 Forbidden (lowest server cost)', 'labyrinth' ),
+					'tarpit_light' => __( 'Light tarpit — decoy page, no delay (default)', 'labyrinth' ),
+					'tarpit'       => __( 'Full tarpit — 1s delay + same decoy page as light', 'labyrinth' ),
 				),
 			)
 		);
@@ -613,6 +617,7 @@ class SettingsPage {
 	 */
 	public function render_labyrinth_section_description(): void {
 		echo '<p>' . esc_html__( 'Configure the maze of trap pages that bots will be lured into.', 'labyrinth' ) . '</p>';
+		echo '<p>' . esc_html__( 'Trap URLs under your base path always render as lightweight standalone HTML without your theme (header, menus, and theme assets are not loaded). This applies to every labyrinth hit—not only blocked-visitor tarpit responses—and keeps server cost lower than a full themed page. Bots are still led by trap links and generated content; they do not see a pixel-perfect copy of your real posts.', 'labyrinth' ) . '</p>';
 	}
 
 	/**

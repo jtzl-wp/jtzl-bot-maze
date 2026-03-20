@@ -97,7 +97,7 @@ class Options {
 			'lby_points_per_visit'       => 25,
 			'lby_depth_bonus'            => 15,
 			'lby_block_threshold'        => 100,
-			'lby_blocking_behavior'      => 'block', // block, tarpit.
+			'lby_blocking_behavior'      => 'tarpit_light', // block, tarpit_light, tarpit (full).
 
 			// Maintenance.
 			'lby_log_retention_days'     => 30,

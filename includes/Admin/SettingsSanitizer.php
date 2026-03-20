@@ -133,7 +133,7 @@ class SettingsSanitizer {
 	 * @since 1.0.0
 	 */
 	public static function sanitize_blocking_behavior( $value ): string {
-		$valid = array( 'block', 'tarpit' );
-		return in_array( $value, $valid, true ) ? $value : 'block';
+		$valid = array( 'block', 'tarpit_light', 'tarpit' );
+		return in_array( $value, $valid, true ) ? $value : 'tarpit_light';
 	}
 }
