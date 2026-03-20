@@ -5,6 +5,7 @@
  * Static arrays of fake content components for trap page generation.
  *
  * @package Labyrinth
+ * @since 1.0.0
  */
 
 namespace Labyrinth\Template;
@@ -20,6 +21,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Provides static arrays of topics, adjectives, headings, paragraphs,
  * and template structures for generating realistic-looking trap page content.
+ *
+ * @since 1.0.0
  */
 class ContentPool {
 
@@ -27,6 +30,7 @@ class ContentPool {
 	 * Get topic nouns for page titles and content.
 	 *
 	 * @return string[]
+	 * @since 1.0.0
 	 */
 	public function get_topics(): array {
 		return array(
@@ -90,6 +94,7 @@ class ContentPool {
 	 * Get adjectives for title variation.
 	 *
 	 * @return string[]
+	 * @since 1.0.0
 	 */
 	public function get_adjectives(): array {
 		return array(
@@ -130,6 +135,7 @@ class ContentPool {
 	 * Get section headings for content structure.
 	 *
 	 * @return string[]
+	 * @since 1.0.0
 	 */
 	public function get_headings(): array {
 		return array(
@@ -190,6 +196,7 @@ class ContentPool {
 	 * Get filler paragraphs for content body.
 	 *
 	 * @return string[]
+	 * @since 1.0.0
 	 */
 	public function get_paragraphs(): array {
 		return array(
@@ -260,6 +267,7 @@ class ContentPool {
 	 * Get list item texts for ordered/unordered lists.
 	 *
 	 * @return string[]
+	 * @since 1.0.0
 	 */
 	public function get_list_items(): array {
 		return array(
@@ -303,6 +311,7 @@ class ContentPool {
 	 * - 'ol'       => ordered list
 	 *
 	 * @return array[]
+	 * @since 1.0.0
 	 */
 	public function get_templates(): array {
 		return array(

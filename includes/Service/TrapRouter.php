@@ -5,6 +5,7 @@
  * Handles URL routing for trap pages via WordPress rewrite rules.
  *
  * @package Labyrinth
+ * @since 1.0.0
  */
 
 namespace Labyrinth\Service;
@@ -23,6 +24,8 @@ use Labyrinth\WordPress\ContextInterface;
  * Trap Router
  *
  * Registers rewrite rules, query vars, and handles trap page serving.
+ *
+ * @since 1.0.0
  */
 class TrapRouter {
 
@@ -30,6 +33,7 @@ class TrapRouter {
 	 * Trap page repository.
 	 *
 	 * @var TrapPageRepositoryInterface
+	 * @since 1.0.0
 	 */
 	private TrapPageRepositoryInterface $repository;
 
@@ -37,6 +41,7 @@ class TrapRouter {
 	 * Bot detector service.
 	 *
 	 * @var BotDetector
+	 * @since 1.0.0
 	 */
 	private BotDetector $bot_detector;
 
@@ -44,6 +49,7 @@ class TrapRouter {
 	 * Trap page generator for lazy child generation.
 	 *
 	 * @var TrapPageGenerator
+	 * @since 1.0.0
 	 */
 	private TrapPageGenerator $generator;
 
@@ -51,6 +57,7 @@ class TrapRouter {
 	 * Base path for trap URLs.
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	private string $base_path;
 
@@ -58,6 +65,7 @@ class TrapRouter {
 	 * Maximum labyrinth depth.
 	 *
 	 * @var int
+	 * @since 1.0.0
 	 */
 	private int $max_depth;
 
@@ -65,6 +73,7 @@ class TrapRouter {
 	 * WordPress context facade.
 	 *
 	 * @var ContextInterface
+	 * @since 1.0.0
 	 */
 	private ContextInterface $wp;
 
@@ -77,6 +86,7 @@ class TrapRouter {
 	 * @param string                      $base_path    URL base path for trap pages.
 	 * @param int                         $max_depth    Maximum labyrinth depth.
 	 * @param ContextInterface            $wp           WordPress context facade.
+	 * @since 1.0.0
 	 */
 	public function __construct(
 		TrapPageRepositoryInterface $repository,
@@ -98,6 +108,7 @@ class TrapRouter {
 	 * Register custom rewrite rules.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function register_rewrite_rules(): void {
 		$this->wp->add_rewrite_rule(
@@ -112,6 +123,7 @@ class TrapRouter {
 	 *
 	 * @param array $vars Existing query variables.
 	 * @return array Modified query variables.
+	 * @since 1.0.0
 	 */
 	public function register_query_vars( array $vars ): array {
 		$vars[] = 'lby_view';
@@ -125,6 +137,7 @@ class TrapRouter {
 	 * Records visits and serves appropriate responses.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function handle_request(): void {
 		$view = $this->wp->get_query_var( 'lby_view', '' );
@@ -177,6 +190,7 @@ class TrapRouter {
 	 *
 	 * @param string $template The path of the template to include.
 	 * @return string Modified template path.
+	 * @since 1.0.0
 	 */
 	public function template_loader( string $template ): string {
 		$view = $this->wp->get_query_var( 'lby_view', '' );

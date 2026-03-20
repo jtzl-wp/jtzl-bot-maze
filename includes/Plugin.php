@@ -5,6 +5,7 @@
  * Handles plugin initialization, dependency injection, and WordPress integration.
  *
  * @package Labyrinth
+ * @since 1.0.0
  */
 
 namespace Labyrinth;
@@ -21,6 +22,8 @@ use DI\Container;
  * Main Plugin Class
  *
  * Handles plugin initialization, dependency injection, and WordPress integration.
+ *
+ * @since 1.0.0
  */
 class Plugin {
 
@@ -28,6 +31,7 @@ class Plugin {
 	 * The dependency injection container instance.
 	 *
 	 * @var Container|null
+	 * @since 1.0.0
 	 */
 	private static $container = null;
 
@@ -35,6 +39,7 @@ class Plugin {
 	 * Get the dependency injection container.
 	 *
 	 * @return Container The container instance.
+	 * @since 1.0.0
 	 */
 	public static function get_container(): Container {
 		if ( null === self::$container ) {
@@ -48,6 +53,7 @@ class Plugin {
 	 * Reset the container instance (for testing purposes).
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public static function reset_container(): void {
 		self::$container = null;
@@ -58,6 +64,7 @@ class Plugin {
 	 *
 	 * @param Container $container The container instance.
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public static function set_container( Container $container ): void {
 		self::$container = $container;

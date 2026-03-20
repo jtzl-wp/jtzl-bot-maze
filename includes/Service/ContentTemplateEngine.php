@@ -5,6 +5,7 @@
  * Generates deterministic fake content from templates and seeds.
  *
  * @package Labyrinth
+ * @since 1.0.0
  */
 
 namespace Labyrinth\Service;
@@ -22,6 +23,8 @@ use Labyrinth\Template\ContentPool;
  *
  * Selects templates and fills them with content using seed-based
  * deterministic randomization. Same seed always produces same output.
+ *
+ * @since 1.0.0
  */
 class ContentTemplateEngine {
 
@@ -29,6 +32,7 @@ class ContentTemplateEngine {
 	 * Content pool instance.
 	 *
 	 * @var ContentPool
+	 * @since 1.0.0
 	 */
 	private ContentPool $pool;
 
@@ -36,6 +40,7 @@ class ContentTemplateEngine {
 	 * Constructor.
 	 *
 	 * @param ContentPool $pool Content data pool.
+	 * @since 1.0.0
 	 */
 	public function __construct( ContentPool $pool ) {
 		$this->pool = $pool;
@@ -46,6 +51,7 @@ class ContentTemplateEngine {
 	 *
 	 * @param string $seed Randomization seed.
 	 * @return string Generated title.
+	 * @since 1.0.0
 	 */
 	public function generate_title( string $seed ): string {
 		$this->seed_random( $seed . '_title' );
@@ -77,6 +83,7 @@ class ContentTemplateEngine {
 	 *
 	 * @param string $seed Randomization seed.
 	 * @return string Generated slug (max 64 chars).
+	 * @since 1.0.0
 	 */
 	public function generate_slug( string $seed ): string {
 		$title = $this->generate_title( $seed );
@@ -94,6 +101,7 @@ class ContentTemplateEngine {
 	 *
 	 * @param string $seed Randomization seed.
 	 * @return string Generated HTML content (500-2000 words).
+	 * @since 1.0.0
 	 */
 	public function generate_content( string $seed ): string {
 		$this->seed_random( $seed . '_content' );
@@ -167,6 +175,7 @@ class ContentTemplateEngine {
 	 *
 	 * @param string $seed Randomization seed.
 	 * @return string Template identifier.
+	 * @since 1.0.0
 	 */
 	public function generate_template_id( string $seed ): string {
 		$this->seed_random( $seed . '_content' );
@@ -182,6 +191,7 @@ class ContentTemplateEngine {
 	 *
 	 * @param string $seed Seed string.
 	 * @return void
+	 * @since 1.0.0
 	 */
 	private function seed_random( string $seed ): void {
 		mt_srand( crc32( $seed ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_seeding_mt_srand
@@ -192,6 +202,7 @@ class ContentTemplateEngine {
 	 *
 	 * @param array $items Array to shuffle (modified in place).
 	 * @return void
+	 * @since 1.0.0
 	 */
 	private function deterministic_shuffle( array &$items ): void {
 		$count = count( $items );

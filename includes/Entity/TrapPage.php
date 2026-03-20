@@ -3,6 +3,7 @@
  * Trap Page Entity
  *
  * @package Labyrinth
+ * @since 1.0.0
  */
 
 namespace Labyrinth\Entity;
@@ -19,6 +20,8 @@ use DateTime;
  * Trap Page Entity
  *
  * Represents a virtual trap page in the labyrinth.
+ *
+ * @since 1.0.0
  */
 class TrapPage {
 
@@ -26,6 +29,7 @@ class TrapPage {
 	 * Page ID.
 	 *
 	 * @var int
+	 * @since 1.0.0
 	 */
 	public int $id;
 
@@ -33,6 +37,7 @@ class TrapPage {
 	 * URL slug.
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	public string $slug;
 
@@ -40,6 +45,7 @@ class TrapPage {
 	 * Page title.
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	public string $title;
 
@@ -47,6 +53,7 @@ class TrapPage {
 	 * Pre-generated HTML content.
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	public string $content;
 
@@ -54,6 +61,7 @@ class TrapPage {
 	 * Template ID that produced this page.
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	public string $template_id;
 
@@ -61,6 +69,7 @@ class TrapPage {
 	 * Depth level (1 = entry, 2+ = deeper).
 	 *
 	 * @var int
+	 * @since 1.0.0
 	 */
 	public int $depth_level;
 
@@ -68,6 +77,7 @@ class TrapPage {
 	 * Parent trap page ID.
 	 *
 	 * @var int|null
+	 * @since 1.0.0
 	 */
 	public ?int $parent_page_id;
 
@@ -75,6 +85,7 @@ class TrapPage {
 	 * Randomization seed.
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	public string $seed;
 
@@ -82,6 +93,7 @@ class TrapPage {
 	 * Status (active/inactive).
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	public string $status;
 
@@ -89,6 +101,7 @@ class TrapPage {
 	 * Created timestamp.
 	 *
 	 * @var DateTime
+	 * @since 1.0.0
 	 */
 	public DateTime $created_at;
 
@@ -96,6 +109,7 @@ class TrapPage {
 	 * Updated timestamp.
 	 *
 	 * @var DateTime
+	 * @since 1.0.0
 	 */
 	public DateTime $updated_at;
 
@@ -113,6 +127,7 @@ class TrapPage {
 	 * @param string   $status         Status.
 	 * @param DateTime $created_at     Created timestamp.
 	 * @param DateTime $updated_at     Updated timestamp.
+	 * @since 1.0.0
 	 */
 	public function __construct(
 		int $id,

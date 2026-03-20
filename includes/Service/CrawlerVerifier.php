@@ -5,6 +5,7 @@
  * Verifies legitimate search engine crawlers using forward-confirmed reverse DNS.
  *
  * @package Labyrinth
+ * @since 1.0.0
  */
 
 namespace Labyrinth\Service;
@@ -20,6 +21,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Uses forward-confirmed reverse DNS to verify Googlebot and Bingbot.
  * Results are cached via WordPress transients to minimize DNS lookups.
+ *
+ * @since 1.0.0
  */
 class CrawlerVerifier implements CrawlerVerifierInterface {
 
@@ -27,6 +30,7 @@ class CrawlerVerifier implements CrawlerVerifierInterface {
 	 * Cache TTL for verified crawlers (24 hours).
 	 *
 	 * @var int
+	 * @since 1.0.0
 	 */
 	private const VERIFIED_TTL = 86400;
 
@@ -34,6 +38,7 @@ class CrawlerVerifier implements CrawlerVerifierInterface {
 	 * Cache TTL for non-verified lookups (1 hour).
 	 *
 	 * @var int
+	 * @since 1.0.0
 	 */
 	private const DENIED_TTL = 3600;
 
@@ -41,6 +46,7 @@ class CrawlerVerifier implements CrawlerVerifierInterface {
 	 * User agent patterns that trigger DNS verification, grouped by crawler family.
 	 *
 	 * @var array<string, array<string>>
+	 * @since 1.0.0
 	 */
 	private const UA_PATTERNS = array(
 		'google' => array( 'googlebot', 'google-inspectiontool', 'storebot-google', 'googleother' ),
@@ -51,6 +57,7 @@ class CrawlerVerifier implements CrawlerVerifierInterface {
 	 * Valid hostname suffixes per crawler family.
 	 *
 	 * @var array<string, array<string>>
+	 * @since 1.0.0
 	 */
 	private const HOSTNAME_SUFFIXES = array(
 		'google' => array( '.googlebot.com', '.google.com' ),
@@ -61,6 +68,7 @@ class CrawlerVerifier implements CrawlerVerifierInterface {
 	 * DNS resolver instance.
 	 *
 	 * @var DnsResolverInterface
+	 * @since 1.0.0
 	 */
 	private DnsResolverInterface $dns_resolver;
 
@@ -68,6 +76,7 @@ class CrawlerVerifier implements CrawlerVerifierInterface {
 	 * Constructor.
 	 *
 	 * @param DnsResolverInterface $dns_resolver DNS resolver implementation.
+	 * @since 1.0.0
 	 */
 	public function __construct( DnsResolverInterface $dns_resolver ) {
 		$this->dns_resolver = $dns_resolver;
@@ -79,6 +88,7 @@ class CrawlerVerifier implements CrawlerVerifierInterface {
 	 * @param string $ip         The client IP address.
 	 * @param string $user_agent The user agent string.
 	 * @return bool True if the visitor is a verified crawler.
+	 * @since 1.0.0
 	 */
 	public function is_verified_crawler( string $ip, string $user_agent ): bool {
 		if ( '' === $ip || '' === $user_agent ) {
@@ -110,6 +120,7 @@ class CrawlerVerifier implements CrawlerVerifierInterface {
 	 *
 	 * @param string $user_agent The user agent string.
 	 * @return string|null The crawler family key, or null if no match.
+	 * @since 1.0.0
 	 */
 	private function detect_crawler_family( string $user_agent ): ?string {
 		$ua_lower = strtolower( $user_agent );
@@ -131,6 +142,7 @@ class CrawlerVerifier implements CrawlerVerifierInterface {
 	 * @param string $ip             The IP address to verify.
 	 * @param string $crawler_family The crawler family key.
 	 * @return bool True if verified.
+	 * @since 1.0.0
 	 */
 	private function verify_via_dns( string $ip, string $crawler_family ): bool {
 		$hostname = $this->dns_resolver->reverse_lookup( $ip );

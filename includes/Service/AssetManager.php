@@ -5,6 +5,7 @@
  * Centralizes admin asset enqueuing logic with manifest-based content-hashed loading.
  *
  * @package Labyrinth
+ * @since 1.0.0
  */
 
 namespace Labyrinth\Service;
@@ -19,6 +20,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Asset Manager
  *
  * Manages enqueuing of admin assets with content-hashed filenames.
+ *
+ * @since 1.0.0
  */
 class AssetManager {
 
@@ -26,6 +29,7 @@ class AssetManager {
 	 * Plugin directory path.
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	private string $plugin_dir;
 
@@ -33,6 +37,7 @@ class AssetManager {
 	 * Plugin URL.
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	private string $plugin_url;
 
@@ -40,6 +45,7 @@ class AssetManager {
 	 * Plugin version.
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	private string $version;
 
@@ -47,6 +53,7 @@ class AssetManager {
 	 * Whether admin assets have already been enqueued.
 	 *
 	 * @var bool
+	 * @since 1.0.0
 	 */
 	private bool $assets_enqueued = false;
 
@@ -56,6 +63,7 @@ class AssetManager {
 	 * @param string $plugin_dir Plugin directory path.
 	 * @param string $plugin_url Plugin URL.
 	 * @param string $version    Plugin version.
+	 * @since 1.0.0
 	 */
 	public function __construct( string $plugin_dir, string $plugin_url, string $version ) {
 		$this->plugin_dir = $plugin_dir;
@@ -69,6 +77,7 @@ class AssetManager {
 	 * This method is idempotent - calling it multiple times will only enqueue assets once.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function enqueue_admin_assets(): void {
 		if ( $this->assets_enqueued ) {
@@ -85,6 +94,7 @@ class AssetManager {
 	 * Enqueue admin JavaScript from manifest.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	private function enqueue_admin_script(): void {
 		$manifest_path = $this->plugin_dir . 'build/asset-manifest.json';
@@ -126,6 +136,7 @@ class AssetManager {
 	 * @param string $tag    The script tag HTML.
 	 * @param string $handle The script handle.
 	 * @return string Modified script tag.
+	 * @since 1.0.0
 	 */
 	public function add_module_type_attribute( string $tag, string $handle ): string {
 		if ( 'lby-admin-analytics' === $handle ) {
@@ -141,6 +152,7 @@ class AssetManager {
 	 * Tries hashed version first, then falls back to non-hashed version.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	private function enqueue_admin_styles(): void {
 		$css_files = glob( $this->plugin_dir . 'build/labyrinth-admin.*.css' );

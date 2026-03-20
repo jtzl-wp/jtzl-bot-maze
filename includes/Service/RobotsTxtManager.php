@@ -5,6 +5,7 @@
  * Modifies robots.txt to prevent good bots from wasting crawl budget.
  *
  * @package Labyrinth
+ * @since 1.0.0
  */
 
 namespace Labyrinth\Service;
@@ -20,6 +21,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Adds Disallow rules to robots.txt to prevent good bots from
  * crawling the trap pages, saving crawl budget.
+ *
+ * @since 1.0.0
  */
 class RobotsTxtManager {
 
@@ -27,6 +30,7 @@ class RobotsTxtManager {
 	 * Whether robots.txt modifications are enabled.
 	 *
 	 * @var bool
+	 * @since 1.0.0
 	 */
 	private bool $enabled;
 
@@ -34,6 +38,7 @@ class RobotsTxtManager {
 	 * Base path for trap URLs.
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	private string $base_path;
 
@@ -41,6 +46,7 @@ class RobotsTxtManager {
 	 * Home URL path prefix (e.g. '/blog' for subdirectory installs, '' for root).
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	private string $home_path;
 
@@ -50,6 +56,7 @@ class RobotsTxtManager {
 	 * @param bool   $enabled   Whether modifications are enabled.
 	 * @param string $base_path URL base path.
 	 * @param string $home_path Home URL path prefix.
+	 * @since 1.0.0
 	 */
 	public function __construct( bool $enabled, string $base_path, string $home_path = '' ) {
 		$this->enabled   = $enabled;
@@ -66,6 +73,7 @@ class RobotsTxtManager {
 	 * @param string $output   Existing robots.txt content.
 	 * @param bool   $is_public Whether the site is public.
 	 * @return string Modified robots.txt content.
+	 * @since 1.0.0
 	 */
 	public function modify_robots_txt( string $output, bool $is_public ): string {
 		if ( ! $this->enabled || ! $is_public ) {

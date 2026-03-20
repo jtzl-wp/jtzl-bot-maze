@@ -3,6 +3,7 @@
  * Bot Score Repository
  *
  * @package Labyrinth
+ * @since 1.0.0
  */
 
 namespace Labyrinth\Repository;
@@ -20,6 +21,8 @@ use Labyrinth\Entity\BotScore;
  * Bot Score Repository
  *
  * Handles database operations for bot score entities.
+ *
+ * @since 1.0.0
  */
 class BotScoreRepository implements BotScoreRepositoryInterface {
 
@@ -27,6 +30,7 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 	 * WordPress database instance.
 	 *
 	 * @var \wpdb
+	 * @since 1.0.0
 	 */
 	private \wpdb $wpdb;
 
@@ -34,6 +38,7 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 	 * Table name.
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	private string $table_name;
 
@@ -41,6 +46,7 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 	 * Constructor.
 	 *
 	 * @param \wpdb $wpdb WordPress database object.
+	 * @since 1.0.0
 	 */
 	public function __construct( \wpdb $wpdb ) {
 		$this->wpdb       = $wpdb;
@@ -53,6 +59,7 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 	 * @param string $ip_address      Visitor IP.
 	 * @param string $user_agent_hash SHA256-truncated UA hash.
 	 * @return BotScore|null The bot score entity.
+	 * @since 1.0.0
 	 */
 	public function find_or_create( string $ip_address, string $user_agent_hash ): ?BotScore {
 		$existing = $this->find_by_identity( $ip_address, $user_agent_hash );
@@ -92,6 +99,7 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 	 * @param string $ip_address      Visitor IP.
 	 * @param string $user_agent_hash UA hash.
 	 * @return BotScore|null The bot score entity or null.
+	 * @since 1.0.0
 	 */
 	public function find_by_identity( string $ip_address, string $user_agent_hash ): ?BotScore {
 		$query = $this->wpdb->prepare(
@@ -114,6 +122,7 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 	 *
 	 * @param int $id Score ID.
 	 * @return BotScore|null The bot score entity or null.
+	 * @since 1.0.0
 	 */
 	public function find_by_id( int $id ): ?BotScore {
 		$query = $this->wpdb->prepare(
@@ -141,6 +150,7 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 	 * @param int   $depth_reached   Depth reached in this visit.
 	 * @param int   $block_threshold Score threshold for auto-blocking (0 = no auto-block).
 	 * @return bool True on success.
+	 * @since 1.0.0
 	 */
 	public function update_score( int $id, float $points_to_add, int $depth_reached, int $block_threshold = 0 ): bool {
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -167,6 +177,7 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 	 * @param string $ip_address      Visitor IP.
 	 * @param string $user_agent_hash UA hash.
 	 * @return bool True if blocked.
+	 * @since 1.0.0
 	 */
 	public function is_blocked( string $ip_address, string $user_agent_hash ): bool {
 		$query = $this->wpdb->prepare(
@@ -185,6 +196,7 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 	 *
 	 * @param int $limit Number of results.
 	 * @return BotScore[] Array of bot score entities.
+	 * @since 1.0.0
 	 */
 	public function get_top_by_score( int $limit = 10 ): array {
 		$query = $this->wpdb->prepare(
@@ -205,6 +217,7 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 	 * Count total unique bot identities.
 	 *
 	 * @return int Total count.
+	 * @since 1.0.0
 	 */
 	public function count_total(): int {
 		$query = "SELECT COUNT(*) FROM {$this->table_name}"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -216,6 +229,7 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 	 * Count blocked bots.
 	 *
 	 * @return int Blocked count.
+	 * @since 1.0.0
 	 */
 	public function count_blocked(): int {
 		$query = "SELECT COUNT(*) FROM {$this->table_name} WHERE is_blocked = 1"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -228,6 +242,7 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 	 *
 	 * @param array $row Database row.
 	 * @return BotScore Bot score entity.
+	 * @since 1.0.0
 	 */
 	private function hydrate( array $row ): BotScore {
 		return new BotScore(

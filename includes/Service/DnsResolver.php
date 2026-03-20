@@ -5,6 +5,7 @@
  * Production DNS resolver using PHP's built-in functions.
  *
  * @package Labyrinth
+ * @since 1.0.0
  */
 
 namespace Labyrinth\Service;
@@ -19,6 +20,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * DNS Resolver
  *
  * Wraps PHP DNS functions for production use.
+ *
+ * @since 1.0.0
  */
 class DnsResolver implements DnsResolverInterface {
 
@@ -27,6 +30,7 @@ class DnsResolver implements DnsResolverInterface {
 	 *
 	 * @param string $ip The IP address.
 	 * @return string The hostname, or the original IP on failure.
+	 * @since 1.0.0
 	 */
 	public function reverse_lookup( string $ip ): string {
 		$hostname = $this->native_reverse_lookup( $ip );
@@ -38,6 +42,7 @@ class DnsResolver implements DnsResolverInterface {
 	 *
 	 * @param string $hostname The hostname to resolve.
 	 * @return string[] List of resolved IP addresses.
+	 * @since 1.0.0
 	 */
 	public function forward_lookup( string $hostname ): array {
 		$ips = array();
@@ -70,6 +75,7 @@ class DnsResolver implements DnsResolverInterface {
 	 *
 	 * @param string $ip The IP address.
 	 * @return string|false Hostname on success, false on failure.
+	 * @since 1.0.0
 	 */
 	protected function native_reverse_lookup( string $ip ): string|false {
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- DNS functions emit E_WARNING on network failures.
@@ -81,6 +87,7 @@ class DnsResolver implements DnsResolverInterface {
 	 *
 	 * @param string $hostname The hostname.
 	 * @return array|false DNS records or false on failure.
+	 * @since 1.0.0
 	 */
 	protected function native_a_records( string $hostname ): array|false {
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- DNS functions emit E_WARNING on network failures.
@@ -92,6 +99,7 @@ class DnsResolver implements DnsResolverInterface {
 	 *
 	 * @param string $hostname The hostname.
 	 * @return array|false DNS records or false on failure.
+	 * @since 1.0.0
 	 */
 	protected function native_aaaa_records( string $hostname ): array|false {
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- DNS functions emit E_WARNING on network failures.

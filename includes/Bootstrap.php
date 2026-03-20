@@ -5,6 +5,7 @@
  * Encapsulates plugin initialization, hook registration, and lifecycle logic.
  *
  * @package Labyrinth
+ * @since 1.0.0
  */
 
 namespace Labyrinth;
@@ -24,6 +25,8 @@ use Labyrinth\WordPress\ContextInterface;
  * Encapsulates plugin initialization, hook registration, and lifecycle logic.
  * Receives the DI container via constructor injection, except for static
  * utility methods that must work without a container (e.g. uninstall).
+ *
+ * @since 1.0.0
  */
 class Bootstrap {
 
@@ -31,6 +34,7 @@ class Bootstrap {
 	 * The dependency injection container.
 	 *
 	 * @var Container
+	 * @since 1.0.0
 	 */
 	private Container $container;
 
@@ -38,6 +42,7 @@ class Bootstrap {
 	 * Constructor.
 	 *
 	 * @param Container $container The DI container instance.
+	 * @since 1.0.0
 	 */
 	public function __construct( Container $container ) {
 		$this->container = $container;
@@ -47,6 +52,7 @@ class Bootstrap {
 	 * Register all plugin hooks with WordPress.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function register_hooks(): void {
 		$wp = $this->container->get( ContextInterface::class );
@@ -171,6 +177,7 @@ class Bootstrap {
 	 *
 	 * @param string $hook_suffix The current admin page hook suffix.
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function enqueue_admin_assets( string $hook_suffix ): void {
 		if ( 'labyrinth_page_labyrinth-analytics' !== $hook_suffix ) {
@@ -187,6 +194,7 @@ class Bootstrap {
 	 * and generates initial trap pages.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function activate(): void {
 		// Create database tables.
@@ -225,6 +233,7 @@ class Bootstrap {
 	 * Clears transient caches, DI cache, rewrite rules, and cron events.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function deactivate(): void {
 		// Clear all plugin transient caches.
@@ -249,6 +258,7 @@ class Bootstrap {
 	 * Nonce and capability checks are performed by the caller.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function handle_regenerate_ajax(): void {
 		try {
@@ -283,6 +293,7 @@ class Bootstrap {
 	 * Nonce and capability checks are performed by the caller.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function handle_refresh_analytics_ajax(): void {
 		try {
@@ -314,6 +325,7 @@ class Bootstrap {
 	 * Prunes old request logs and ensures minimum trap pages exist.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function handle_maintenance_cron(): void {
 		try {
@@ -337,6 +349,7 @@ class Bootstrap {
 	 * Flush rewrite rules if the activation flag is set.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function maybe_flush_rewrite_rules(): void {
 		if ( get_option( 'lby_flush_rewrite_rules_flag' ) ) {
@@ -351,6 +364,7 @@ class Bootstrap {
 	 * This is static because it must run before the container is built.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public static function maybe_handle_version_change(): void {
 		$stored_version = (string) get_option( 'lby_plugin_version', '' );
@@ -367,6 +381,7 @@ class Bootstrap {
 	 * Static because it is also called from uninstall.php without a container.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public static function clear_transients(): void {
 		global $wpdb;
@@ -389,6 +404,7 @@ class Bootstrap {
 	 *
 	 * @param string|null $base_dir Plugin base directory. Defaults to LABYRINTH_PLUGIN_DIR.
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public static function clear_di_cache( ?string $base_dir = null ): void {
 		$base_dir   = $base_dir ?? LABYRINTH_PLUGIN_DIR;

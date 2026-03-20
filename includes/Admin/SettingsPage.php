@@ -5,6 +5,7 @@
  * Handles the plugin settings page in WordPress admin.
  *
  * @package Labyrinth
+ * @since 1.0.0
  */
 
 namespace Labyrinth\Admin;
@@ -19,6 +20,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Settings Page Class
  *
  * Manages the admin settings interface for configuring plugin behavior.
+ *
+ * @since 1.0.0
  */
 class SettingsPage {
 
@@ -26,6 +29,7 @@ class SettingsPage {
 	 * The settings page slug.
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	private const PAGE_SLUG = 'labyrinth';
 
@@ -33,6 +37,7 @@ class SettingsPage {
 	 * The settings group name.
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	private const SETTINGS_GROUP = 'lby_settings';
 
@@ -40,6 +45,7 @@ class SettingsPage {
 	 * Initialize the settings page.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function init(): void {
 		add_action( 'admin_menu', array( $this, 'register_menu' ) );
@@ -50,6 +56,7 @@ class SettingsPage {
 	 * Register the settings page in the WordPress admin menu.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function register_menu(): void {
 		// Add top-level menu.
@@ -78,6 +85,7 @@ class SettingsPage {
 	 * Register all plugin settings with WordPress Settings API.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function register_settings(): void {
 		// Section 1: General.
@@ -88,7 +96,7 @@ class SettingsPage {
 			self::PAGE_SLUG
 		);
 
-		// Section 2: Trap Links.
+		// Section 2: TrapLinks.
 		add_settings_section(
 			'lby_trap_link_settings',
 			__( 'Trap Links', 'labyrinth' ),
@@ -141,6 +149,7 @@ class SettingsPage {
 	 * Register general settings fields.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	private function register_general_fields(): void {
 		// Enable/disable plugin.
@@ -224,6 +233,7 @@ class SettingsPage {
 	 * Register trap link settings fields.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	private function register_trap_link_fields(): void {
 		// Links per real page.
@@ -284,6 +294,7 @@ class SettingsPage {
 	 * Register labyrinth settings fields.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	private function register_labyrinth_fields(): void {
 		// Max depth.
@@ -366,6 +377,7 @@ class SettingsPage {
 	 * Register bot scoring settings fields.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	private function register_scoring_fields(): void {
 		// Points per visit.
@@ -472,6 +484,7 @@ class SettingsPage {
 	 * Register maintenance settings fields.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	private function register_maintenance_fields(): void {
 		// Log retention days.
@@ -513,6 +526,7 @@ class SettingsPage {
 	 * Register robots.txt settings fields.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	private function register_robots_fields(): void {
 		// Enable robots.txt modifications.
@@ -543,6 +557,7 @@ class SettingsPage {
 	 * Render the settings page.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function render_page(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -574,6 +589,7 @@ class SettingsPage {
 	 * Render general section description.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function render_general_section_description(): void {
 		echo '<p>' . esc_html__( 'Enable or disable the plugin and configure the base URL path for trap pages.', 'labyrinth' ) . '</p>';
@@ -583,6 +599,7 @@ class SettingsPage {
 	 * Render trap link section description.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function render_trap_link_section_description(): void {
 		echo '<p>' . esc_html__( 'Configure how hidden trap links are injected into your real pages.', 'labyrinth' ) . '</p>';
@@ -592,6 +609,7 @@ class SettingsPage {
 	 * Render labyrinth section description.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function render_labyrinth_section_description(): void {
 		echo '<p>' . esc_html__( 'Configure the maze of trap pages that bots will be lured into.', 'labyrinth' ) . '</p>';
@@ -601,6 +619,7 @@ class SettingsPage {
 	 * Render scoring section description.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function render_scoring_section_description(): void {
 		echo '<p>' . esc_html__( 'Configure the scoring algorithm that determines when a visitor is flagged as a bot.', 'labyrinth' ) . '</p>';
@@ -610,6 +629,7 @@ class SettingsPage {
 	 * Render maintenance section description.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function render_maintenance_section_description(): void {
 		echo '<p>' . esc_html__( 'Data retention and labyrinth management.', 'labyrinth' ) . '</p>';
@@ -619,6 +639,7 @@ class SettingsPage {
 	 * Render robots section description.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function render_robots_section_description(): void {
 		echo '<p>' . esc_html__( 'Control robots.txt modifications that help lure bots into the labyrinth.', 'labyrinth' ) . '</p>';
@@ -633,6 +654,7 @@ class SettingsPage {
 	 *
 	 * @param array $args Field arguments.
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function render_text_field( array $args ): void {
 		$option_name = $args['label_for'];
@@ -657,6 +679,7 @@ class SettingsPage {
 	 *
 	 * @param array $args Field arguments.
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function render_number_field( array $args ): void {
 		$option_name = $args['label_for'];
@@ -687,6 +710,7 @@ class SettingsPage {
 	 *
 	 * @param array $args Field arguments.
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function render_checkbox_field( array $args ): void {
 		$option_name = $args['label_for'];
@@ -710,6 +734,7 @@ class SettingsPage {
 	 *
 	 * @param array $args Field arguments.
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function render_select_field( array $args ): void {
 		$option_name = $args['label_for'];
@@ -744,6 +769,7 @@ class SettingsPage {
 	 * Render the regenerate labyrinth button.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function render_regenerate_button(): void {
 		printf(

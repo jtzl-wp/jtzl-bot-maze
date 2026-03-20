@@ -3,6 +3,7 @@
  * Bot Request Entity
  *
  * @package Labyrinth
+ * @since 1.0.0
  */
 
 namespace Labyrinth\Entity;
@@ -19,6 +20,8 @@ use DateTime;
  * Bot Request Entity
  *
  * Represents a raw request log entry.
+ *
+ * @since 1.0.0
  */
 class BotRequest {
 
@@ -26,6 +29,7 @@ class BotRequest {
 	 * Request ID.
 	 *
 	 * @var int
+	 * @since 1.0.0
 	 */
 	public int $id;
 
@@ -33,6 +37,7 @@ class BotRequest {
 	 * Visitor IP address.
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	public string $ip_address;
 
@@ -40,6 +45,7 @@ class BotRequest {
 	 * Requested URI.
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	public string $request_uri;
 
@@ -47,6 +53,7 @@ class BotRequest {
 	 * Full user agent string.
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	public string $user_agent;
 
@@ -54,6 +61,7 @@ class BotRequest {
 	 * Request type (trap_visit, etc.).
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	public string $request_type;
 
@@ -61,6 +69,7 @@ class BotRequest {
 	 * HTTP response code.
 	 *
 	 * @var int
+	 * @since 1.0.0
 	 */
 	public int $response_code;
 
@@ -68,6 +77,7 @@ class BotRequest {
 	 * Created timestamp.
 	 *
 	 * @var DateTime
+	 * @since 1.0.0
 	 */
 	public DateTime $created_at;
 
@@ -81,6 +91,7 @@ class BotRequest {
 	 * @param string   $request_type  Request type.
 	 * @param int      $response_code HTTP status.
 	 * @param DateTime $created_at    Timestamp.
+	 * @since 1.0.0
 	 */
 	public function __construct(
 		int $id,

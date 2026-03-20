@@ -3,6 +3,7 @@
  * Trap Page Repository
  *
  * @package Labyrinth
+ * @since 1.0.0
  */
 
 namespace Labyrinth\Repository;
@@ -20,6 +21,8 @@ use Labyrinth\Entity\TrapPage;
  * Trap Page Repository
  *
  * Handles database operations for trap page entities.
+ *
+ * @since 1.0.0
  */
 class TrapPageRepository implements TrapPageRepositoryInterface {
 
@@ -27,6 +30,7 @@ class TrapPageRepository implements TrapPageRepositoryInterface {
 	 * WordPress database instance.
 	 *
 	 * @var \wpdb
+	 * @since 1.0.0
 	 */
 	private \wpdb $wpdb;
 
@@ -34,6 +38,7 @@ class TrapPageRepository implements TrapPageRepositoryInterface {
 	 * Table name.
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	private string $table_name;
 
@@ -41,6 +46,7 @@ class TrapPageRepository implements TrapPageRepositoryInterface {
 	 * Constructor.
 	 *
 	 * @param \wpdb $wpdb WordPress database object.
+	 * @since 1.0.0
 	 */
 	public function __construct( \wpdb $wpdb ) {
 		$this->wpdb       = $wpdb;
@@ -52,6 +58,7 @@ class TrapPageRepository implements TrapPageRepositoryInterface {
 	 *
 	 * @param array $data Trap page data.
 	 * @return int The created page ID, or 0 on failure.
+	 * @since 1.0.0
 	 */
 	public function create( array $data ): int {
 		$now = current_time( 'mysql' );
@@ -100,6 +107,7 @@ class TrapPageRepository implements TrapPageRepositoryInterface {
 	 *
 	 * @param string $slug URL slug.
 	 * @return TrapPage|null The trap page entity or null.
+	 * @since 1.0.0
 	 */
 	public function find_by_slug( string $slug ): ?TrapPage {
 		$query = $this->wpdb->prepare(
@@ -121,6 +129,7 @@ class TrapPageRepository implements TrapPageRepositoryInterface {
 	 *
 	 * @param int $id Page ID.
 	 * @return TrapPage|null The trap page entity or null.
+	 * @since 1.0.0
 	 */
 	public function find_by_id( int $id ): ?TrapPage {
 		$query = $this->wpdb->prepare(
@@ -144,6 +153,7 @@ class TrapPageRepository implements TrapPageRepositoryInterface {
 	 * @param int $count Number of pages to retrieve.
 	 * @param int $seed  Seed for deterministic selection.
 	 * @return TrapPage[] Array of trap page entities.
+	 * @since 1.0.0
 	 */
 	public function get_random_active( int $count, int $seed = 0 ): array {
 		// Use deterministic ordering based on seed to avoid DB queries varying per request.
@@ -166,6 +176,7 @@ class TrapPageRepository implements TrapPageRepositoryInterface {
 	 * Get all active trap pages.
 	 *
 	 * @return TrapPage[] Array of trap page entities.
+	 * @since 1.0.0
 	 */
 	public function get_all_active(): array {
 		$query = "SELECT * FROM {$this->table_name} WHERE status = 'active' ORDER BY depth_level ASC, id ASC"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -184,6 +195,7 @@ class TrapPageRepository implements TrapPageRepositoryInterface {
 	 *
 	 * @param int $parent_id Parent trap page ID.
 	 * @return TrapPage[] Array of child trap page entities.
+	 * @since 1.0.0
 	 */
 	public function get_children( int $parent_id ): array {
 		$query = $this->wpdb->prepare(
@@ -204,6 +216,7 @@ class TrapPageRepository implements TrapPageRepositoryInterface {
 	 * Count active trap pages.
 	 *
 	 * @return int Total active trap pages.
+	 * @since 1.0.0
 	 */
 	public function count_active(): int {
 		$query = "SELECT COUNT(*) FROM {$this->table_name} WHERE status = 'active'"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -215,6 +228,7 @@ class TrapPageRepository implements TrapPageRepositoryInterface {
 	 * Count active trap pages at depth level 1.
 	 *
 	 * @return int Total active entry-level trap pages.
+	 * @since 1.0.0
 	 */
 	public function count_active_entry_pages(): int {
 		$query = "SELECT COUNT(*) FROM {$this->table_name} WHERE status = 'active' AND depth_level = 1"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -226,6 +240,7 @@ class TrapPageRepository implements TrapPageRepositoryInterface {
 	 * Delete all trap pages.
 	 *
 	 * @return int Number of rows deleted.
+	 * @since 1.0.0
 	 */
 	public function delete_all(): int {
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -239,6 +254,7 @@ class TrapPageRepository implements TrapPageRepositoryInterface {
 	 *
 	 * @param string $slug Slug to check.
 	 * @return bool True if slug exists.
+	 * @since 1.0.0
 	 */
 	public function slug_exists( string $slug ): bool {
 		$query = $this->wpdb->prepare(
@@ -254,6 +270,7 @@ class TrapPageRepository implements TrapPageRepositoryInterface {
 	 *
 	 * @param array $row Database row.
 	 * @return TrapPage Trap page entity.
+	 * @since 1.0.0
 	 */
 	private function hydrate( array $row ): TrapPage {
 		return new TrapPage(

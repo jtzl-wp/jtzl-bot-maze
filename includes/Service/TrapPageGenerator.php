@@ -5,6 +5,7 @@
  * Generates trap pages from content templates.
  *
  * @package Labyrinth
+ * @since 1.0.0
  */
 
 namespace Labyrinth\Service;
@@ -21,6 +22,8 @@ use Labyrinth\Repository\TrapPageRepositoryInterface;
  * Trap Page Generator
  *
  * Creates initial trap pages, deeper pages, and handles regeneration.
+ *
+ * @since 1.0.0
  */
 class TrapPageGenerator {
 
@@ -28,6 +31,7 @@ class TrapPageGenerator {
 	 * Trap page repository.
 	 *
 	 * @var TrapPageRepositoryInterface
+	 * @since 1.0.0
 	 */
 	private TrapPageRepositoryInterface $repository;
 
@@ -35,6 +39,7 @@ class TrapPageGenerator {
 	 * Content template engine.
 	 *
 	 * @var ContentTemplateEngine
+	 * @since 1.0.0
 	 */
 	private ContentTemplateEngine $engine;
 
@@ -42,6 +47,7 @@ class TrapPageGenerator {
 	 * Number of initial entry-level pages to generate.
 	 *
 	 * @var int
+	 * @since 1.0.0
 	 */
 	private int $initial_page_count;
 
@@ -49,6 +55,7 @@ class TrapPageGenerator {
 	 * Maximum depth of the labyrinth.
 	 *
 	 * @var int
+	 * @since 1.0.0
 	 */
 	private int $max_depth;
 
@@ -56,6 +63,7 @@ class TrapPageGenerator {
 	 * Number of child links per trap page.
 	 *
 	 * @var int
+	 * @since 1.0.0
 	 */
 	private int $links_per_trap_page;
 
@@ -67,6 +75,7 @@ class TrapPageGenerator {
 	 * @param int                         $initial_page_count  Number of entry pages to generate.
 	 * @param int                         $max_depth           Maximum labyrinth depth.
 	 * @param int                         $links_per_trap_page Links per trap page.
+	 * @since 1.0.0
 	 */
 	public function __construct(
 		TrapPageRepositoryInterface $repository,
@@ -89,6 +98,7 @@ class TrapPageGenerator {
 	 * Deeper pages are generated lazily when bots visit them.
 	 *
 	 * @return int Number of pages generated.
+	 * @since 1.0.0
 	 */
 	public function generate_initial_pages(): int {
 		$count = 0;
@@ -111,6 +121,7 @@ class TrapPageGenerator {
 	 * Deletes all existing pages and creates fresh entry pages.
 	 *
 	 * @return int Number of new pages generated.
+	 * @since 1.0.0
 	 */
 	public function regenerate(): int {
 		$this->repository->delete_all();
@@ -123,6 +134,7 @@ class TrapPageGenerator {
 	 * Called by daily cron to maintain the labyrinth.
 	 *
 	 * @return int Number of new pages added.
+	 * @since 1.0.0
 	 */
 	public function ensure_minimum_pages(): int {
 		$current_count = $this->repository->count_active_entry_pages();
@@ -155,6 +167,7 @@ class TrapPageGenerator {
 	 * @param string $parent_seed  Parent seed for deriving child seeds.
 	 * @param int    $depth_level  Depth level of the children to create.
 	 * @return array Created child page data arrays (id, slug, title).
+	 * @since 1.0.0
 	 */
 	public function generate_children_for( int $parent_id, string $parent_seed, int $depth_level ): array {
 		if ( $depth_level > $this->max_depth ) {
@@ -190,6 +203,7 @@ class TrapPageGenerator {
 	 * @param int|null $parent_id         Parent page ID, or null for entry pages.
 	 * @param bool     $retry_on_collision Whether to retry with modified seeds on slug collision.
 	 * @return int Created page ID, or 0 on failure.
+	 * @since 1.0.0
 	 */
 	private function create_page( string $seed, int $depth_level, ?int $parent_id, bool $retry_on_collision = true ): int {
 		$effective_seed = $seed;
@@ -229,6 +243,7 @@ class TrapPageGenerator {
 	 * Generate a unique seed string.
 	 *
 	 * @return string Unique seed (32 chars).
+	 * @since 1.0.0
 	 */
 	private function generate_seed(): string {
 		return md5( uniqid( 'lby_', true ) . wp_rand() );

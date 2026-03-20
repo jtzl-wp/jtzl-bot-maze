@@ -5,6 +5,7 @@
  * Defines the contract for client IP detection and session tracking.
  *
  * @package Labyrinth
+ * @since 1.0.0
  */
 
 namespace Labyrinth\Service;
@@ -20,6 +21,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Provides methods for detecting client IP addresses,
  * generating session identifiers, and retrieving request metadata.
+ *
+ * @since 1.0.0
  */
 interface IPTrackerInterface {
 
@@ -27,6 +30,7 @@ interface IPTrackerInterface {
 	 * Get the client's IP address.
 	 *
 	 * @return string The client IP address.
+	 * @since 1.0.0
 	 */
 	public function get_client_ip(): string;
 
@@ -34,6 +38,7 @@ interface IPTrackerInterface {
 	 * Generate a session identifier from IP + User Agent.
 	 *
 	 * @return string Session hash.
+	 * @since 1.0.0
 	 */
 	public function generate_session_id(): string;
 
@@ -41,6 +46,7 @@ interface IPTrackerInterface {
 	 * Generate a user agent hash.
 	 *
 	 * @return string SHA256-truncated UA hash.
+	 * @since 1.0.0
 	 */
 	public function get_user_agent_hash(): string;
 
@@ -48,6 +54,7 @@ interface IPTrackerInterface {
 	 * Get the raw user agent string.
 	 *
 	 * @return string User agent string.
+	 * @since 1.0.0
 	 */
 	public function get_user_agent(): string;
 
@@ -55,6 +62,7 @@ interface IPTrackerInterface {
 	 * Get the referrer URL without query parameters or fragments.
 	 *
 	 * @return string Referrer URL.
+	 * @since 1.0.0
 	 */
 	public function get_referrer(): string;
 
@@ -62,6 +70,7 @@ interface IPTrackerInterface {
 	 * Get the current request URI without query parameters or fragments.
 	 *
 	 * @return string Request URI.
+	 * @since 1.0.0
 	 */
 	public function get_request_uri(): string;
 }

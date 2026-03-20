@@ -3,6 +3,7 @@
  * Analytics Dashboard Admin Page
  *
  * @package Labyrinth
+ * @since 1.0.0
  */
 
 namespace Labyrinth\Admin;
@@ -20,6 +21,8 @@ use Labyrinth\Service\AnalyticsCollector;
  *
  * Renders the trap analytics admin page with summary stats,
  * charts, top bots table, and recent activity.
+ *
+ * @since 1.0.0
  */
 class AnalyticsDashboard {
 
@@ -27,6 +30,7 @@ class AnalyticsDashboard {
 	 * Analytics collector service.
 	 *
 	 * @var AnalyticsCollector
+	 * @since 1.0.0
 	 */
 	private AnalyticsCollector $collector;
 
@@ -34,6 +38,7 @@ class AnalyticsDashboard {
 	 * Constructor.
 	 *
 	 * @param AnalyticsCollector $collector Analytics data collector.
+	 * @since 1.0.0
 	 */
 	public function __construct( AnalyticsCollector $collector ) {
 		$this->collector = $collector;
@@ -43,6 +48,7 @@ class AnalyticsDashboard {
 	 * Initialize the dashboard page.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function init(): void {
 		add_action( 'admin_menu', array( $this, 'register_menu' ) );
@@ -52,6 +58,7 @@ class AnalyticsDashboard {
 	 * Register the analytics submenu page.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function register_menu(): void {
 		add_submenu_page(
@@ -68,6 +75,7 @@ class AnalyticsDashboard {
 	 * Render the analytics dashboard page.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function render_page(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {

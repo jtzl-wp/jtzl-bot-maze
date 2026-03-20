@@ -3,6 +3,7 @@
  * Trap Visit Entity
  *
  * @package Labyrinth
+ * @since 1.0.0
  */
 
 namespace Labyrinth\Entity;
@@ -19,6 +20,8 @@ use DateTime;
  * Trap Visit Entity
  *
  * Represents a single visit to a trap page.
+ *
+ * @since 1.0.0
  */
 class TrapVisit {
 
@@ -26,6 +29,7 @@ class TrapVisit {
 	 * Visit ID.
 	 *
 	 * @var int
+	 * @since 1.0.0
 	 */
 	public int $id;
 
@@ -33,6 +37,7 @@ class TrapVisit {
 	 * Trap page ID.
 	 *
 	 * @var int
+	 * @since 1.0.0
 	 */
 	public int $trap_page_id;
 
@@ -40,6 +45,7 @@ class TrapVisit {
 	 * Visitor IP address.
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	public string $ip_address;
 
@@ -47,6 +53,7 @@ class TrapVisit {
 	 * Full user agent string.
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	public string $user_agent;
 
@@ -54,6 +61,7 @@ class TrapVisit {
 	 * Referrer URL.
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	public string $referrer;
 
@@ -61,6 +69,7 @@ class TrapVisit {
 	 * Session identifier (hash of IP+UA).
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	public string $session_id;
 
@@ -68,6 +77,7 @@ class TrapVisit {
 	 * Depth reached at this trap page.
 	 *
 	 * @var int
+	 * @since 1.0.0
 	 */
 	public int $depth_reached;
 
@@ -75,6 +85,7 @@ class TrapVisit {
 	 * Visit timestamp.
 	 *
 	 * @var DateTime
+	 * @since 1.0.0
 	 */
 	public DateTime $visited_at;
 
@@ -89,6 +100,7 @@ class TrapVisit {
 	 * @param string   $session_id    Session ID.
 	 * @param int      $depth_reached Depth reached.
 	 * @param DateTime $visited_at    Visit timestamp.
+	 * @since 1.0.0
 	 */
 	public function __construct(
 		int $id,

@@ -5,6 +5,7 @@
  * Handles client IP detection for bot tracking.
  *
  * @package Labyrinth
+ * @since 1.0.0
  */
 
 namespace Labyrinth\Service;
@@ -19,6 +20,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * IP Tracker class.
  *
  * Detects client IP addresses with proxy-aware logic.
+ *
+ * @since 1.0.0
  */
 class IPTracker implements IPTrackerInterface {
 
@@ -26,6 +29,7 @@ class IPTracker implements IPTrackerInterface {
 	 * Trusted proxy header name (e.g. 'CF-Connecting-IP').
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	private string $trusted_header;
 
@@ -33,6 +37,7 @@ class IPTracker implements IPTrackerInterface {
 	 * Constructor.
 	 *
 	 * @param string $trusted_header Optional trusted proxy header name.
+	 * @since 1.0.0
 	 */
 	public function __construct( string $trusted_header = '' ) {
 		$this->trusted_header = $trusted_header;
@@ -46,6 +51,7 @@ class IPTracker implements IPTrackerInterface {
 	 * only falls back to proxy headers when REMOTE_ADDR is a private/local IP.
 	 *
 	 * @return string The client IP address.
+	 * @since 1.0.0
 	 */
 	public function get_client_ip(): string {
 		// If a trusted proxy header is configured, use it directly.
@@ -90,6 +96,7 @@ class IPTracker implements IPTrackerInterface {
 	 * Generate a session identifier from IP + User Agent.
 	 *
 	 * @return string Session hash.
+	 * @since 1.0.0
 	 */
 	public function generate_session_id(): string {
 		$ip = $this->get_client_ip();
@@ -106,6 +113,7 @@ class IPTracker implements IPTrackerInterface {
 	 * Generate a user agent hash.
 	 *
 	 * @return string SHA256 UA hash (64 hex chars).
+	 * @since 1.0.0
 	 */
 	public function get_user_agent_hash(): string {
 		$ua = $this->get_user_agent();
@@ -116,6 +124,7 @@ class IPTracker implements IPTrackerInterface {
 	 * Get the raw user agent string.
 	 *
 	 * @return string User agent string.
+	 * @since 1.0.0
 	 */
 	public function get_user_agent(): string {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
@@ -130,6 +139,7 @@ class IPTracker implements IPTrackerInterface {
 	 * Get the referrer URL without query parameters.
 	 *
 	 * @return string Referrer URL.
+	 * @since 1.0.0
 	 */
 	public function get_referrer(): string {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
@@ -144,6 +154,7 @@ class IPTracker implements IPTrackerInterface {
 	 * Get the current request URI without query parameters.
 	 *
 	 * @return string Request URI.
+	 * @since 1.0.0
 	 */
 	public function get_request_uri(): string {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
@@ -159,6 +170,7 @@ class IPTracker implements IPTrackerInterface {
 	 *
 	 * @param string $ip The IP address to check.
 	 * @return bool True if the IP is private/local.
+	 * @since 1.0.0
 	 */
 	private function is_private_ip( string $ip ): bool {
 		return ! filter_var(
@@ -172,6 +184,7 @@ class IPTracker implements IPTrackerInterface {
 	 * Get the forwarded IP from proxy headers.
 	 *
 	 * @return string|null The forwarded IP or null if not found.
+	 * @since 1.0.0
 	 */
 	private function get_forwarded_ip(): ?string {
 		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotValidated
@@ -200,6 +213,7 @@ class IPTracker implements IPTrackerInterface {
 	 *
 	 * @param string $value URL or path value.
 	 * @return string Value without query strings or fragments.
+	 * @since 1.0.0
 	 */
 	private function strip_query_string( string $value ): string {
 		return (string) strtok( $value, '?#' );

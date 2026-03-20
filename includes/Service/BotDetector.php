@@ -5,6 +5,7 @@
  * Scoring engine for bot detection based on trap page visits.
  *
  * @package Labyrinth
+ * @since 1.0.0
  */
 
 namespace Labyrinth\Service;
@@ -24,6 +25,8 @@ use Labyrinth\Repository\RequestLogRepositoryInterface;
  * Bot Detector
  *
  * Records trap page visits, calculates bot scores, and triggers blocking.
+ *
+ * @since 1.0.0
  */
 class BotDetector {
 
@@ -31,6 +34,7 @@ class BotDetector {
 	 * Bot score repository.
 	 *
 	 * @var BotScoreRepositoryInterface
+	 * @since 1.0.0
 	 */
 	private BotScoreRepositoryInterface $score_repo;
 
@@ -38,6 +42,7 @@ class BotDetector {
 	 * Trap visit repository.
 	 *
 	 * @var TrapVisitRepositoryInterface
+	 * @since 1.0.0
 	 */
 	private TrapVisitRepositoryInterface $visit_repo;
 
@@ -45,6 +50,7 @@ class BotDetector {
 	 * Request log repository.
 	 *
 	 * @var RequestLogRepositoryInterface
+	 * @since 1.0.0
 	 */
 	private RequestLogRepositoryInterface $log_repo;
 
@@ -52,6 +58,7 @@ class BotDetector {
 	 * IP tracker service.
 	 *
 	 * @var IPTrackerInterface
+	 * @since 1.0.0
 	 */
 	private IPTrackerInterface $ip_tracker;
 
@@ -59,6 +66,7 @@ class BotDetector {
 	 * Crawler verifier service.
 	 *
 	 * @var CrawlerVerifierInterface
+	 * @since 1.0.0
 	 */
 	private CrawlerVerifierInterface $crawler_verifier;
 
@@ -66,6 +74,7 @@ class BotDetector {
 	 * Base points added per trap page visit.
 	 *
 	 * @var int
+	 * @since 1.0.0
 	 */
 	private int $points_per_visit;
 
@@ -73,6 +82,7 @@ class BotDetector {
 	 * Bonus points multiplied by depth level.
 	 *
 	 * @var int
+	 * @since 1.0.0
 	 */
 	private int $depth_bonus;
 
@@ -80,6 +90,7 @@ class BotDetector {
 	 * Score threshold for auto-blocking.
 	 *
 	 * @var int
+	 * @since 1.0.0
 	 */
 	private int $block_threshold;
 
@@ -94,6 +105,7 @@ class BotDetector {
 	 * @param int                           $points_per_visit Base points per visit.
 	 * @param int                           $depth_bonus      Depth-level bonus multiplier.
 	 * @param int                           $block_threshold  Auto-block threshold.
+	 * @since 1.0.0
 	 */
 	public function __construct(
 		BotScoreRepositoryInterface $score_repo,
@@ -120,6 +132,7 @@ class BotDetector {
 	 *
 	 * @param TrapPage $trap_page The trap page that was visited.
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function record_visit( TrapPage $trap_page ): void {
 		$ip         = $this->ip_tracker->get_client_ip();
@@ -192,6 +205,7 @@ class BotDetector {
 	 * Check if a visitor is blocked.
 	 *
 	 * @return bool True if the current visitor is blocked.
+	 * @since 1.0.0
 	 */
 	public function is_visitor_blocked(): bool {
 		$ip      = $this->ip_tracker->get_client_ip();

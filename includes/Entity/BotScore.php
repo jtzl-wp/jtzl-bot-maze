@@ -3,6 +3,7 @@
  * Bot Score Entity
  *
  * @package Labyrinth
+ * @since 1.0.0
  */
 
 namespace Labyrinth\Entity;
@@ -19,6 +20,8 @@ use DateTime;
  * Bot Score Entity
  *
  * Represents accumulated risk score per IP+UA identity.
+ *
+ * @since 1.0.0
  */
 class BotScore {
 
@@ -26,6 +29,7 @@ class BotScore {
 	 * Score ID.
 	 *
 	 * @var int
+	 * @since 1.0.0
 	 */
 	public int $id;
 
@@ -33,6 +37,7 @@ class BotScore {
 	 * Visitor IP address.
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	public string $ip_address;
 
@@ -40,6 +45,7 @@ class BotScore {
 	 * SHA256-truncated user agent hash.
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	public string $user_agent_hash;
 
@@ -47,6 +53,7 @@ class BotScore {
 	 * Accumulated suspicion score.
 	 *
 	 * @var float
+	 * @since 1.0.0
 	 */
 	public float $score;
 
@@ -54,6 +61,7 @@ class BotScore {
 	 * Total trap page visits.
 	 *
 	 * @var int
+	 * @since 1.0.0
 	 */
 	public int $trap_visits_count;
 
@@ -61,6 +69,7 @@ class BotScore {
 	 * Deepest traversal depth.
 	 *
 	 * @var int
+	 * @since 1.0.0
 	 */
 	public int $max_depth_reached;
 
@@ -68,6 +77,7 @@ class BotScore {
 	 * First seen timestamp.
 	 *
 	 * @var DateTime
+	 * @since 1.0.0
 	 */
 	public DateTime $first_seen_at;
 
@@ -75,6 +85,7 @@ class BotScore {
 	 * Last seen timestamp.
 	 *
 	 * @var DateTime
+	 * @since 1.0.0
 	 */
 	public DateTime $last_seen_at;
 
@@ -82,6 +93,7 @@ class BotScore {
 	 * Whether this bot is blocked.
 	 *
 	 * @var bool
+	 * @since 1.0.0
 	 */
 	public bool $is_blocked;
 
@@ -97,6 +109,7 @@ class BotScore {
 	 * @param DateTime $first_seen_at     First seen.
 	 * @param DateTime $last_seen_at      Last seen.
 	 * @param bool     $is_blocked        Blocked flag.
+	 * @since 1.0.0
 	 */
 	public function __construct(
 		int $id,

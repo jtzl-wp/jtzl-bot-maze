@@ -5,6 +5,7 @@
  * Configures and builds the PHP-DI container for the plugin.
  *
  * @package Labyrinth
+ * @since 1.0.0
  */
 
 namespace Labyrinth;
@@ -33,6 +34,8 @@ use function DI\get;
  * Dependency Injection Container Factory
  *
  * Configures and builds the PHP-DI container for the plugin.
+ *
+ * @since 1.0.0
  */
 class ContainerFactory {
 
@@ -41,6 +44,7 @@ class ContainerFactory {
 	 *
 	 * @param bool|null $enable_compilation Override compilation flag. Defaults to !WP_DEBUG.
 	 * @return Container The configured container instance.
+	 * @since 1.0.0
 	 */
 	public static function create( ?bool $enable_compilation = null ): Container {
 		$builder = new ContainerBuilder();
@@ -70,6 +74,7 @@ class ContainerFactory {
 	 * Defines all service bindings for repositories, services, and configuration.
 	 *
 	 * @return array Container definitions.
+	 * @since 1.0.0
 	 */
 	private static function get_definitions(): array {
 		return array(

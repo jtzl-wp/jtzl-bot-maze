@@ -5,6 +5,7 @@
  * Handles default plugin options and settings.
  *
  * @package Labyrinth
+ * @since 1.0.0
  */
 
 namespace Labyrinth\Database;
@@ -19,6 +20,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Options Manager
  *
  * Handles plugin configuration options storage and retrieval.
+ *
+ * @since 1.0.0
  */
 class Options {
 
@@ -28,6 +31,7 @@ class Options {
 	 * Only sets options that do not already exist.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function apply_defaults(): void {
 		$defaults = self::get_default_options();
@@ -43,6 +47,7 @@ class Options {
 	 * Remove all plugin options.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function remove_all(): void {
 		$options = array_keys( self::get_default_options() );
@@ -59,6 +64,7 @@ class Options {
 	 * Set default plugin options (static convenience wrapper).
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public static function set_defaults(): void {
 		$instance = new self();
@@ -69,6 +75,7 @@ class Options {
 	 * Get default option values.
 	 *
 	 * @return array Default options.
+	 * @since 1.0.0
 	 */
 	public static function get_default_options(): array {
 		return array(
@@ -106,6 +113,7 @@ class Options {
 	 * This should only be called on plugin uninstall, not deactivation.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public static function delete_all(): void {
 		$instance = new self();

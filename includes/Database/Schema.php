@@ -5,6 +5,7 @@
  * Defines and creates the custom database tables for the plugin.
  *
  * @package Labyrinth
+ * @since 1.0.0
  */
 
 namespace Labyrinth\Database;
@@ -19,6 +20,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Database Schema Manager
  *
  * Handles plugin database table creation and management.
+ *
+ * @since 1.0.0
  */
 class Schema {
 
@@ -26,6 +29,7 @@ class Schema {
 	 * WordPress database instance.
 	 *
 	 * @var \wpdb
+	 * @since 1.0.0
 	 */
 	private \wpdb $wpdb;
 
@@ -33,6 +37,7 @@ class Schema {
 	 * Constructor.
 	 *
 	 * @param \wpdb $wpdb WordPress database instance.
+	 * @since 1.0.0
 	 */
 	public function __construct( \wpdb $wpdb ) {
 		$this->wpdb = $wpdb;
@@ -42,6 +47,7 @@ class Schema {
 	 * Get the SQL statements for creating all plugin tables.
 	 *
 	 * @return array Array of CREATE TABLE SQL strings.
+	 * @since 1.0.0
 	 */
 	public function get_create_table_sql(): array {
 		$charset_collate = $this->wpdb->get_charset_collate();
@@ -129,6 +135,7 @@ class Schema {
 	 * Create all plugin database tables.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function create(): void {
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -140,6 +147,7 @@ class Schema {
 	 * Drop all plugin database tables.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function drop(): void {
 		$tables = array(
@@ -159,6 +167,7 @@ class Schema {
 	 * Create all plugin database tables (static convenience wrapper).
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public static function create_tables(): void {
 		global $wpdb;
@@ -172,6 +181,7 @@ class Schema {
 	 * This should only be called on plugin uninstall, not deactivation.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public static function drop_tables(): void {
 		global $wpdb;

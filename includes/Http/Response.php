@@ -3,6 +3,7 @@
  * HTTP Response Value Object
  *
  * @package Labyrinth
+ * @since 1.0.0
  */
 
 namespace Labyrinth\Http;
@@ -18,6 +19,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Used to decouple response generation from response sending,
  * enabling unit testing of code that would otherwise call header()/echo/exit.
+ *
+ * @since 1.0.0
  */
 class Response {
 
@@ -25,6 +28,7 @@ class Response {
 	 * HTTP status code.
 	 *
 	 * @var int
+	 * @since 1.0.0
 	 */
 	public readonly int $status;
 
@@ -32,6 +36,7 @@ class Response {
 	 * Response headers.
 	 *
 	 * @var array<string, string>
+	 * @since 1.0.0
 	 */
 	public readonly array $headers;
 
@@ -39,6 +44,7 @@ class Response {
 	 * Response body.
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	public readonly string $body;
 
@@ -48,6 +54,7 @@ class Response {
 	 * @param int                   $status  HTTP status code.
 	 * @param array<string, string> $headers Response headers.
 	 * @param string                $body    Response body.
+	 * @since 1.0.0
 	 */
 	public function __construct( int $status, array $headers, string $body ) {
 		$this->status  = $status;
@@ -59,6 +66,7 @@ class Response {
 	 * Send the response to the client.
 	 *
 	 * @return never
+	 * @since 1.0.0
 	 */
 	public function send(): never {
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Matches WordPress's own status_header() pattern.

@@ -6,6 +6,7 @@
  * Note: sanitize_base_path() has side effects (flags rewrite rules for flush).
  *
  * @package Labyrinth
+ * @since 1.0.0
  */
 
 namespace Labyrinth\Admin;
@@ -21,6 +22,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Provides static sanitization methods for WordPress Settings API callbacks.
  * Most methods are pure; sanitize_base_path() reads/writes options to flag rewrite rule flushes.
+ *
+ * @since 1.0.0
  */
 class SettingsSanitizer {
 
@@ -29,6 +32,7 @@ class SettingsSanitizer {
 	 *
 	 * @param mixed $value The value to sanitize.
 	 * @return int The sanitized value.
+	 * @since 1.0.0
 	 */
 	public static function sanitize_positive_integer( $value ): int {
 		return max( 1, absint( $value ) );
@@ -39,6 +43,7 @@ class SettingsSanitizer {
 	 *
 	 * @param mixed $value The value to sanitize.
 	 * @return int The sanitized value.
+	 * @since 1.0.0
 	 */
 	public static function sanitize_non_negative_integer( $value ): int {
 		return absint( $value );
@@ -49,6 +54,7 @@ class SettingsSanitizer {
 	 *
 	 * @param mixed $value The value to sanitize.
 	 * @return bool The sanitized value.
+	 * @since 1.0.0
 	 */
 	public static function sanitize_checkbox( $value ): bool {
 		return (bool) $value;
@@ -59,6 +65,7 @@ class SettingsSanitizer {
 	 *
 	 * @param mixed $value The value to sanitize.
 	 * @return bool The sanitized value.
+	 * @since 1.0.0
 	 */
 	public static function sanitize_enabled( $value ): bool {
 		$new_value = (bool) $value;
@@ -76,6 +83,7 @@ class SettingsSanitizer {
 	 *
 	 * @param mixed $value The value to sanitize.
 	 * @return string The sanitized value.
+	 * @since 1.0.0
 	 */
 	public static function sanitize_base_path( $value ): string {
 		$path = sanitize_title( $value );
@@ -98,6 +106,7 @@ class SettingsSanitizer {
 	 *
 	 * @param mixed $value The value to sanitize.
 	 * @return string The sanitized value.
+	 * @since 1.0.0
 	 */
 	public static function sanitize_trusted_proxy_header( $value ): string {
 		$valid = array( '', 'CF-Connecting-IP', 'X-Real-IP', 'True-Client-IP', 'X-Forwarded-For' );
@@ -109,6 +118,7 @@ class SettingsSanitizer {
 	 *
 	 * @param mixed $value The value to sanitize.
 	 * @return string The sanitized value.
+	 * @since 1.0.0
 	 */
 	public static function sanitize_injection_method( $value ): string {
 		$valid = array( 'content', 'footer', 'both' );
@@ -120,6 +130,7 @@ class SettingsSanitizer {
 	 *
 	 * @param mixed $value The value to sanitize.
 	 * @return string The sanitized value.
+	 * @since 1.0.0
 	 */
 	public static function sanitize_blocking_behavior( $value ): string {
 		$valid = array( 'block', 'tarpit' );

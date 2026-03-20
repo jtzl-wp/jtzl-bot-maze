@@ -3,6 +3,7 @@
  * Trap Visit Repository
  *
  * @package Labyrinth
+ * @since 1.0.0
  */
 
 namespace Labyrinth\Repository;
@@ -20,6 +21,8 @@ use Labyrinth\Entity\TrapVisit;
  * Trap Visit Repository
  *
  * Handles database operations for trap visit entities.
+ *
+ * @since 1.0.0
  */
 class TrapVisitRepository implements TrapVisitRepositoryInterface {
 
@@ -27,6 +30,7 @@ class TrapVisitRepository implements TrapVisitRepositoryInterface {
 	 * WordPress database instance.
 	 *
 	 * @var \wpdb
+	 * @since 1.0.0
 	 */
 	private \wpdb $wpdb;
 
@@ -34,6 +38,7 @@ class TrapVisitRepository implements TrapVisitRepositoryInterface {
 	 * Table name.
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	private string $table_name;
 
@@ -41,6 +46,7 @@ class TrapVisitRepository implements TrapVisitRepositoryInterface {
 	 * Constructor.
 	 *
 	 * @param \wpdb $wpdb WordPress database object.
+	 * @since 1.0.0
 	 */
 	public function __construct( \wpdb $wpdb ) {
 		$this->wpdb       = $wpdb;
@@ -52,6 +58,7 @@ class TrapVisitRepository implements TrapVisitRepositoryInterface {
 	 *
 	 * @param array $data Visit data.
 	 * @return int The created visit ID, or 0 on failure.
+	 * @since 1.0.0
 	 */
 	public function create( array $data ): int {
 		$insert_data = array(
@@ -80,6 +87,7 @@ class TrapVisitRepository implements TrapVisitRepositoryInterface {
 	 *
 	 * @param string $session_id Session identifier.
 	 * @return int Number of visits.
+	 * @since 1.0.0
 	 */
 	public function count_by_session( string $session_id ): int {
 		$query = $this->wpdb->prepare(
@@ -95,6 +103,7 @@ class TrapVisitRepository implements TrapVisitRepositoryInterface {
 	 *
 	 * @param string $session_id Session identifier.
 	 * @return int Maximum depth.
+	 * @since 1.0.0
 	 */
 	public function get_max_depth_by_session( string $session_id ): int {
 		$query = $this->wpdb->prepare(
@@ -113,6 +122,7 @@ class TrapVisitRepository implements TrapVisitRepositoryInterface {
 	 * @param int $limit  Number of visits.
 	 * @param int $offset Offset for pagination.
 	 * @return TrapVisit[] Array of visit entities.
+	 * @since 1.0.0
 	 */
 	public function get_recent( int $limit = 50, int $offset = 0 ): array {
 		$query = $this->wpdb->prepare(
@@ -134,6 +144,7 @@ class TrapVisitRepository implements TrapVisitRepositoryInterface {
 	 * Count total visits.
 	 *
 	 * @return int Total visit count.
+	 * @since 1.0.0
 	 */
 	public function count_total(): int {
 		$query = "SELECT COUNT(*) FROM {$this->table_name}"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -146,6 +157,7 @@ class TrapVisitRepository implements TrapVisitRepositoryInterface {
 	 *
 	 * @param int $days Number of days.
 	 * @return int Visit count.
+	 * @since 1.0.0
 	 */
 	public function count_recent_days( int $days ): int {
 		$query = $this->wpdb->prepare(
@@ -162,6 +174,7 @@ class TrapVisitRepository implements TrapVisitRepositoryInterface {
 	 *
 	 * @param int $days Number of days to look back.
 	 * @return array Array of date => count pairs.
+	 * @since 1.0.0
 	 */
 	public function get_daily_counts( int $days = 30 ): array {
 		$query = $this->wpdb->prepare(
@@ -187,6 +200,7 @@ class TrapVisitRepository implements TrapVisitRepositoryInterface {
 	 *
 	 * @param array $row Database row.
 	 * @return TrapVisit Visit entity.
+	 * @since 1.0.0
 	 */
 	private function hydrate( array $row ): TrapVisit {
 		return new TrapVisit(

@@ -5,6 +5,7 @@
  * Defines the contract for DNS resolution operations.
  *
  * @package Labyrinth
+ * @since 1.0.0
  */
 
 namespace Labyrinth\Service;
@@ -20,6 +21,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Provides methods for forward and reverse DNS lookups
  * used by the crawler verification system.
+ *
+ * @since 1.0.0
  */
 interface DnsResolverInterface {
 
@@ -28,6 +31,7 @@ interface DnsResolverInterface {
 	 *
 	 * @param string $ip The IP address to look up.
 	 * @return string The hostname, or the IP itself on failure.
+	 * @since 1.0.0
 	 */
 	public function reverse_lookup( string $ip ): string;
 
@@ -36,6 +40,7 @@ interface DnsResolverInterface {
 	 *
 	 * @param string $hostname The hostname to resolve.
 	 * @return array<string> Array of IP addresses.
+	 * @since 1.0.0
 	 */
 	public function forward_lookup( string $hostname ): array;
 }

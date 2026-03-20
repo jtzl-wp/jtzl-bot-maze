@@ -5,6 +5,7 @@
  * Aggregates data for the admin analytics dashboard.
  *
  * @package Labyrinth
+ * @since 1.0.0
  */
 
 namespace Labyrinth\Service;
@@ -25,6 +26,8 @@ use Labyrinth\Repository\RequestLogRepositoryInterface;
  *
  * Provides summary stats, chart data, top bots, and recent activity
  * for the analytics dashboard.
+ *
+ * @since 1.0.0
  */
 class AnalyticsCollector {
 
@@ -32,6 +35,7 @@ class AnalyticsCollector {
 	 * Trap page repository.
 	 *
 	 * @var TrapPageRepositoryInterface
+	 * @since 1.0.0
 	 */
 	private TrapPageRepositoryInterface $trap_page_repo;
 
@@ -39,6 +43,7 @@ class AnalyticsCollector {
 	 * Trap visit repository.
 	 *
 	 * @var TrapVisitRepositoryInterface
+	 * @since 1.0.0
 	 */
 	private TrapVisitRepositoryInterface $visit_repo;
 
@@ -46,6 +51,7 @@ class AnalyticsCollector {
 	 * Bot score repository.
 	 *
 	 * @var BotScoreRepositoryInterface
+	 * @since 1.0.0
 	 */
 	private BotScoreRepositoryInterface $score_repo;
 
@@ -53,6 +59,7 @@ class AnalyticsCollector {
 	 * Request log repository.
 	 *
 	 * @var RequestLogRepositoryInterface
+	 * @since 1.0.0
 	 */
 	private RequestLogRepositoryInterface $log_repo;
 
@@ -63,6 +70,7 @@ class AnalyticsCollector {
 	 * @param TrapVisitRepositoryInterface  $visit_repo     Trap visit repository.
 	 * @param BotScoreRepositoryInterface   $score_repo     Bot score repository.
 	 * @param RequestLogRepositoryInterface $log_repo       Request log repository.
+	 * @since 1.0.0
 	 */
 	public function __construct(
 		TrapPageRepositoryInterface $trap_page_repo,
@@ -80,6 +88,7 @@ class AnalyticsCollector {
 	 * Get summary statistics for the dashboard header.
 	 *
 	 * @return array Summary stats.
+	 * @since 1.0.0
 	 */
 	public function get_summary_stats(): array {
 		return array(
@@ -97,6 +106,7 @@ class AnalyticsCollector {
 	 *
 	 * @param int $days Number of days to look back.
 	 * @return array Array with 'labels' (dates) and 'values' (counts).
+	 * @since 1.0.0
 	 */
 	public function get_chart_data( int $days = 30 ): array {
 		$raw_counts = $this->visit_repo->get_daily_counts( $days );
@@ -122,6 +132,7 @@ class AnalyticsCollector {
 	 *
 	 * @param int $limit Number of results.
 	 * @return array Array of bot data arrays.
+	 * @since 1.0.0
 	 */
 	public function get_top_bots( int $limit = 10 ): array {
 		$bots = $this->score_repo->get_top_by_score( $limit );
@@ -149,6 +160,7 @@ class AnalyticsCollector {
 	 *
 	 * @param int $limit Number of entries.
 	 * @return array Array of visit data arrays.
+	 * @since 1.0.0
 	 */
 	public function get_recent_activity( int $limit = 20 ): array {
 		$visits = $this->visit_repo->get_recent( $limit );

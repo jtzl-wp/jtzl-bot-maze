@@ -5,6 +5,7 @@
  * Injects hidden trap links into real page content and footer.
  *
  * @package Labyrinth
+ * @since 1.0.0
  */
 
 namespace Labyrinth\Service;
@@ -23,6 +24,8 @@ use Labyrinth\WordPress\ContextInterface;
  *
  * Hooks into the_content and wp_footer to inject invisible links
  * that lure bots into the trap page labyrinth.
+ *
+ * @since 1.0.0
  */
 class TrapLinkInjector {
 
@@ -30,6 +33,7 @@ class TrapLinkInjector {
 	 * Trap page repository.
 	 *
 	 * @var TrapPageRepositoryInterface
+	 * @since 1.0.0
 	 */
 	private TrapPageRepositoryInterface $repository;
 
@@ -37,6 +41,7 @@ class TrapLinkInjector {
 	 * Number of links to inject per page.
 	 *
 	 * @var int
+	 * @since 1.0.0
 	 */
 	private int $links_per_page;
 
@@ -44,6 +49,7 @@ class TrapLinkInjector {
 	 * Injection method: 'content', 'footer', or 'both'.
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	private string $injection_method;
 
@@ -51,6 +57,7 @@ class TrapLinkInjector {
 	 * Whether the plugin is enabled.
 	 *
 	 * @var bool
+	 * @since 1.0.0
 	 */
 	private bool $enabled;
 
@@ -58,6 +65,7 @@ class TrapLinkInjector {
 	 * Base path for trap URLs.
 	 *
 	 * @var string
+	 * @since 1.0.0
 	 */
 	private string $base_path;
 
@@ -65,6 +73,7 @@ class TrapLinkInjector {
 	 * WordPress context facade.
 	 *
 	 * @var ContextInterface
+	 * @since 1.0.0
 	 */
 	private ContextInterface $wp;
 
@@ -77,6 +86,7 @@ class TrapLinkInjector {
 	 * @param bool                        $enabled          Whether injection is enabled.
 	 * @param string                      $base_path        URL base path.
 	 * @param ContextInterface            $wp               WordPress context facade.
+	 * @since 1.0.0
 	 */
 	public function __construct(
 		TrapPageRepositoryInterface $repository,
@@ -101,6 +111,7 @@ class TrapLinkInjector {
 	 *
 	 * @param string $content Post content.
 	 * @return string Modified content with trap links appended.
+	 * @since 1.0.0
 	 */
 	public function inject_into_content( string $content ): string {
 		if ( ! $this->should_inject( 'content' ) ) {
@@ -120,6 +131,7 @@ class TrapLinkInjector {
 	 * Generate hidden trap link HTML for the footer.
 	 *
 	 * @return string Hidden links HTML, or empty string if injection should not proceed.
+	 * @since 1.0.0
 	 */
 	public function inject_into_footer(): string {
 		if ( ! $this->should_inject( 'footer' ) ) {
@@ -134,6 +146,7 @@ class TrapLinkInjector {
 	 *
 	 * @param string $method The injection point: 'content' or 'footer'.
 	 * @return bool True if injection should proceed.
+	 * @since 1.0.0
 	 */
 	private function should_inject( string $method ): bool {
 		// Plugin must be enabled.
@@ -167,6 +180,7 @@ class TrapLinkInjector {
 	 *
 	 * @param string $context Injection context ('content' or 'footer') for seed variation.
 	 * @return string HTML containing hidden trap links.
+	 * @since 1.0.0
 	 */
 	private function generate_hidden_links( string $context = '' ): string {
 		$post_id = $this->wp->get_the_id();
