@@ -326,17 +326,23 @@ class Bootstrap {
 	/**
 	 * Handle daily maintenance cron.
 	 *
-	 * Prunes old request logs and ensures minimum trap pages exist.
+	 * Prunes old evidence data and ensures minimum trap pages exist.
 	 *
 	 * @return void
 	 * @since 1.0.0
 	 */
 	public function handle_maintenance_cron(): void {
 		try {
-			// Prune old request logs.
-			$log_repo       = $this->container->get( 'Labyrinth\Repository\RequestLogRepositoryInterface' );
-			$retention_days = $this->container->get( 'config.lby_log_retention_days' );
+			$retention_days = $this->container->get( 'config.lby_retention_days' );
+
+			// Prune old request logs, trap visits, and stale bot scores.
+			$log_repo   = $this->container->get( 'Labyrinth\Repository\RequestLogRepositoryInterface' );
+			$visit_repo = $this->container->get( 'Labyrinth\Repository\TrapVisitRepositoryInterface' );
+			$score_repo = $this->container->get( 'Labyrinth\Repository\BotScoreRepositoryInterface' );
+
 			$log_repo->prune_old_entries( $retention_days );
+			$visit_repo->prune_old_entries( $retention_days );
+			$score_repo->prune_stale_entries( $retention_days );
 
 			// Ensure minimum trap pages exist (only when enabled).
 			if ( (bool) get_option( 'lby_enabled', true ) ) {
@@ -375,7 +381,31 @@ class Bootstrap {
 
 		if ( LABYRINTH_VERSION !== $stored_version ) {
 			self::clear_di_cache();
+			self::migrate_renamed_options();
+			Database\Schema::create_tables();
 			update_option( 'lby_plugin_version', LABYRINTH_VERSION );
+		}
+	}
+
+	/**
+	 * Migrate renamed option keys from earlier versions.
+	 *
+	 * @return void
+	 * @since 1.0.0
+	 */
+	private static function migrate_renamed_options(): void {
+		$renames = array(
+			'lby_log_retention_days' => 'lby_retention_days',
+		);
+
+		foreach ( $renames as $old_key => $new_key ) {
+			$old_value = get_option( $old_key );
+			if ( false !== $old_value ) {
+				if ( false === get_option( $new_key ) ) {
+					update_option( $new_key, $old_value );
+				}
+				delete_option( $old_key );
+			}
 		}
 	}
 

@@ -238,6 +238,27 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 	}
 
 	/**
+	 * Prune bot scores that have been inactive longer than the specified number of days.
+	 *
+	 * This retention policy applies to blocked identities too.
+	 *
+	 * @param int $days Number of days to retain.
+	 * @return int Number of rows deleted.
+	 * @since 1.0.0
+	 */
+	public function prune_stale_entries( int $days ): int {
+		$query = $this->wpdb->prepare(
+			"DELETE FROM {$this->table_name} WHERE last_seen_at < DATE_SUB(%s, INTERVAL %d DAY)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			current_time( 'mysql' ),
+			$days
+		);
+
+		$result = $this->wpdb->query( $query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+		return false !== $result ? (int) $result : 0;
+	}
+
+	/**
 	 * Hydrate a database row into a BotScore entity.
 	 *
 	 * @param array $row Database row.

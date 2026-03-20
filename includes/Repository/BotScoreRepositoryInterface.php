@@ -98,4 +98,13 @@ interface BotScoreRepositoryInterface {
 	 * @since 1.0.0
 	 */
 	public function count_blocked(): int;
+
+	/**
+	 * Prune bot scores that have been inactive longer than the specified number of days.
+	 *
+	 * @param int $days Number of days to retain.
+	 * @return int Number of rows deleted.
+	 * @since 1.0.0
+	 */
+	public function prune_stale_entries( int $days ): int;
 }

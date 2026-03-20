@@ -80,30 +80,30 @@ class Options {
 	public static function get_default_options(): array {
 		return array(
 			// General.
-			'lby_enabled'                => true,
-			'lby_trap_base_path'         => 'lby',
-			'lby_trusted_proxy_header'   => '',
+			'lby_enabled'              => true,
+			'lby_trap_base_path'       => 'lby',
+			'lby_trusted_proxy_header' => '',
 
 			// Trap Links.
-			'lby_links_per_page'         => 3,
-			'lby_injection_method'       => 'content', // content, footer, both.
+			'lby_links_per_page'       => 3,
+			'lby_injection_method'     => 'content', // content, footer, both.
 
 			// Labyrinth.
-			'lby_max_depth'              => 5,
-			'lby_links_per_trap_page'    => 5,
-			'lby_initial_page_count'     => 20,
+			'lby_max_depth'            => 5,
+			'lby_links_per_trap_page'  => 5,
+			'lby_initial_page_count'   => 20,
 
 			// Bot Scoring.
-			'lby_points_per_visit'       => 25,
-			'lby_depth_bonus'            => 15,
-			'lby_block_threshold'        => 100,
-			'lby_blocking_behavior'      => 'tarpit_light', // block, tarpit_light, tarpit (full).
+			'lby_points_per_visit'     => 25,
+			'lby_depth_bonus'          => 15,
+			'lby_block_threshold'      => 100,
+			'lby_blocking_behavior'    => 'tarpit_light', // block, tarpit_light, tarpit (full).
 
 			// Maintenance.
-			'lby_log_retention_days'     => 30,
+			'lby_retention_days'       => 30,
 
 			// robots.txt.
-			'lby_robots_txt_enabled'     => true,
+			'lby_robots_txt_enabled'   => true,
 		);
 	}
 

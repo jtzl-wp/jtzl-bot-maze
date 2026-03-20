@@ -237,8 +237,8 @@ class ContainerFactory {
 				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'lby_block_threshold', 100 ), 'lby_block_threshold' );
 			},
 
-			'config.lby_log_retention_days'           => function () {
-				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'lby_log_retention_days', 30 ), 'lby_log_retention_days' );
+			'config.lby_retention_days'               => function () {
+				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'lby_retention_days', 30 ), 'lby_retention_days' );
 			},
 
 			'config.lby_robots_txt_enabled'           => function () {

@@ -499,26 +499,26 @@ class SettingsPage {
 	 * @since 1.0.0
 	 */
 	private function register_maintenance_fields(): void {
-		// Log retention days.
+		// Evidence retention days.
 		register_setting(
 			self::SETTINGS_GROUP,
-			'lby_log_retention_days',
+			'lby_retention_days',
 			array(
 				'type'              => 'integer',
-				'sanitize_callback' => static fn( $value ): int => SettingsSanitizer::sanitize_option_bounded_integer( $value, 'lby_log_retention_days' ),
+				'sanitize_callback' => static fn( $value ): int => SettingsSanitizer::sanitize_option_bounded_integer( $value, 'lby_retention_days' ),
 				'default'           => 30,
 			)
 		);
 
 		add_settings_field(
-			'lby_log_retention_days',
-			__( 'Log Retention (Days)', 'labyrinth' ),
+			'lby_retention_days',
+			__( 'Evidence Retention (Days)', 'labyrinth' ),
 			array( $this, 'render_number_field' ),
 			self::PAGE_SLUG,
 			'lby_maintenance_settings',
 			array(
-				'label_for'   => 'lby_log_retention_days',
-				'description' => __( 'Number of days to retain request log entries. Older entries are automatically pruned daily.', 'labyrinth' ),
+				'label_for'   => 'lby_retention_days',
+				'description' => __( 'Number of days to retain request logs, trap visits, and bot scores, including blocked identities. Older entries are automatically pruned daily, so shorter retention windows also shorten how long blocked bots stay blocked.', 'labyrinth' ),
 				'min'         => 1,
 				'max'         => 365,
 			)
@@ -671,8 +671,7 @@ class SettingsPage {
 	 */
 	public function render_text_field( array $args ): void {
 		$option_name = $args['label_for'];
-		$default     = $args['default'] ?? '';
-		$value       = get_option( $option_name, $default );
+		$value       = get_option( $option_name );
 		$description = $args['description'] ?? '';
 
 		printf(
@@ -696,8 +695,7 @@ class SettingsPage {
 	 */
 	public function render_number_field( array $args ): void {
 		$option_name = $args['label_for'];
-		$default     = $args['default'] ?? '';
-		$value       = get_option( $option_name, $default );
+		$value       = get_option( $option_name );
 		$min         = $args['min'] ?? '';
 		$max         = $args['max'] ?? '';
 		$step        = $args['step'] ?? '';
@@ -751,8 +749,7 @@ class SettingsPage {
 	 */
 	public function render_select_field( array $args ): void {
 		$option_name = $args['label_for'];
-		$default     = $args['default'] ?? '';
-		$value       = get_option( $option_name, $default );
+		$value       = get_option( $option_name );
 		$options     = $args['options'] ?? array();
 		$description = $args['description'] ?? '';
 

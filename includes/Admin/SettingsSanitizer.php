@@ -44,7 +44,7 @@ class SettingsSanitizer {
 		'lby_points_per_visit'    => 1000,
 		'lby_depth_bonus'         => 1000,
 		'lby_block_threshold'     => 10000,
-		'lby_log_retention_days'  => 365,
+		'lby_retention_days'      => 365,
 	);
 
 	/**

@@ -110,7 +110,8 @@ class Schema {
   PRIMARY KEY  (id),
   UNIQUE KEY idx_ip_ua (ip_address,user_agent_hash),
   KEY idx_score (score),
-  KEY idx_is_blocked (is_blocked)
+  KEY idx_is_blocked (is_blocked),
+  KEY idx_last_seen_at (last_seen_at)
 ) $charset_collate;";
 
 		// SQL for lby_request_log table - Raw request log (auto-pruned).

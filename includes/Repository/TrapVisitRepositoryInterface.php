@@ -69,6 +69,15 @@ interface TrapVisitRepositoryInterface {
 	public function count_total(): int;
 
 	/**
+	 * Prune visits older than the specified number of days.
+	 *
+	 * @param int $days Number of days to retain.
+	 * @return int Number of rows deleted.
+	 * @since 1.0.0
+	 */
+	public function prune_old_entries( int $days ): int;
+
+	/**
 	 * Count visits in the last N days.
 	 *
 	 * @param int $days Number of days.
