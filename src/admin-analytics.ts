@@ -27,7 +27,7 @@ interface SummaryStats {
 
 interface BotEntry {
 	ip_address: string;
-	user_agent_hash: string;
+	user_agent: string;
 	score: number;
 	trap_visits_count: number;
 	max_depth_reached: number;
@@ -256,7 +256,7 @@ function updateTopBots(bots: BotEntry[]): void {
 		const tr = document.createElement('tr');
 
 		tr.appendChild(createCodeCell('td', bot.ip_address));
-		tr.appendChild(createCodeCell('td', bot.user_agent_hash));
+		tr.appendChild(createCell('td', bot.user_agent));
 
 		const scoreTd = document.createElement('td');
 		const strong = document.createElement('strong');

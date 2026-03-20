@@ -66,7 +66,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<thead>
 					<tr>
 						<th><?php echo esc_html__( 'IP Address', 'labyrinth' ); ?></th>
-						<th><?php echo esc_html__( 'UA Hash', 'labyrinth' ); ?></th>
+						<th><?php echo esc_html__( 'User Agent', 'labyrinth' ); ?></th>
 						<th><?php echo esc_html__( 'Score', 'labyrinth' ); ?></th>
 						<th><?php echo esc_html__( 'Visits', 'labyrinth' ); ?></th>
 						<th><?php echo esc_html__( 'Max Depth', 'labyrinth' ); ?></th>
@@ -81,7 +81,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<?php foreach ( $top_bots as $bot ) : ?>
 						<tr>
 							<td><code><?php echo esc_html( $bot['ip_address'] ); ?></code></td>
-							<td><code><?php echo esc_html( $bot['user_agent_hash'] ); ?></code></td>
+							<td><?php echo esc_html( $bot['user_agent'] ); ?></td>
 							<td><strong><?php echo esc_html( number_format( $bot['score'], 1 ) ); ?></strong></td>
 							<td><?php echo esc_html( $bot['trap_visits_count'] ); ?></td>
 							<td><?php echo esc_html( $bot['max_depth_reached'] ); ?></td>

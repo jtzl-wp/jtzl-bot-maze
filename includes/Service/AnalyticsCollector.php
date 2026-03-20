@@ -137,12 +137,17 @@ class AnalyticsCollector {
 	public function get_top_bots( int $limit = 10 ): array {
 		$bots = $this->score_repo->get_top_by_score( $limit );
 
+		// Resolve UA hashes to human-readable strings via recent visits.
+		$ua_map = $this->build_ua_lookup( $bots );
+
 		return array_map(
-			function ( $bot ) {
+			function ( $bot ) use ( $ua_map ) {
+				$key = $bot->ip_address . '|' . $bot->user_agent_hash;
+				$ua  = $ua_map[ $key ] ?? $bot->user_agent_hash;
 				return array(
 					'id'                => $bot->id,
 					'ip_address'        => $bot->ip_address,
-					'user_agent_hash'   => substr( $bot->user_agent_hash, 0, 12 ) . '...',
+					'user_agent'        => mb_substr( $ua, 0, 80 ) . ( mb_strlen( $ua ) > 80 ? '...' : '' ),
 					'score'             => $bot->score,
 					'trap_visits_count' => $bot->trap_visits_count,
 					'max_depth_reached' => $bot->max_depth_reached,
@@ -153,6 +158,40 @@ class AnalyticsCollector {
 			},
 			$bots
 		);
+	}
+
+	/**
+	 * Build a composite (IP|UA-hash) to user-agent lookup from recent visits.
+	 *
+	 * @param array $bots Bot score entities to resolve UAs for.
+	 * @return array<string, string> "ip|ua_hash" => user agent string.
+	 * @since 1.0.0
+	 */
+	private function build_ua_lookup( array $bots ): array {
+		if ( empty( $bots ) ) {
+			return array();
+		}
+
+		// Build the set of (ip, ua_hash) pairs we need to resolve.
+		$needed = array();
+		foreach ( $bots as $bot ) {
+			$needed[ $bot->ip_address . '|' . $bot->user_agent_hash ] = true;
+		}
+
+		// Scan recent visits to resolve hashes to raw UA strings.
+		$visits = $this->visit_repo->get_recent( count( $bots ) * 20 );
+		$map    = array();
+
+		foreach ( $visits as $visit ) {
+			$hash = hash( 'sha256', $visit->user_agent );
+			$key  = $visit->ip_address . '|' . $hash;
+
+			if ( isset( $needed[ $key ] ) && ! isset( $map[ $key ] ) ) {
+				$map[ $key ] = $visit->user_agent;
+			}
+		}
+
+		return $map;
 	}
 
 	/**
