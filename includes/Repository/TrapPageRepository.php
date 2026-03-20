@@ -156,6 +156,9 @@ class TrapPageRepository implements TrapPageRepositoryInterface {
 	 * @since 1.0.0
 	 */
 	public function get_random_active( int $count, int $seed = 0 ): array {
+		// Cap to prevent resource blowup if options are tampered in the DB.
+		$count = min( 50, $count );
+
 		// Use deterministic ordering based on seed to avoid DB queries varying per request.
 		$query = $this->wpdb->prepare(
 			"SELECT * FROM {$this->table_name} WHERE status = 'active' AND depth_level = 1 ORDER BY RAND(%d) LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared

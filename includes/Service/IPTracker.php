@@ -26,6 +26,30 @@ if ( ! defined( 'ABSPATH' ) ) {
 class IPTracker implements IPTrackerInterface {
 
 	/**
+	 * Maximum stored length for user-agent strings.
+	 *
+	 * @var int
+	 * @since 1.0.0
+	 */
+	private const MAX_USER_AGENT_LENGTH = 512;
+
+	/**
+	 * Maximum stored length for request URI values.
+	 *
+	 * @var int
+	 * @since 1.0.0
+	 */
+	private const MAX_REQUEST_URI_LENGTH = 2048;
+
+	/**
+	 * Maximum stored length for referrer values.
+	 *
+	 * @var int
+	 * @since 1.0.0
+	 */
+	private const MAX_REFERRER_LENGTH = 2048;
+
+	/**
 	 * Trusted proxy header name (e.g. 'CF-Connecting-IP').
 	 *
 	 * @var string
@@ -60,11 +84,7 @@ class IPTracker implements IPTrackerInterface {
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 			if ( ! empty( $_SERVER[ $server_key ] ) ) {
 				$ip = sanitize_text_field( wp_unslash( $_SERVER[ $server_key ] ) );
-				// For X-Forwarded-For style headers, take the rightmost IP.
-				if ( str_contains( $ip, ',' ) ) {
-					$parts = explode( ',', $ip );
-					$ip    = trim( end( $parts ) );
-				}
+				$ip = $this->extract_rightmost_ip( $ip );
 				if ( filter_var( $ip, FILTER_VALIDATE_IP ) ) {
 					return $ip;
 				}
@@ -129,7 +149,8 @@ class IPTracker implements IPTrackerInterface {
 	public function get_user_agent(): string {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		if ( ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-			return sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
+			$ua = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
+			return substr( $ua, 0, self::MAX_USER_AGENT_LENGTH );
 		}
 
 		return '';
@@ -144,7 +165,8 @@ class IPTracker implements IPTrackerInterface {
 	public function get_referrer(): string {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		if ( ! empty( $_SERVER['HTTP_REFERER'] ) ) {
-			return $this->strip_query_string( esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) );
+			$referrer = $this->strip_query_string( esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) );
+			return substr( $referrer, 0, self::MAX_REFERRER_LENGTH );
 		}
 
 		return '';
@@ -159,7 +181,8 @@ class IPTracker implements IPTrackerInterface {
 	public function get_request_uri(): string {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		if ( ! empty( $_SERVER['REQUEST_URI'] ) ) {
-			return $this->strip_query_string( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) );
+			$request_uri = $this->strip_query_string( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) );
+			return substr( $request_uri, 0, self::MAX_REQUEST_URI_LENGTH );
 		}
 
 		return '';
@@ -189,9 +212,8 @@ class IPTracker implements IPTrackerInterface {
 	private function get_forwarded_ip(): ?string {
 		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		if ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-			$forwarded_ips = explode( ',', sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) );
 			// Use rightmost IP — the one the trusted proxy actually appended.
-			$ip = trim( end( $forwarded_ips ) );
+			$ip = $this->extract_rightmost_ip( sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) );
 			if ( filter_var( $ip, FILTER_VALIDATE_IP ) ) {
 				return $ip;
 			}
@@ -217,5 +239,23 @@ class IPTracker implements IPTrackerInterface {
 	 */
 	private function strip_query_string( string $value ): string {
 		return (string) strtok( $value, '?#' );
+	}
+
+	/**
+	 * Extract the rightmost IP-like token from a comma-separated header value.
+	 *
+	 * @param string $value Header value.
+	 * @return string Candidate IP token.
+	 * @since 1.0.0
+	 */
+	private function extract_rightmost_ip( string $value ): string {
+		if ( ! str_contains( $value, ',' ) ) {
+			return trim( $value );
+		}
+
+		$parts = array_map( 'trim', explode( ',', $value ) );
+		$ip    = end( $parts );
+
+		return is_string( $ip ) ? $ip : '';
 	}
 }

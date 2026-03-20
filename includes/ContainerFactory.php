@@ -25,6 +25,7 @@ use Labyrinth\Repository\RequestLogRepositoryInterface;
 use Labyrinth\Service\IPTrackerInterface;
 use Labyrinth\Service\DnsResolverInterface;
 use Labyrinth\Service\CrawlerVerifierInterface;
+use Labyrinth\Admin\SettingsSanitizer;
 use Labyrinth\WordPress\ContextInterface;
 use Labyrinth\WordPress\WordPressContext;
 use function DI\autowire;
@@ -205,39 +206,39 @@ class ContainerFactory {
 			},
 
 			'config.lby_links_per_page'               => function () {
-				return (int) get_option( 'lby_links_per_page', 3 );
+				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'lby_links_per_page', 3 ), 'lby_links_per_page' );
 			},
 
 			'config.lby_injection_method'             => function () {
-				return get_option( 'lby_injection_method', 'content' );
+				return SettingsSanitizer::sanitize_injection_method( get_option( 'lby_injection_method', 'content' ) );
 			},
 
 			'config.lby_max_depth'                    => function () {
-				return (int) get_option( 'lby_max_depth', 5 );
+				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'lby_max_depth', 5 ), 'lby_max_depth' );
 			},
 
 			'config.lby_links_per_trap_page'          => function () {
-				return (int) get_option( 'lby_links_per_trap_page', 5 );
+				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'lby_links_per_trap_page', 5 ), 'lby_links_per_trap_page' );
 			},
 
 			'config.lby_initial_page_count'           => function () {
-				return (int) get_option( 'lby_initial_page_count', 20 );
+				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'lby_initial_page_count', 20 ), 'lby_initial_page_count' );
 			},
 
 			'config.lby_points_per_visit'             => function () {
-				return (int) get_option( 'lby_points_per_visit', 25 );
+				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'lby_points_per_visit', 25 ), 'lby_points_per_visit' );
 			},
 
 			'config.lby_depth_bonus'                  => function () {
-				return (int) get_option( 'lby_depth_bonus', 15 );
+				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'lby_depth_bonus', 15 ), 'lby_depth_bonus', true );
 			},
 
 			'config.lby_block_threshold'              => function () {
-				return (int) get_option( 'lby_block_threshold', 100 );
+				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'lby_block_threshold', 100 ), 'lby_block_threshold' );
 			},
 
 			'config.lby_log_retention_days'           => function () {
-				return (int) get_option( 'lby_log_retention_days', 30 );
+				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'lby_log_retention_days', 30 ), 'lby_log_retention_days' );
 			},
 
 			'config.lby_robots_txt_enabled'           => function () {

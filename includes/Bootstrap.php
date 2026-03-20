@@ -335,7 +335,7 @@ class Bootstrap {
 		try {
 			// Prune old request logs.
 			$log_repo       = $this->container->get( 'Labyrinth\Repository\RequestLogRepositoryInterface' );
-			$retention_days = (int) get_option( 'lby_log_retention_days', 30 );
+			$retention_days = $this->container->get( 'config.lby_log_retention_days' );
 			$log_repo->prune_old_entries( $retention_days );
 
 			// Ensure minimum trap pages exist (only when enabled).

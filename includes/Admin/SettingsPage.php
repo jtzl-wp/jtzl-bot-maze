@@ -236,13 +236,17 @@ class SettingsPage {
 	 * @since 1.0.0
 	 */
 	private function register_trap_link_fields(): void {
+		$sanitize_bounded_positive = static function ( string $option_key ): callable {
+			return static fn( $value ): int => SettingsSanitizer::sanitize_option_bounded_integer( $value, $option_key );
+		};
+
 		// Links per real page.
 		register_setting(
 			self::SETTINGS_GROUP,
 			'lby_links_per_page',
 			array(
 				'type'              => 'integer',
-				'sanitize_callback' => array( SettingsSanitizer::class, 'sanitize_positive_integer' ),
+				'sanitize_callback' => $sanitize_bounded_positive( 'lby_links_per_page' ),
 				'default'           => 3,
 			)
 		);
@@ -297,13 +301,17 @@ class SettingsPage {
 	 * @since 1.0.0
 	 */
 	private function register_labyrinth_fields(): void {
+		$sanitize_bounded_positive = static function ( string $option_key ): callable {
+			return static fn( $value ): int => SettingsSanitizer::sanitize_option_bounded_integer( $value, $option_key );
+		};
+
 		// Max depth.
 		register_setting(
 			self::SETTINGS_GROUP,
 			'lby_max_depth',
 			array(
 				'type'              => 'integer',
-				'sanitize_callback' => array( SettingsSanitizer::class, 'sanitize_positive_integer' ),
+				'sanitize_callback' => $sanitize_bounded_positive( 'lby_max_depth' ),
 				'default'           => 5,
 			)
 		);
@@ -328,7 +336,7 @@ class SettingsPage {
 			'lby_links_per_trap_page',
 			array(
 				'type'              => 'integer',
-				'sanitize_callback' => array( SettingsSanitizer::class, 'sanitize_positive_integer' ),
+				'sanitize_callback' => $sanitize_bounded_positive( 'lby_links_per_trap_page' ),
 				'default'           => 5,
 			)
 		);
@@ -353,7 +361,7 @@ class SettingsPage {
 			'lby_initial_page_count',
 			array(
 				'type'              => 'integer',
-				'sanitize_callback' => array( SettingsSanitizer::class, 'sanitize_positive_integer' ),
+				'sanitize_callback' => $sanitize_bounded_positive( 'lby_initial_page_count' ),
 				'default'           => 20,
 			)
 		);
@@ -386,7 +394,7 @@ class SettingsPage {
 			'lby_points_per_visit',
 			array(
 				'type'              => 'integer',
-				'sanitize_callback' => array( SettingsSanitizer::class, 'sanitize_positive_integer' ),
+				'sanitize_callback' => static fn( $value ): int => SettingsSanitizer::sanitize_option_bounded_integer( $value, 'lby_points_per_visit' ),
 				'default'           => 25,
 			)
 		);
@@ -410,7 +418,7 @@ class SettingsPage {
 			'lby_depth_bonus',
 			array(
 				'type'              => 'integer',
-				'sanitize_callback' => array( SettingsSanitizer::class, 'sanitize_non_negative_integer' ),
+				'sanitize_callback' => static fn( $value ): int => SettingsSanitizer::sanitize_option_bounded_integer( $value, 'lby_depth_bonus', true ),
 				'default'           => 15,
 			)
 		);
@@ -434,7 +442,7 @@ class SettingsPage {
 			'lby_block_threshold',
 			array(
 				'type'              => 'integer',
-				'sanitize_callback' => array( SettingsSanitizer::class, 'sanitize_positive_integer' ),
+				'sanitize_callback' => static fn( $value ): int => SettingsSanitizer::sanitize_option_bounded_integer( $value, 'lby_block_threshold' ),
 				'default'           => 100,
 			)
 		);
@@ -497,7 +505,7 @@ class SettingsPage {
 			'lby_log_retention_days',
 			array(
 				'type'              => 'integer',
-				'sanitize_callback' => array( SettingsSanitizer::class, 'sanitize_positive_integer' ),
+				'sanitize_callback' => static fn( $value ): int => SettingsSanitizer::sanitize_option_bounded_integer( $value, 'lby_log_retention_days' ),
 				'default'           => 30,
 			)
 		);

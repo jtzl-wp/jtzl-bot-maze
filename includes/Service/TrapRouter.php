@@ -17,6 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // @codeCoverageIgnoreEnd
 
 use Labyrinth\Repository\TrapPageRepositoryInterface;
+use Labyrinth\Entity\TrapPage;
 use Labyrinth\Service\TrapPageGenerator;
 use Labyrinth\WordPress\ContextInterface;
 
@@ -28,6 +29,17 @@ use Labyrinth\WordPress\ContextInterface;
  * @since 1.0.0
  */
 class TrapRouter {
+
+	/**
+	 * Trap page cache for the current request keyed by slug.
+	 *
+	 * Avoids duplicate repository reads when both template_redirect and
+	 * template_include resolve the same trap page.
+	 *
+	 * @var array<string, TrapPage|null>
+	 * @since 1.0.0
+	 */
+	private array $trap_page_cache = array();
 
 	/**
 	 * Trap page repository.
@@ -156,7 +168,7 @@ class TrapRouter {
 			return;
 		}
 
-		$trap_page = $this->repository->find_by_slug( $slug );
+		$trap_page = $this->get_trap_page_by_slug( $slug );
 
 		if ( null === $trap_page ) {
 			// Return 404 for non-existent trap pages.
@@ -205,7 +217,7 @@ class TrapRouter {
 			return $template;
 		}
 
-		$trap_page = $this->repository->find_by_slug( $slug );
+		$trap_page = $this->get_trap_page_by_slug( $slug );
 
 		if ( null === $trap_page ) {
 			return $template;
@@ -236,5 +248,22 @@ class TrapRouter {
 		}
 
 		return $template;
+	}
+
+	/**
+	 * Resolve and cache a trap page by slug for this request.
+	 *
+	 * @param string $slug Trap page slug.
+	 * @return TrapPage|null
+	 * @since 1.0.0
+	 */
+	private function get_trap_page_by_slug( string $slug ): ?TrapPage {
+		if ( array_key_exists( $slug, $this->trap_page_cache ) ) {
+			return $this->trap_page_cache[ $slug ];
+		}
+
+		$this->trap_page_cache[ $slug ] = $this->repository->find_by_slug( $slug );
+
+		return $this->trap_page_cache[ $slug ];
 	}
 }
