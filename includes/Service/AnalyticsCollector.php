@@ -195,6 +195,16 @@ class AnalyticsCollector {
 	}
 
 	/**
+	 * Get all active trap pages.
+	 *
+	 * @return array Array of TrapPage entities.
+	 * @since 1.0.0
+	 */
+	public function get_all_active_trap_pages(): array {
+		return $this->trap_page_repo->get_all_active();
+	}
+
+	/**
 	 * Get recent activity (trap visits).
 	 *
 	 * @param int $limit Number of entries.

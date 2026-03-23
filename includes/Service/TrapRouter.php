@@ -188,6 +188,11 @@ class TrapRouter {
 			// @codeCoverageIgnoreEnd
 		}
 
+		// Skip visit recording for admin users previewing trap pages.
+		if ( $this->wp->current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
 		// Defer visit recording to shutdown (after response sent).
 		$this->wp->add_action(
 			'shutdown',

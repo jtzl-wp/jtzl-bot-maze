@@ -24,10 +24,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<!-- Summary Cards -->
 		<div class="lby-summary-cards">
-			<div class="lby-card">
+			<a href="<?php echo esc_url( admin_url( 'admin.php?page=labyrinth-trap-pages' ) ); ?>" class="lby-card lby-card-link">
 				<h3><?php echo esc_html__( 'Active Trap Pages', 'labyrinth' ); ?></h3>
 				<span class="lby-card-value" id="lby-stat-trap-pages"><?php echo esc_html( number_format_i18n( $summary['total_trap_pages'] ) ); ?></span>
-			</div>
+			</a>
 			<div class="lby-card">
 				<h3><?php echo esc_html__( 'Trap Visits (7 Days)', 'labyrinth' ); ?></h3>
 				<span class="lby-card-value" id="lby-stat-recent-visits"><?php echo esc_html( number_format_i18n( $summary['visits_last_7_days'] ) ); ?></span>

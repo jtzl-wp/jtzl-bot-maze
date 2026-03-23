@@ -170,6 +170,12 @@ class Bootstrap {
 			$settings_page = new Admin\SettingsPage();
 			$settings_page->init();
 
+			$trap_pages_page = new Admin\TrapPagesPage(
+				$this->container->get( 'Labyrinth\Service\AnalyticsCollector' ),
+				$this->container->get( 'config.lby_trap_base_path' )
+			);
+			$trap_pages_page->init();
+
 			$analytics_dashboard = new Admin\AnalyticsDashboard(
 				$this->container->get( 'Labyrinth\Service\AnalyticsCollector' )
 			);
