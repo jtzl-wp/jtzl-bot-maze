@@ -222,7 +222,6 @@ async function refreshDashboard(): Promise<void> {
 function updateSummary(summary: SummaryStats): void {
 	const map: Record<string, keyof SummaryStats> = {
 		'lby-stat-trap-pages': 'total_trap_pages',
-		'lby-stat-total-visits': 'total_visits',
 		'lby-stat-recent-visits': 'visits_last_7_days',
 		'lby-stat-total-bots': 'total_bots',
 		'lby-stat-blocked-bots': 'blocked_bots',
@@ -233,6 +232,17 @@ function updateSummary(summary: SummaryStats): void {
 		if (el) {
 			el.textContent = String(summary[key] ?? 0);
 		}
+	}
+
+	// Update alert styling: remove alert if no bots blocked.
+	const ratioCard = document
+		.getElementById('lby-stat-bot-ratio')
+		?.closest('.lby-card');
+	if (ratioCard) {
+		ratioCard.classList.toggle(
+			'lby-card-alert',
+			(summary.blocked_bots ?? 0) > 0
+		);
 	}
 }
 

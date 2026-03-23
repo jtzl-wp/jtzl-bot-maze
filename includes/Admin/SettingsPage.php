@@ -31,7 +31,7 @@ class SettingsPage {
 	 * @var string
 	 * @since 1.0.0
 	 */
-	private const PAGE_SLUG = 'labyrinth';
+	private const PAGE_SLUG = 'labyrinth-settings';
 
 	/**
 	 * The settings group name.
@@ -59,20 +59,8 @@ class SettingsPage {
 	 * @since 1.0.0
 	 */
 	public function register_menu(): void {
-		// Add top-level menu.
-		add_menu_page(
-			__( 'Labyrinth Bot Protection', 'labyrinth' ),
-			__( 'Labyrinth', 'labyrinth' ),
-			'manage_options',
-			self::PAGE_SLUG,
-			array( $this, 'render_page' ),
-			'dashicons-shield',
-			80
-		);
-
-		// Add settings submenu (replaces the default first submenu).
 		add_submenu_page(
-			self::PAGE_SLUG,
+			'labyrinth',
 			__( 'Labyrinth Settings', 'labyrinth' ),
 			__( 'Settings', 'labyrinth' ),
 			'manage_options',

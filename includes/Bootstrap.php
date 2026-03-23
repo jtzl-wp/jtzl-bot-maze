@@ -163,6 +163,10 @@ class Bootstrap {
 
 		// Initialize admin pages.
 		if ( $wp->is_admin() ) {
+			// About page first — registers the top-level menu.
+			$about_page = new Admin\AboutPage();
+			$about_page->init();
+
 			$settings_page = new Admin\SettingsPage();
 			$settings_page->init();
 

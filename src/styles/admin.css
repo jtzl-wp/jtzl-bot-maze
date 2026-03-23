@@ -39,6 +39,17 @@
 	color: #d63638;
 }
 
+.lby-ratio-separator {
+	color: #646970;
+	font-weight: 400;
+}
+
+.lby-card-alert #lby-stat-total-bots {
+	color: #646970;
+	font-size: 20px;
+	font-weight: 400;
+}
+
 /* Sections */
 .lby-section {
 	background: #fff;
