@@ -4,7 +4,7 @@ Tags: security, bot-protection, anti-scraping, honeypot, ai-bot
 Requires at least: 6.9
 Tested up to: 6.9
 Requires PHP: 8.2
-Stable tag: 1.0.0-rc.2
+Stable tag: 1.0.0-rc.3
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -69,6 +69,9 @@ Trap pages are generated from a built-in content template engine that produces r
 Check the **Labyrinth** analytics dashboard in the WordPress admin. It shows total trap visits, unique bot IPs, score distribution, and top offenders.
 
 == Changelog ==
+
+= 1.0.0-rc.3 =
+* Added privacy policy suggestion for GDPR compliance.
 
 = 1.0.0-rc.2 =
 * Added the About Page.
