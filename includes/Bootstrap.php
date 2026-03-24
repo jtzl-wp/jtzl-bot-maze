@@ -183,7 +183,32 @@ class Bootstrap {
 
 			// Enqueue admin assets.
 			$wp->add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
+
+			// Privacy policy suggestion.
+			$wp->add_action( 'admin_init', array( $this, 'add_privacy_policy_content' ) );
 		}
+	}
+
+	/**
+	 * Add suggested privacy policy text for the plugin.
+	 *
+	 * @return void
+	 * @since 1.0.0
+	 */
+	public function add_privacy_policy_content(): void {
+		$content = sprintf(
+			'<h2>%s</h2><p>%s</p><p>%s</p><p>%s</p>',
+			esc_html__( 'Labyrinth Bot Protection', 'labyrinth' ),
+			esc_html__( 'This site uses the Labyrinth plugin to detect and block malicious bots and unauthorized scrapers. When a visitor accesses a trap page (a hidden page that only bots would find), the plugin records their IP address, user agent string, and the time of visit for security purposes.', 'labyrinth' ),
+			esc_html__( 'This data is collected under the legal basis of legitimate interest (GDPR Article 6(1)(f)) to protect the website from automated abuse. Only visitors that access trap pages are recorded; normal browsing of the site is not tracked by this plugin.', 'labyrinth' ),
+			sprintf(
+				/* translators: %s: default retention period */
+				esc_html__( 'Collected data is automatically deleted after a configurable retention period (default: %s days). No data is shared with third-party services.', 'labyrinth' ),
+				'30'
+			)
+		);
+
+		wp_add_privacy_policy_content( 'Labyrinth', $content );
 	}
 
 	/**
