@@ -181,6 +181,11 @@ class Bootstrap {
 			);
 			$analytics_dashboard->init();
 
+			$blocked_bots_page = new Admin\BlockedBotsPage(
+				$this->container->get( 'Labyrinth\Service\AnalyticsCollector' )
+			);
+			$blocked_bots_page->init();
+
 			// Enqueue admin assets.
 			$wp->add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
 
@@ -219,7 +224,11 @@ class Bootstrap {
 	 * @since 1.0.0
 	 */
 	public function enqueue_admin_assets( string $hook_suffix ): void {
-		if ( 'labyrinth_page_labyrinth-analytics' !== $hook_suffix ) {
+		$allowed = array(
+			'labyrinth_page_labyrinth-analytics',
+			'labyrinth_page_labyrinth-blocked-bots',
+		);
+		if ( ! in_array( $hook_suffix, $allowed, true ) ) {
 			return;
 		}
 

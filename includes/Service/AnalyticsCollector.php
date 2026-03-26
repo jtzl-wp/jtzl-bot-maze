@@ -195,6 +195,39 @@ class AnalyticsCollector {
 	}
 
 	/**
+	 * Get blocked bots with resolved user agents.
+	 *
+	 * @param int $limit  Number of results.
+	 * @param int $offset Offset for pagination.
+	 * @return array Array of bot data arrays.
+	 * @since 1.0.0
+	 */
+	public function get_blocked_bots( int $limit = 50, int $offset = 0 ): array {
+		$bots = $this->score_repo->get_blocked( $limit, $offset );
+
+		$ua_map = $this->build_ua_lookup( $bots );
+
+		return array_map(
+			function ( $bot ) use ( $ua_map ) {
+				$key = $bot->ip_address . '|' . $bot->user_agent_hash;
+				$ua  = $ua_map[ $key ] ?? $bot->user_agent_hash;
+				return array(
+					'id'                => $bot->id,
+					'ip_address'        => $bot->ip_address,
+					'user_agent'        => $ua,
+					'score'             => $bot->score,
+					'trap_visits_count' => $bot->trap_visits_count,
+					'max_depth_reached' => $bot->max_depth_reached,
+					'first_seen_at'     => $bot->first_seen_at->format( 'Y-m-d H:i:s' ),
+					'last_seen_at'      => $bot->last_seen_at->format( 'Y-m-d H:i:s' ),
+					'is_blocked'        => $bot->is_blocked,
+				);
+			},
+			$bots
+		);
+	}
+
+	/**
 	 * Get all active trap pages.
 	 *
 	 * @return array Array of TrapPage entities.

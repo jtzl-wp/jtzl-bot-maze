@@ -28,18 +28,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<h3><?php echo esc_html__( 'Active Trap Pages', 'labyrinth' ); ?></h3>
 				<span class="lby-card-value" id="lby-stat-trap-pages"><?php echo esc_html( number_format_i18n( $summary['total_trap_pages'] ) ); ?></span>
 			</a>
-			<div class="lby-card">
+			<a href="#lby-activity-table" class="lby-card lby-card-link">
 				<h3><?php echo esc_html__( 'Trap Visits (7 Days)', 'labyrinth' ); ?></h3>
 				<span class="lby-card-value" id="lby-stat-recent-visits"><?php echo esc_html( number_format_i18n( $summary['visits_last_7_days'] ) ); ?></span>
-			</div>
-			<div class="lby-card<?php echo $summary['blocked_bots'] > 0 ? ' lby-card-alert' : ''; ?>">
+			</a>
+			<a href="<?php echo esc_url( admin_url( 'admin.php?page=labyrinth-blocked-bots' ) ); ?>" class="lby-card lby-card-link<?php echo $summary['blocked_bots'] > 0 ? ' lby-card-alert' : ''; ?>">
 				<h3><?php echo esc_html__( 'Bots Blocked / Detected', 'labyrinth' ); ?></h3>
 				<span class="lby-card-value" id="lby-stat-bot-ratio">
 					<span id="lby-stat-blocked-bots"><?php echo esc_html( number_format_i18n( $summary['blocked_bots'] ) ); ?></span>
 					<span class="lby-ratio-separator"> / </span>
 					<span id="lby-stat-total-bots"><?php echo esc_html( number_format_i18n( $summary['total_bots'] ) ); ?></span>
 				</span>
-			</div>
+			</a>
 		</div>
 
 		<!-- Chart -->

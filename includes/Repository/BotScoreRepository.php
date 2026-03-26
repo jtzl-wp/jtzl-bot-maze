@@ -238,6 +238,30 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 	}
 
 	/**
+	 * Get blocked bots ordered by last seen.
+	 *
+	 * @param int $limit  Number of results.
+	 * @param int $offset Offset for pagination.
+	 * @return BotScore[] Array of blocked bot score entities.
+	 * @since 1.0.0
+	 */
+	public function get_blocked( int $limit = 50, int $offset = 0 ): array {
+		$query = $this->wpdb->prepare(
+			"SELECT * FROM {$this->table_name} WHERE is_blocked = 1 ORDER BY last_seen_at DESC LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$limit,
+			$offset
+		);
+
+		$rows = $this->wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+		if ( empty( $rows ) ) {
+			return array();
+		}
+
+		return array_map( array( $this, 'hydrate' ), $rows );
+	}
+
+	/**
 	 * Prune bot scores that have been inactive longer than the specified number of days.
 	 *
 	 * This retention policy applies to blocked identities too.

@@ -100,6 +100,16 @@ interface BotScoreRepositoryInterface {
 	public function count_blocked(): int;
 
 	/**
+	 * Get blocked bots ordered by last seen.
+	 *
+	 * @param int $limit  Number of results.
+	 * @param int $offset Offset for pagination.
+	 * @return BotScore[] Array of blocked bot score entities.
+	 * @since 1.0.0
+	 */
+	public function get_blocked( int $limit = 50, int $offset = 0 ): array;
+
+	/**
 	 * Prune bot scores that have been inactive longer than the specified number of days.
 	 *
 	 * @param int $days Number of days to retain.
