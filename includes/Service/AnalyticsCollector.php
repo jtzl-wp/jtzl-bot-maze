@@ -195,6 +195,33 @@ class AnalyticsCollector {
 	}
 
 	/**
+	 * Record a visit from a blocked bot.
+	 *
+	 * Updates the bot's last_seen_at and visit count, and logs the request.
+	 *
+	 * @param string $ip_address      Visitor IP.
+	 * @param string $user_agent_hash UA hash.
+	 * @param string $user_agent      Full user agent string.
+	 * @param string $request_uri     Request URI.
+	 * @param int    $response_code   HTTP response code that will be sent.
+	 * @return void
+	 * @since 1.0.0
+	 */
+	public function record_blocked_visit( string $ip_address, string $user_agent_hash, string $user_agent, string $request_uri, int $response_code = 403 ): void {
+		$this->score_repo->touch_blocked_visit( $ip_address, $user_agent_hash );
+
+		$this->log_repo->create(
+			array(
+				'ip_address'    => $ip_address,
+				'request_uri'   => $request_uri,
+				'user_agent'    => $user_agent,
+				'request_type'  => 'blocked_visit',
+				'response_code' => $response_code,
+			)
+		);
+	}
+
+	/**
 	 * Get blocked bots with resolved user agents.
 	 *
 	 * @param int $limit  Number of results.

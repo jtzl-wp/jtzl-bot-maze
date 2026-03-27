@@ -238,6 +238,27 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 	}
 
 	/**
+	 * Update last_seen_at and increment visit count for a blocked bot.
+	 *
+	 * @param string $ip_address      Visitor IP.
+	 * @param string $user_agent_hash UA hash.
+	 * @return bool True on success.
+	 * @since 1.0.0
+	 */
+	public function touch_blocked_visit( string $ip_address, string $user_agent_hash ): bool {
+		$sql = $this->wpdb->prepare(
+			"UPDATE {$this->table_name} SET trap_visits_count = trap_visits_count + 1, last_seen_at = %s WHERE ip_address = %s AND user_agent_hash = %s AND is_blocked = 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			current_time( 'mysql' ),
+			$ip_address,
+			$user_agent_hash
+		);
+
+		$result = $this->wpdb->query( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+		return false !== $result && $result > 0;
+	}
+
+	/**
 	 * Get blocked bots ordered by last seen.
 	 *
 	 * @param int $limit  Number of results.

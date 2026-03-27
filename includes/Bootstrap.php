@@ -86,15 +86,16 @@ class Bootstrap {
 		);
 
 		// Initialize bot blocking.
-		$detector  = $this->container->get( 'Labyrinth\Service\BotDetector' );
-		$repo      = $this->container->get( 'Labyrinth\Repository\TrapPageRepositoryInterface' );
-		$generator = $this->container->get( 'Labyrinth\Service\TrapPageGenerator' );
-		$max_depth = $this->container->get( 'config.lby_max_depth' );
-		$base_path = $this->container->get( 'config.lby_trap_base_path' );
+		$detector   = $this->container->get( 'Labyrinth\Service\BotDetector' );
+		$repo       = $this->container->get( 'Labyrinth\Repository\TrapPageRepositoryInterface' );
+		$generator  = $this->container->get( 'Labyrinth\Service\TrapPageGenerator' );
+		$max_depth  = $this->container->get( 'config.lby_max_depth' );
+		$base_path  = $this->container->get( 'config.lby_trap_base_path' );
+		$container  = $this->container;
 
 		$wp->add_action(
 			'template_redirect',
-			function () use ( $detector, $repo, $generator, $max_depth, $base_path, $wp ) {
+			function () use ( $detector, $repo, $generator, $max_depth, $base_path, $wp, $container ) {
 				// Skip blocking entirely when the labyrinth is disabled.
 				if ( ! (bool) $wp->get_option( 'lby_enabled', true ) ) {
 					return;
@@ -106,6 +107,27 @@ class Bootstrap {
 				}
 
 				if ( $detector->is_visitor_blocked() ) {
+					// Build a tracking helper that logs at each exit point with the actual response code.
+					// Only tracks trap page requests — non-trap visits from blocked bots are not recorded.
+					$track_visit = static function ( int $response_code ) use ( $wp, $container, $base_path ): void {
+						if ( ! (bool) $wp->get_option( 'lby_track_blocked_activity', false ) ) {
+							return;
+						}
+						$ip_tracker  = $container->get( 'Labyrinth\Service\IPTrackerInterface' );
+						$request_uri = $ip_tracker->get_request_uri();
+						if ( strpos( $request_uri, '/' . $base_path . '/' ) !== 0 ) {
+							return;
+						}
+						$collector = $container->get( 'Labyrinth\Service\AnalyticsCollector' );
+						$collector->record_blocked_visit(
+							$ip_tracker->get_client_ip(),
+							$ip_tracker->get_user_agent_hash(),
+							$ip_tracker->get_user_agent(),
+							$request_uri,
+							$response_code
+						);
+					};
+
 					$behavior = $wp->get_option( 'lby_blocking_behavior', 'tarpit_light' );
 					$is_light = ( 'tarpit_light' === $behavior );
 					$is_full  = ( 'tarpit' === $behavior );
@@ -122,6 +144,8 @@ class Bootstrap {
 						$page  = ! empty( $pages ) ? $pages[0] : null;
 
 						if ( $page ) {
+							$track_visit( 200 );
+
 							// Set globals for the trap page template.
 							$GLOBALS['lby_trap_page'] = $page;
 							$children                 = $repo->get_children( $page->id );
@@ -149,7 +173,8 @@ class Bootstrap {
 						}
 					}
 
-					// Default 'block' behavior.
+					// Default 'block' behavior (also tarpit fallback when no trap pages exist).
+					$track_visit( 403 );
 					$wp->wp_die(
 						'<h1>' . esc_html__( 'Access Denied', 'labyrinth' ) . '</h1>' .
 						'<p>' . esc_html__( 'Your IP address has been blocked due to suspicious activity.', 'labyrinth' ) . '</p>',

@@ -478,6 +478,29 @@ class SettingsPage {
 				),
 			)
 		);
+
+		// Track blocked bot activity.
+		register_setting(
+			self::SETTINGS_GROUP,
+			'lby_track_blocked_activity',
+			array(
+				'type'              => 'boolean',
+				'sanitize_callback' => array( SettingsSanitizer::class, 'sanitize_checkbox' ),
+				'default'           => false,
+			)
+		);
+
+		add_settings_field(
+			'lby_track_blocked_activity',
+			__( 'Track Blocked Bot Activity', 'labyrinth' ),
+			array( $this, 'render_checkbox_field' ),
+			self::PAGE_SLUG,
+			'lby_scoring_settings',
+			array(
+				'label_for'   => 'lby_track_blocked_activity',
+				'description' => __( 'Continue recording visits from blocked bots (updates last-seen time, increments visit count, and logs the request). Useful for monitoring persistent bots, but increases database writes. Default: off.', 'labyrinth' ),
+			)
+		);
 	}
 
 	/**

@@ -100,6 +100,16 @@ interface BotScoreRepositoryInterface {
 	public function count_blocked(): int;
 
 	/**
+	 * Update last_seen_at and increment visit count for a blocked bot.
+	 *
+	 * @param string $ip_address      Visitor IP.
+	 * @param string $user_agent_hash UA hash.
+	 * @return bool True on success.
+	 * @since 1.0.0
+	 */
+	public function touch_blocked_visit( string $ip_address, string $user_agent_hash ): bool;
+
+	/**
 	 * Get blocked bots ordered by last seen.
 	 *
 	 * @param int $limit  Number of results.
