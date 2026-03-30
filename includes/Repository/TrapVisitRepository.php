@@ -68,10 +68,12 @@ class TrapVisitRepository implements TrapVisitRepositoryInterface {
 			'referrer'      => $data['referrer'] ?? '',
 			'session_id'    => $data['session_id'] ?? '',
 			'depth_reached' => $data['depth_reached'] ?? 1,
+			'request_type'  => $data['request_type'] ?? '',
+			'response_code' => $data['response_code'] ?? 200,
 			'visited_at'    => $data['visited_at'] ?? current_time( 'mysql' ),
 		);
 
-		$format = array( '%d', '%s', '%s', '%s', '%s', '%d', '%s' );
+		$format = array( '%d', '%s', '%s', '%s', '%s', '%d', '%s', '%d', '%s' );
 
 		$result = $this->wpdb->insert( $this->table_name, $insert_data, $format );
 
@@ -147,7 +149,7 @@ class TrapVisitRepository implements TrapVisitRepositoryInterface {
 	 * @since 1.0.0
 	 */
 	public function count_total(): int {
-		$query = "SELECT COUNT(*) FROM {$this->table_name}"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$query = "SELECT COUNT(*) FROM {$this->table_name} WHERE request_type IN ('', 'trap_visit')"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return (int) $this->wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 	}
@@ -180,7 +182,7 @@ class TrapVisitRepository implements TrapVisitRepositoryInterface {
 	 */
 	public function count_recent_days( int $days ): int {
 		$query = $this->wpdb->prepare(
-			"SELECT COUNT(*) FROM {$this->table_name} WHERE visited_at >= DATE_SUB(%s, INTERVAL %d DAY)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			"SELECT COUNT(*) FROM {$this->table_name} WHERE request_type IN ('', 'trap_visit') AND visited_at >= DATE_SUB(%s, INTERVAL %d DAY)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			current_time( 'mysql' ),
 			$days
 		);
@@ -197,7 +199,7 @@ class TrapVisitRepository implements TrapVisitRepositoryInterface {
 	 */
 	public function get_daily_counts( int $days = 30 ): array {
 		$query = $this->wpdb->prepare(
-			"SELECT DATE(visited_at) as visit_date, COUNT(*) as visit_count FROM {$this->table_name} WHERE visited_at >= DATE_SUB(%s, INTERVAL %d DAY) GROUP BY DATE(visited_at) ORDER BY visit_date ASC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			"SELECT DATE(visited_at) as visit_date, COUNT(*) as visit_count FROM {$this->table_name} WHERE request_type IN ('', 'trap_visit') AND visited_at >= DATE_SUB(%s, INTERVAL %d DAY) GROUP BY DATE(visited_at) ORDER BY visit_date ASC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			current_time( 'mysql' ),
 			$days
 		);
@@ -230,7 +232,9 @@ class TrapVisitRepository implements TrapVisitRepositoryInterface {
 			$row['referrer'] ?? '',
 			$row['session_id'] ?? '',
 			(int) ( $row['depth_reached'] ?? 1 ),
-			new DateTime( $row['visited_at'] )
+			new DateTime( $row['visited_at'] ),
+			$row['request_type'] ?? '',
+			(int) ( $row['response_code'] ?? 200 )
 		);
 	}
 }

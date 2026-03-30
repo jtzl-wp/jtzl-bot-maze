@@ -90,6 +90,22 @@ class TrapVisit {
 	public DateTime $visited_at;
 
 	/**
+	 * Request type (e.g. 'trap_visit', 'crawler_exempted', 'blocked_visit').
+	 *
+	 * @var string
+	 * @since 1.0.0
+	 */
+	public string $request_type;
+
+	/**
+	 * HTTP response code sent for this request.
+	 *
+	 * @var int
+	 * @since 1.0.0
+	 */
+	public int $response_code;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param int      $id            Visit ID.
@@ -100,6 +116,8 @@ class TrapVisit {
 	 * @param string   $session_id    Session ID.
 	 * @param int      $depth_reached Depth reached.
 	 * @param DateTime $visited_at    Visit timestamp.
+	 * @param string   $request_type  Request type.
+	 * @param int      $response_code HTTP response code.
 	 * @since 1.0.0
 	 */
 	public function __construct(
@@ -110,7 +128,9 @@ class TrapVisit {
 		string $referrer,
 		string $session_id,
 		int $depth_reached,
-		DateTime $visited_at
+		DateTime $visited_at,
+		string $request_type = '',
+		int $response_code = 200
 	) {
 		$this->id            = $id;
 		$this->trap_page_id  = $trap_page_id;
@@ -120,5 +140,7 @@ class TrapVisit {
 		$this->session_id    = $session_id;
 		$this->depth_reached = $depth_reached;
 		$this->visited_at    = $visited_at;
+		$this->request_type  = $request_type;
+		$this->response_code = $response_code;
 	}
 }

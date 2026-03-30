@@ -123,7 +123,6 @@ class Bootstrap {
 							$ip_tracker->get_client_ip(),
 							$ip_tracker->get_user_agent_hash(),
 							$ip_tracker->get_user_agent(),
-							$request_uri,
 							$response_code
 						);
 					};
@@ -404,12 +403,10 @@ class Bootstrap {
 		try {
 			$retention_days = $this->container->get( 'config.lby_retention_days' );
 
-			// Prune old request logs, trap visits, and stale bot scores.
-			$log_repo   = $this->container->get( 'Labyrinth\Repository\RequestLogRepositoryInterface' );
+			// Prune old trap visits and stale bot scores.
 			$visit_repo = $this->container->get( 'Labyrinth\Repository\TrapVisitRepositoryInterface' );
 			$score_repo = $this->container->get( 'Labyrinth\Repository\BotScoreRepositoryInterface' );
 
-			$log_repo->prune_old_entries( $retention_days );
 			$visit_repo->prune_old_entries( $retention_days );
 			$score_repo->prune_stale_entries( $retention_days );
 

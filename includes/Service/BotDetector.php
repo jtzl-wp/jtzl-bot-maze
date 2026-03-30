@@ -19,7 +19,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 use Labyrinth\Entity\TrapPage;
 use Labyrinth\Repository\BotScoreRepositoryInterface;
 use Labyrinth\Repository\TrapVisitRepositoryInterface;
-use Labyrinth\Repository\RequestLogRepositoryInterface;
 
 /**
  * Bot Detector
@@ -45,14 +44,6 @@ class BotDetector {
 	 * @since 1.0.0
 	 */
 	private TrapVisitRepositoryInterface $visit_repo;
-
-	/**
-	 * Request log repository.
-	 *
-	 * @var RequestLogRepositoryInterface
-	 * @since 1.0.0
-	 */
-	private RequestLogRepositoryInterface $log_repo;
 
 	/**
 	 * IP tracker service.
@@ -97,20 +88,18 @@ class BotDetector {
 	/**
 	 * Constructor.
 	 *
-	 * @param BotScoreRepositoryInterface   $score_repo       Bot score repository.
-	 * @param TrapVisitRepositoryInterface  $visit_repo       Trap visit repository.
-	 * @param RequestLogRepositoryInterface $log_repo         Request log repository.
-	 * @param IPTrackerInterface            $ip_tracker       IP tracker service.
-	 * @param CrawlerVerifierInterface      $crawler_verifier Crawler verifier service.
-	 * @param int                           $points_per_visit Base points per visit.
-	 * @param int                           $depth_bonus      Depth-level bonus multiplier.
-	 * @param int                           $block_threshold  Auto-block threshold.
+	 * @param BotScoreRepositoryInterface  $score_repo       Bot score repository.
+	 * @param TrapVisitRepositoryInterface $visit_repo       Trap visit repository.
+	 * @param IPTrackerInterface           $ip_tracker       IP tracker service.
+	 * @param CrawlerVerifierInterface     $crawler_verifier Crawler verifier service.
+	 * @param int                          $points_per_visit Base points per visit.
+	 * @param int                          $depth_bonus      Depth-level bonus multiplier.
+	 * @param int                          $block_threshold  Auto-block threshold.
 	 * @since 1.0.0
 	 */
 	public function __construct(
 		BotScoreRepositoryInterface $score_repo,
 		TrapVisitRepositoryInterface $visit_repo,
-		RequestLogRepositoryInterface $log_repo,
 		IPTrackerInterface $ip_tracker,
 		CrawlerVerifierInterface $crawler_verifier,
 		int $points_per_visit,
@@ -119,7 +108,6 @@ class BotDetector {
 	) {
 		$this->score_repo       = $score_repo;
 		$this->visit_repo       = $visit_repo;
-		$this->log_repo         = $log_repo;
 		$this->ip_tracker       = $ip_tracker;
 		$this->crawler_verifier = $crawler_verifier;
 		$this->points_per_visit = $points_per_visit;
@@ -146,11 +134,14 @@ class BotDetector {
 		}
 
 		if ( $this->crawler_verifier->is_verified_crawler( $ip, $ua ) ) {
-			$this->log_repo->create(
+			$this->visit_repo->create(
 				array(
+					'trap_page_id'  => $trap_page->id,
 					'ip_address'    => $ip,
-					'request_uri'   => $this->ip_tracker->get_request_uri(),
 					'user_agent'    => $ua,
+					'referrer'      => $referrer,
+					'session_id'    => $session_id,
+					'depth_reached' => $trap_page->depth_level,
 					'request_type'  => 'crawler_exempted',
 					'response_code' => 200,
 				)
@@ -167,15 +158,6 @@ class BotDetector {
 				'referrer'      => $referrer,
 				'session_id'    => $session_id,
 				'depth_reached' => $trap_page->depth_level,
-			)
-		);
-
-		// Log the raw request.
-		$this->log_repo->create(
-			array(
-				'ip_address'    => $ip,
-				'request_uri'   => $this->ip_tracker->get_request_uri(),
-				'user_agent'    => $ua,
 				'request_type'  => 'trap_visit',
 				'response_code' => 200,
 			)

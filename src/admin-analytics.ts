@@ -22,7 +22,6 @@ interface SummaryStats {
 	visits_last_7_days: number;
 	total_bots: number;
 	blocked_bots: number;
-	total_log_entries: number;
 }
 
 interface BotEntry {

@@ -19,7 +19,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 use Labyrinth\Repository\TrapPageRepositoryInterface;
 use Labyrinth\Repository\TrapVisitRepositoryInterface;
 use Labyrinth\Repository\BotScoreRepositoryInterface;
-use Labyrinth\Repository\RequestLogRepositoryInterface;
 
 /**
  * Analytics Collector
@@ -56,32 +55,21 @@ class AnalyticsCollector {
 	private BotScoreRepositoryInterface $score_repo;
 
 	/**
-	 * Request log repository.
-	 *
-	 * @var RequestLogRepositoryInterface
-	 * @since 1.0.0
-	 */
-	private RequestLogRepositoryInterface $log_repo;
-
-	/**
 	 * Constructor.
 	 *
-	 * @param TrapPageRepositoryInterface   $trap_page_repo Trap page repository.
-	 * @param TrapVisitRepositoryInterface  $visit_repo     Trap visit repository.
-	 * @param BotScoreRepositoryInterface   $score_repo     Bot score repository.
-	 * @param RequestLogRepositoryInterface $log_repo       Request log repository.
+	 * @param TrapPageRepositoryInterface  $trap_page_repo Trap page repository.
+	 * @param TrapVisitRepositoryInterface $visit_repo     Trap visit repository.
+	 * @param BotScoreRepositoryInterface  $score_repo     Bot score repository.
 	 * @since 1.0.0
 	 */
 	public function __construct(
 		TrapPageRepositoryInterface $trap_page_repo,
 		TrapVisitRepositoryInterface $visit_repo,
-		BotScoreRepositoryInterface $score_repo,
-		RequestLogRepositoryInterface $log_repo
+		BotScoreRepositoryInterface $score_repo
 	) {
 		$this->trap_page_repo = $trap_page_repo;
 		$this->visit_repo     = $visit_repo;
 		$this->score_repo     = $score_repo;
-		$this->log_repo       = $log_repo;
 	}
 
 	/**
@@ -97,7 +85,6 @@ class AnalyticsCollector {
 			'visits_last_7_days' => $this->visit_repo->count_recent_days( 7 ),
 			'total_bots'         => $this->score_repo->count_total(),
 			'blocked_bots'       => $this->score_repo->count_blocked(),
-			'total_log_entries'  => $this->log_repo->count_total(),
 		);
 	}
 
@@ -202,19 +189,21 @@ class AnalyticsCollector {
 	 * @param string $ip_address      Visitor IP.
 	 * @param string $user_agent_hash UA hash.
 	 * @param string $user_agent      Full user agent string.
-	 * @param string $request_uri     Request URI.
 	 * @param int    $response_code   HTTP response code that will be sent.
 	 * @return void
 	 * @since 1.0.0
 	 */
-	public function record_blocked_visit( string $ip_address, string $user_agent_hash, string $user_agent, string $request_uri, int $response_code = 403 ): void {
+	public function record_blocked_visit( string $ip_address, string $user_agent_hash, string $user_agent, int $response_code = 403 ): void {
 		$this->score_repo->touch_blocked_visit( $ip_address, $user_agent_hash );
 
-		$this->log_repo->create(
+		$this->visit_repo->create(
 			array(
+				'trap_page_id'  => 0,
 				'ip_address'    => $ip_address,
-				'request_uri'   => $request_uri,
 				'user_agent'    => $user_agent,
+				'referrer'      => '',
+				'session_id'    => '',
+				'depth_reached' => 0,
 				'request_type'  => 'blocked_visit',
 				'response_code' => $response_code,
 			)

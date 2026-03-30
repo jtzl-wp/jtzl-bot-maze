@@ -21,7 +21,6 @@ use DI\ContainerBuilder;
 use Labyrinth\Repository\TrapPageRepositoryInterface;
 use Labyrinth\Repository\TrapVisitRepositoryInterface;
 use Labyrinth\Repository\BotScoreRepositoryInterface;
-use Labyrinth\Repository\RequestLogRepositoryInterface;
 use Labyrinth\Service\IPTrackerInterface;
 use Labyrinth\Service\DnsResolverInterface;
 use Labyrinth\Service\CrawlerVerifierInterface;
@@ -97,7 +96,6 @@ class ContainerFactory {
 			TrapPageRepositoryInterface::class        => autowire( Repository\TrapPageRepository::class ),
 			TrapVisitRepositoryInterface::class       => autowire( Repository\TrapVisitRepository::class ),
 			BotScoreRepositoryInterface::class        => autowire( Repository\BotScoreRepository::class ),
-			RequestLogRepositoryInterface::class      => autowire( Repository\RequestLogRepository::class ),
 
 			// ============================================================
 			// Service Layer
@@ -124,7 +122,6 @@ class ContainerFactory {
 				->constructor(
 					get( BotScoreRepositoryInterface::class ),
 					get( TrapVisitRepositoryInterface::class ),
-					get( RequestLogRepositoryInterface::class ),
 					get( IPTrackerInterface::class ),
 					get( CrawlerVerifierInterface::class ),
 					get( 'config.lby_points_per_visit' ),
@@ -142,8 +139,7 @@ class ContainerFactory {
 				->constructor(
 					get( TrapPageRepositoryInterface::class ),
 					get( TrapVisitRepositoryInterface::class ),
-					get( BotScoreRepositoryInterface::class ),
-					get( RequestLogRepositoryInterface::class )
+					get( BotScoreRepositoryInterface::class )
 				),
 
 			'Labyrinth\Service\TrapLinkInjector'      => autowire()

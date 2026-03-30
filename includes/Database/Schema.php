@@ -55,7 +55,6 @@ class Schema {
 		$trap_pages_table  = $this->wpdb->prefix . 'lby_trap_pages';
 		$trap_visits_table = $this->wpdb->prefix . 'lby_trap_visits';
 		$bot_scores_table  = $this->wpdb->prefix . 'lby_bot_scores';
-		$request_log_table = $this->wpdb->prefix . 'lby_request_log';
 
 		$sql = array();
 
@@ -88,12 +87,15 @@ class Schema {
   referrer varchar(2048) DEFAULT '',
   session_id varchar(64) NOT NULL DEFAULT '',
   depth_reached int(10) UNSIGNED NOT NULL DEFAULT 1,
+  request_type varchar(20) NOT NULL DEFAULT '',
+  response_code smallint(5) UNSIGNED NOT NULL DEFAULT 200,
   visited_at datetime NOT NULL,
   PRIMARY KEY  (id),
   KEY idx_trap_page_id (trap_page_id),
   KEY idx_ip_address (ip_address),
   KEY idx_session_id (session_id),
-  KEY idx_visited_at (visited_at)
+  KEY idx_visited_at (visited_at),
+  KEY idx_request_type (request_type)
 ) $charset_collate;";
 
 		// SQL for lby_bot_scores table - Accumulated risk per IP+UA.
@@ -112,21 +114,6 @@ class Schema {
   KEY idx_score (score),
   KEY idx_is_blocked (is_blocked),
   KEY idx_last_seen_at (last_seen_at)
-) $charset_collate;";
-
-		// SQL for lby_request_log table - Raw request log (auto-pruned).
-		$sql[] = "CREATE TABLE $request_log_table (
-  id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-  ip_address varchar(45) NOT NULL,
-  request_uri varchar(2048) NOT NULL,
-  user_agent text NOT NULL,
-  request_type varchar(20) NOT NULL DEFAULT '',
-  response_code smallint(5) UNSIGNED NOT NULL DEFAULT 200,
-  created_at datetime NOT NULL,
-  PRIMARY KEY  (id),
-  KEY idx_ip_address (ip_address),
-  KEY idx_request_type (request_type),
-  KEY idx_created_at (created_at)
 ) $charset_collate;";
 
 		return $sql;
@@ -154,8 +141,9 @@ class Schema {
 		$tables = array(
 			$this->wpdb->prefix . 'lby_trap_visits',
 			$this->wpdb->prefix . 'lby_bot_scores',
-			$this->wpdb->prefix . 'lby_request_log',
 			$this->wpdb->prefix . 'lby_trap_pages',
+			// Legacy table removed in consolidation; still dropped for clean uninstall.
+			$this->wpdb->prefix . 'lby_request_log',
 		);
 
 		foreach ( $tables as $table ) {
