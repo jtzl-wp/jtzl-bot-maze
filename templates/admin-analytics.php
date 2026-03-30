@@ -29,8 +29,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<span class="lby-card-value" id="lby-stat-trap-pages"><?php echo esc_html( number_format_i18n( $summary['total_trap_pages'] ) ); ?></span>
 			</a>
 			<a href="<?php echo esc_url( admin_url( 'admin.php?page=labyrinth-recent-activity' ) ); ?>" class="lby-card lby-card-link">
-				<h3><?php echo esc_html__( 'Trap Visits (7 Days)', 'labyrinth' ); ?></h3>
-				<span class="lby-card-value" id="lby-stat-recent-visits"><?php echo esc_html( number_format_i18n( $summary['visits_last_7_days'] ) ); ?></span>
+				<h3><?php echo esc_html__( 'Recent Activity (7 Days)', 'labyrinth' ); ?></h3>
+				<span class="lby-card-value" id="lby-stat-recent-visits"><?php echo esc_html( number_format_i18n( $summary['all_visits_last_7_days'] ) ); ?></span>
 			</a>
 			<a href="<?php echo esc_url( admin_url( 'admin.php?page=labyrinth-blocked-bots' ) ); ?>" class="lby-card lby-card-link<?php echo $summary['blocked_bots'] > 0 ? ' lby-card-alert' : ''; ?>">
 				<h3><?php echo esc_html__( 'Bots Blocked / Detected', 'labyrinth' ); ?></h3>

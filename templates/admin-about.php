@@ -118,7 +118,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<p><?php echo esc_html__( 'All summary cards are clickable and link to their respective detail pages.', 'labyrinth' ); ?></p>
 		<ul style="list-style: disc; padding-left: 20px;">
 			<li><strong><?php echo esc_html__( 'Active Trap Pages', 'labyrinth' ); ?></strong> &mdash; <?php echo esc_html__( 'The number of trap pages currently active in the labyrinth. Click to view the full list with preview links.', 'labyrinth' ); ?></li>
-			<li><strong><?php echo esc_html__( 'Trap Visits (7 Days)', 'labyrinth' ); ?></strong> &mdash; <?php echo esc_html__( 'Number of visits to trap pages in the last 7 days. Only bots that follow hidden trap links generate visits — normal site browsing does not.', 'labyrinth' ); ?></li>
+			<li><strong><?php echo esc_html__( 'Recent Activity (7 Days)', 'labyrinth' ); ?></strong> &mdash; <?php echo esc_html__( 'Total activity on trap pages in the last 7 days, including trap visits, blocked bot visits, and exempted crawler visits. Click to view the full list with pagination.', 'labyrinth' ); ?></li>
 			<li><strong><?php echo esc_html__( 'Bots Blocked / Detected', 'labyrinth' ); ?></strong> &mdash; <?php echo esc_html__( 'Shown as a ratio. Click to view the Blocked Bots detail page with full user agent, score, visit count, and timestamps for each blocked bot.', 'labyrinth' ); ?></li>
 		</ul>
 
