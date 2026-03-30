@@ -4,7 +4,7 @@ Tags: security, bot-protection, anti-scraping, honeypot, ai-bot
 Requires at least: 6.9
 Tested up to: 6.9
 Requires PHP: 8.2
-Stable tag: 1.0.0-rc.3
+Stable tag: 1.0.0-rc.4
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -73,13 +73,19 @@ Check the **Labyrinth** analytics dashboard in the WordPress admin. It shows tot
 
 == Changelog ==
 
+= 1.0.0-rc.4 =
+* Added Blocked Bots detail page showing full user agent, score, visit count, and timestamps.
+* Added Recent Activity page with 7-day filter, pagination, and request type badges (Trap Visit, Blocked, Exempted).
+* All dashboard summary cards are now clickable links to their own detail pages.
+* Added comprehensive bot tracking mode (opt-in setting) to continue recording blocked bot visits on trap pages.
+* Added request type badges to distinguish trap visits, blocked bot visits, and exempted crawler visits.
+* Admin visits to trap pages are no longer tracked or scored.
+* Consolidated request_log into trap_visits table — simpler schema, single source of truth for all visit types.
+* Removed Recent Activity table from analytics dashboard (moved to dedicated page).
+* Privacy policy suggestion for GDPR compliance.
+
 = 1.0.0-rc.3 =
 * Added privacy policy suggestion for GDPR compliance.
-* Added Blocked Bots detail page with clickable dashboard card.
-* All dashboard summary cards are now clickable links to their detail views.
-* Added comprehensive bot tracking mode (opt-in) to record blocked bot activity on trap pages.
-* Admin visits to trap pages are no longer tracked or scored.
-* Consolidated request_log into trap_visits table for simpler architecture.
 
 = 1.0.0-rc.2 =
 * Added the About Page.
