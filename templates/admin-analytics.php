@@ -28,7 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<h3><?php echo esc_html__( 'Active Trap Pages', 'labyrinth' ); ?></h3>
 				<span class="lby-card-value" id="lby-stat-trap-pages"><?php echo esc_html( number_format_i18n( $summary['total_trap_pages'] ) ); ?></span>
 			</a>
-			<a href="#lby-activity-table" class="lby-card lby-card-link">
+			<a href="<?php echo esc_url( admin_url( 'admin.php?page=labyrinth-recent-activity' ) ); ?>" class="lby-card lby-card-link">
 				<h3><?php echo esc_html__( 'Trap Visits (7 Days)', 'labyrinth' ); ?></h3>
 				<span class="lby-card-value" id="lby-stat-recent-visits"><?php echo esc_html( number_format_i18n( $summary['visits_last_7_days'] ) ); ?></span>
 			</a>
@@ -87,45 +87,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 									<span class="lby-badge lby-badge-blocked"><?php echo esc_html__( 'Blocked', 'labyrinth' ); ?></span>
 								<?php else : ?>
 									<span class="lby-badge lby-badge-tracking"><?php echo esc_html__( 'Tracking', 'labyrinth' ); ?></span>
-								<?php endif; ?>
-							</td>
-						</tr>
-						<?php endforeach; ?>
-					<?php endif; ?>
-				</tbody>
-			</table>
-		</div>
-
-		<!-- Recent Activity -->
-		<div class="lby-section">
-			<h2><?php echo esc_html__( 'Recent Activity', 'labyrinth' ); ?></h2>
-			<table class="widefat striped" id="lby-activity-table">
-				<thead>
-					<tr>
-						<th><?php echo esc_html__( 'Time', 'labyrinth' ); ?></th>
-						<th><?php echo esc_html__( 'IP Address', 'labyrinth' ); ?></th>
-						<th><?php echo esc_html__( 'User Agent', 'labyrinth' ); ?></th>
-						<th><?php echo esc_html__( 'Depth', 'labyrinth' ); ?></th>
-						<th><?php echo esc_html__( 'Type', 'labyrinth' ); ?></th>
-					</tr>
-				</thead>
-				<tbody>
-					<?php if ( empty( $activity ) ) : ?>
-						<tr><td colspan="5"><?php echo esc_html__( 'No recent activity.', 'labyrinth' ); ?></td></tr>
-					<?php else : ?>
-						<?php foreach ( $activity as $visit ) : ?>
-						<tr>
-							<td><?php echo esc_html( $visit['visited_at'] ); ?></td>
-							<td><code><?php echo esc_html( $visit['ip_address'] ); ?></code></td>
-							<td class="lby-ua-cell"><?php echo esc_html( $visit['user_agent'] ); ?></td>
-							<td><?php echo esc_html( $visit['depth_reached'] ); ?></td>
-							<td>
-								<?php if ( 'blocked_visit' === $visit['request_type'] ) : ?>
-									<span class="lby-badge lby-badge-blocked"><?php echo esc_html__( 'Blocked', 'labyrinth' ); ?></span>
-								<?php elseif ( 'crawler_exempted' === $visit['request_type'] ) : ?>
-									<span class="lby-badge lby-badge-exempted"><?php echo esc_html__( 'Exempted', 'labyrinth' ); ?></span>
-								<?php else : ?>
-									<span class="lby-badge lby-badge-tracking"><?php echo esc_html__( 'Trap Visit', 'labyrinth' ); ?></span>
 								<?php endif; ?>
 							</td>
 						</tr>

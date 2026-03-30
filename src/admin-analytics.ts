@@ -34,14 +34,6 @@ interface BotEntry {
 	is_blocked: boolean;
 }
 
-interface ActivityEntry {
-	visited_at: string;
-	ip_address: string;
-	user_agent: string;
-	depth_reached: number;
-	request_type: string;
-}
-
 /**
  * Render an SVG bar chart into the container using safe DOM methods.
  * @param container
@@ -192,7 +184,6 @@ async function refreshDashboard(): Promise<void> {
 			summary,
 			chart_data: chartData,
 			top_bots: topBots,
-			recent_activity: recentActivity,
 		} = result.data;
 
 		// Update summary cards.
@@ -206,9 +197,6 @@ async function refreshDashboard(): Promise<void> {
 
 		// Update top bots table.
 		updateTopBots(topBots);
-
-		// Update recent activity table.
-		updateActivity(recentActivity);
 	} catch {
 		// Silent fail on network errors.
 	} finally {
@@ -286,48 +274,6 @@ function updateTopBots(bots: BotEntry[]): void {
 		badge.textContent = bot.is_blocked ? 'Blocked' : 'Tracking';
 		statusTd.appendChild(badge);
 		tr.appendChild(statusTd);
-
-		tbody.appendChild(tr);
-	}
-}
-
-function updateActivity(activity: ActivityEntry[]): void {
-	const tbody = document.querySelector('#lby-activity-table tbody');
-	if (!tbody) return;
-
-	// Clear existing rows.
-	tbody.replaceChildren();
-
-	if (!activity.length) {
-		const tr = document.createElement('tr');
-		const td = createCell('td', 'No recent activity.');
-		td.setAttribute('colspan', '5');
-		tr.appendChild(td);
-		tbody.appendChild(tr);
-		return;
-	}
-
-	for (const visit of activity) {
-		const tr = document.createElement('tr');
-		tr.appendChild(createCell('td', visit.visited_at));
-		tr.appendChild(createCodeCell('td', visit.ip_address));
-		tr.appendChild(createCell('td', visit.user_agent, 'lby-ua-cell'));
-		tr.appendChild(createCell('td', String(visit.depth_reached)));
-
-		const typeTd = document.createElement('td');
-		const badge = document.createElement('span');
-		if (visit.request_type === 'blocked_visit') {
-			badge.className = 'lby-badge lby-badge-blocked';
-			badge.textContent = 'Blocked';
-		} else if (visit.request_type === 'crawler_exempted') {
-			badge.className = 'lby-badge lby-badge-exempted';
-			badge.textContent = 'Exempted';
-		} else {
-			badge.className = 'lby-badge lby-badge-tracking';
-			badge.textContent = 'Trap Visit';
-		}
-		typeTd.appendChild(badge);
-		tr.appendChild(typeTd);
 
 		tbody.appendChild(tr);
 	}

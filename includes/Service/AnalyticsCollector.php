@@ -254,14 +254,27 @@ class AnalyticsCollector {
 	}
 
 	/**
-	 * Get recent activity (trap visits).
+	 * Count all visits in the last N days (all request types).
 	 *
-	 * @param int $limit Number of entries.
+	 * @param int $days Number of days.
+	 * @return int Visit count.
+	 * @since 1.0.0
+	 */
+	public function count_all_recent_activity( int $days = 7 ): int {
+		return $this->visit_repo->count_all_recent_days( $days );
+	}
+
+	/**
+	 * Get recent activity within the last N days with pagination.
+	 *
+	 * @param int $days   Number of days.
+	 * @param int $limit  Number of entries.
+	 * @param int $offset Offset for pagination.
 	 * @return array Array of visit data arrays.
 	 * @since 1.0.0
 	 */
-	public function get_recent_activity( int $limit = 20 ): array {
-		$visits = $this->visit_repo->get_recent( $limit );
+	public function get_recent_activity_days( int $days = 7, int $limit = 50, int $offset = 0 ): array {
+		$visits = $this->visit_repo->get_recent_days( $days, $limit, $offset );
 
 		return array_map(
 			function ( $visit ) {

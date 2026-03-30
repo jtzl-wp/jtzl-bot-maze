@@ -174,6 +174,50 @@ class TrapVisitRepository implements TrapVisitRepositoryInterface {
 	}
 
 	/**
+	 * Get visits within the last N days with pagination.
+	 *
+	 * @param int $days   Number of days.
+	 * @param int $limit  Number of visits.
+	 * @param int $offset Offset for pagination.
+	 * @return TrapVisit[] Array of visit entities.
+	 * @since 1.0.0
+	 */
+	public function get_recent_days( int $days, int $limit = 50, int $offset = 0 ): array {
+		$query = $this->wpdb->prepare(
+			"SELECT * FROM {$this->table_name} WHERE visited_at >= DATE_SUB(%s, INTERVAL %d DAY) ORDER BY visited_at DESC LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			current_time( 'mysql' ),
+			$days,
+			$limit,
+			$offset
+		);
+
+		$rows = $this->wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+		if ( empty( $rows ) ) {
+			return array();
+		}
+
+		return array_map( array( $this, 'hydrate' ), $rows );
+	}
+
+	/**
+	 * Count all visits in the last N days (all request types).
+	 *
+	 * @param int $days Number of days.
+	 * @return int Visit count.
+	 * @since 1.0.0
+	 */
+	public function count_all_recent_days( int $days ): int {
+		$query = $this->wpdb->prepare(
+			"SELECT COUNT(*) FROM {$this->table_name} WHERE visited_at >= DATE_SUB(%s, INTERVAL %d DAY)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			current_time( 'mysql' ),
+			$days
+		);
+
+		return (int) $this->wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+	}
+
+	/**
 	 * Count visits in the last N days.
 	 *
 	 * @param int $days Number of days.

@@ -85,10 +85,9 @@ class AnalyticsDashboard {
 		$summary    = $this->collector->get_summary_stats();
 		$chart_data = $this->collector->get_chart_data();
 		$top_bots   = $this->collector->get_top_bots();
-		$activity   = $this->collector->get_recent_activity();
 
 		// Pass data to template.
-		$template_data = compact( 'summary', 'chart_data', 'top_bots', 'activity' );
+		$template_data = compact( 'summary', 'chart_data', 'top_bots' );
 
 		$template_path = LABYRINTH_PLUGIN_DIR . 'templates/admin-analytics.php';
 

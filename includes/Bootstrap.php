@@ -210,6 +210,11 @@ class Bootstrap {
 			);
 			$blocked_bots_page->init();
 
+			$recent_activity_page = new Admin\RecentActivityPage(
+				$this->container->get( 'Labyrinth\Service\AnalyticsCollector' )
+			);
+			$recent_activity_page->init();
+
 			// Enqueue admin assets.
 			$wp->add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
 
@@ -251,6 +256,7 @@ class Bootstrap {
 		$allowed = array(
 			'labyrinth_page_labyrinth-analytics',
 			'labyrinth_page_labyrinth-blocked-bots',
+			'labyrinth_page_labyrinth-recent-activity',
 		);
 		if ( ! in_array( $hook_suffix, $allowed, true ) ) {
 			return;
@@ -373,10 +379,9 @@ class Bootstrap {
 
 			wp_send_json_success(
 				array(
-					'summary'         => $collector->get_summary_stats(),
-					'chart_data'      => $collector->get_chart_data(),
-					'top_bots'        => $collector->get_top_bots(),
-					'recent_activity' => $collector->get_recent_activity(),
+					'summary'    => $collector->get_summary_stats(),
+					'chart_data' => $collector->get_chart_data(),
+					'top_bots'   => $collector->get_top_bots(),
 				)
 			);
 		} catch ( \Exception $e ) {
