@@ -39,7 +39,6 @@ interface ActivityEntry {
 	ip_address: string;
 	user_agent: string;
 	depth_reached: number;
-	request_type: string;
 }
 
 /**
@@ -301,7 +300,7 @@ function updateActivity(activity: ActivityEntry[]): void {
 	if (!activity.length) {
 		const tr = document.createElement('tr');
 		const td = createCell('td', 'No recent activity.');
-		td.setAttribute('colspan', '5');
+		td.setAttribute('colspan', '4');
 		tr.appendChild(td);
 		tbody.appendChild(tr);
 		return;
@@ -313,22 +312,6 @@ function updateActivity(activity: ActivityEntry[]): void {
 		tr.appendChild(createCodeCell('td', visit.ip_address));
 		tr.appendChild(createCell('td', visit.user_agent, 'lby-ua-cell'));
 		tr.appendChild(createCell('td', String(visit.depth_reached)));
-
-		const typeTd = document.createElement('td');
-		const badge = document.createElement('span');
-		if (visit.request_type === 'blocked_visit') {
-			badge.className = 'lby-badge lby-badge-blocked';
-			badge.textContent = 'Blocked';
-		} else if (visit.request_type === 'crawler_exempted') {
-			badge.className = 'lby-badge lby-badge-exempted';
-			badge.textContent = 'Exempted';
-		} else {
-			badge.className = 'lby-badge lby-badge-tracking';
-			badge.textContent = 'Trap Visit';
-		}
-		typeTd.appendChild(badge);
-		tr.appendChild(typeTd);
-
 		tbody.appendChild(tr);
 	}
 }

@@ -271,7 +271,6 @@ class AnalyticsCollector {
 					'ip_address'    => $visit->ip_address,
 					'user_agent'    => mb_substr( $visit->user_agent, 0, 80 ) . ( mb_strlen( $visit->user_agent ) > 80 ? '...' : '' ),
 					'depth_reached' => $visit->depth_reached,
-					'request_type'  => $visit->request_type,
 					'visited_at'    => $visit->visited_at->format( 'Y-m-d H:i:s' ),
 				);
 			},

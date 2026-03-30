@@ -155,11 +155,6 @@ a.lby-card-link:focus {
 	color: #1a5e13;
 }
 
-.lby-badge-exempted {
-	background: #dce5f5;
-	color: #1d4078;
-}
-
 /* Refresh button */
 .lby-refresh-btn {
 	font-size: 12px !important;
