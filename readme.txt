@@ -79,10 +79,7 @@ Check the **Labyrinth** analytics dashboard in the WordPress admin. It shows tot
 * All dashboard summary cards are now clickable links to their own detail pages.
 * Added comprehensive bot tracking mode (opt-in setting) to continue recording blocked bot visits on trap pages.
 * Added request type badges to distinguish trap visits, blocked bot visits, and exempted crawler visits.
-* Admin visits to trap pages are no longer tracked or scored.
-* Consolidated request_log into trap_visits table — simpler schema, single source of truth for all visit types.
 * Removed Recent Activity table from analytics dashboard (moved to dedicated page).
-* Privacy policy suggestion for GDPR compliance.
 
 = 1.0.0-rc.3 =
 * Added privacy policy suggestion for GDPR compliance.
