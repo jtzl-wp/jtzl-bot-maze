@@ -80,12 +80,11 @@ class AnalyticsCollector {
 	 */
 	public function get_summary_stats(): array {
 		return array(
-			'total_trap_pages'        => $this->trap_page_repo->count_active(),
-			'total_visits'            => $this->visit_repo->count_total(),
-			'visits_last_7_days'      => $this->visit_repo->count_recent_days( 7 ),
-			'all_visits_last_7_days'  => $this->visit_repo->count_all_recent_days( 7 ),
-			'total_bots'              => $this->score_repo->count_total(),
-			'blocked_bots'            => $this->score_repo->count_blocked(),
+			'total_trap_pages'   => $this->trap_page_repo->count_active(),
+			'total_visits'       => $this->visit_repo->count_total(),
+			'visits_last_7_days' => $this->visit_repo->count_recent_days( 7 ),
+			'total_bots'         => $this->score_repo->count_total(),
+			'blocked_bots'       => $this->score_repo->count_blocked(),
 		);
 	}
 

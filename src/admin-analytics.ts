@@ -20,7 +20,6 @@ interface SummaryStats {
 	total_trap_pages: number;
 	total_visits: number;
 	visits_last_7_days: number;
-	all_visits_last_7_days: number;
 	total_bots: number;
 	blocked_bots: number;
 }
@@ -211,7 +210,7 @@ async function refreshDashboard(): Promise<void> {
 function updateSummary(summary: SummaryStats): void {
 	const map: Record<string, keyof SummaryStats> = {
 		'lby-stat-trap-pages': 'total_trap_pages',
-		'lby-stat-recent-visits': 'all_visits_last_7_days',
+		'lby-stat-recent-visits': 'visits_last_7_days',
 		'lby-stat-total-bots': 'total_bots',
 		'lby-stat-blocked-bots': 'blocked_bots',
 	};
