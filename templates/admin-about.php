@@ -80,7 +80,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<li><?php echo esc_html__( 'Adjustable scoring thresholds and blocking behavior.', 'labyrinth' ); ?></li>
 			<li><?php echo esc_html__( 'robots.txt integration to signal trap paths as disallowed.', 'labyrinth' ); ?></li>
 			<li><?php echo esc_html__( 'Analytics dashboard showing bot activity, top IPs, and score distribution.', 'labyrinth' ); ?></li>
+			<li><?php echo esc_html__( 'Blocked Bots detail page showing full user agent, score, and visit history.', 'labyrinth' ); ?></li>
+			<li><?php echo esc_html__( 'Optional comprehensive tracking mode to monitor blocked bot persistence on trap pages.', 'labyrinth' ); ?></li>
 			<li><?php echo esc_html__( 'Automatic log retention and maintenance via WP-Cron.', 'labyrinth' ); ?></li>
+			<li><?php echo esc_html__( 'Privacy policy suggestion for GDPR compliance.', 'labyrinth' ); ?></li>
 			<li><?php echo esc_html__( 'Lightweight — no external API calls, everything runs locally.', 'labyrinth' ); ?></li>
 		</ul>
 	</div>
@@ -112,10 +115,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<h2><?php echo esc_html__( 'Understanding the Dashboard', 'labyrinth' ); ?></h2>
 
 		<h3><?php echo esc_html__( 'Summary Cards', 'labyrinth' ); ?></h3>
+		<p><?php echo esc_html__( 'All summary cards are clickable and link to their respective detail pages.', 'labyrinth' ); ?></p>
 		<ul style="list-style: disc; padding-left: 20px;">
-			<li><strong><?php echo esc_html__( 'Active Trap Pages', 'labyrinth' ); ?></strong> &mdash; <?php echo esc_html__( 'The number of trap pages currently active in the labyrinth. These are the fake pages that bots will encounter.', 'labyrinth' ); ?></li>
+			<li><strong><?php echo esc_html__( 'Active Trap Pages', 'labyrinth' ); ?></strong> &mdash; <?php echo esc_html__( 'The number of trap pages currently active in the labyrinth. Click to view the full list with preview links.', 'labyrinth' ); ?></li>
 			<li><strong><?php echo esc_html__( 'Trap Visits (7 Days)', 'labyrinth' ); ?></strong> &mdash; <?php echo esc_html__( 'Number of visits to trap pages in the last 7 days. Only bots that follow hidden trap links generate visits — normal site browsing does not.', 'labyrinth' ); ?></li>
-			<li><strong><?php echo esc_html__( 'Bots Blocked / Detected', 'labyrinth' ); ?></strong> &mdash; <?php echo esc_html__( 'Shown as a ratio. The first number is how many bots have been blocked (score exceeded threshold). The second number is the total unique bots detected (all visitors that hit trap pages). A higher ratio means more aggressive bots are being caught.', 'labyrinth' ); ?></li>
+			<li><strong><?php echo esc_html__( 'Bots Blocked / Detected', 'labyrinth' ); ?></strong> &mdash; <?php echo esc_html__( 'Shown as a ratio. Click to view the Blocked Bots detail page with full user agent, score, visit count, and timestamps for each blocked bot.', 'labyrinth' ); ?></li>
 		</ul>
 
 		<h3><?php echo esc_html__( 'Top Bots Table', 'labyrinth' ); ?></h3>
@@ -123,5 +127,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<h3><?php echo esc_html__( 'Recent Activity', 'labyrinth' ); ?></h3>
 		<p><?php echo esc_html__( 'Shows the 20 most recent trap page visits in reverse chronological order, so you can see bot activity as it happens.', 'labyrinth' ); ?></p>
+
+		<h3><?php echo esc_html__( 'Comprehensive Tracking Mode', 'labyrinth' ); ?></h3>
+		<p><?php echo esc_html__( 'Enable "Track Blocked Bot Activity" in Settings > Bot Scoring to continue recording visits from blocked bots on trap pages. This lets you see whether blocked bots are still trying to access your labyrinth. Disabled by default to minimise database writes.', 'labyrinth' ); ?></p>
 	</div>
 </div>

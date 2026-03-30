@@ -29,7 +29,10 @@ Labyrinth protects your WordPress site from unwanted AI crawlers and scrapers by
 * Adjustable scoring thresholds and blocking behavior
 * robots.txt integration to signal trap paths as disallowed
 * Analytics dashboard showing bot activity, top IPs, and score distribution
+* Blocked Bots detail page showing full user agent, score, visit history
+* Optional comprehensive tracking mode to monitor blocked bot persistence
 * Automatic log retention and maintenance via WP-Cron
+* Privacy policy suggestion for GDPR compliance
 * Lightweight — no external API calls, everything runs locally
 
 == Installation ==
@@ -72,6 +75,11 @@ Check the **Labyrinth** analytics dashboard in the WordPress admin. It shows tot
 
 = 1.0.0-rc.3 =
 * Added privacy policy suggestion for GDPR compliance.
+* Added Blocked Bots detail page with clickable dashboard card.
+* All dashboard summary cards are now clickable links to their detail views.
+* Added comprehensive bot tracking mode (opt-in) to record blocked bot activity on trap pages.
+* Admin visits to trap pages are no longer tracked or scored.
+* Consolidated request_log into trap_visits table for simpler architecture.
 
 = 1.0.0-rc.2 =
 * Added the About Page.
