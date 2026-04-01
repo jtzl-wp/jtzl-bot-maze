@@ -68,6 +68,14 @@ class TrapPageGenerator {
 	private int $links_per_trap_page;
 
 	/**
+	 * Global maximum total trap pages.
+	 *
+	 * @var int
+	 * @since 1.0.0
+	 */
+	private int $max_trap_pages;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param TrapPageRepositoryInterface $repository          Trap page repository.
@@ -75,6 +83,7 @@ class TrapPageGenerator {
 	 * @param int                         $initial_page_count  Number of entry pages to generate.
 	 * @param int                         $max_depth           Maximum labyrinth depth.
 	 * @param int                         $links_per_trap_page Links per trap page.
+	 * @param int                         $max_trap_pages      Global maximum trap pages.
 	 * @since 1.0.0
 	 */
 	public function __construct(
@@ -82,13 +91,15 @@ class TrapPageGenerator {
 		ContentTemplateEngine $engine,
 		int $initial_page_count,
 		int $max_depth,
-		int $links_per_trap_page
+		int $links_per_trap_page,
+		int $max_trap_pages = 500
 	) {
 		$this->repository          = $repository;
 		$this->engine              = $engine;
 		$this->initial_page_count  = $initial_page_count;
 		$this->max_depth           = $max_depth;
 		$this->links_per_trap_page = $links_per_trap_page;
+		$this->max_trap_pages      = $max_trap_pages;
 	}
 
 	/**
@@ -104,6 +115,10 @@ class TrapPageGenerator {
 		$count = 0;
 
 		for ( $i = 0; $i < $this->initial_page_count; $i++ ) {
+			if ( ! $this->has_budget() ) {
+				break;
+			}
+
 			$seed = $this->generate_seed();
 			$id   = $this->create_page( $seed, 1, null );
 
@@ -147,6 +162,10 @@ class TrapPageGenerator {
 		$count  = 0;
 
 		for ( $i = 0; $i < $needed; $i++ ) {
+			if ( ! $this->has_budget() ) {
+				break;
+			}
+
 			$seed = $this->generate_seed();
 			$id   = $this->create_page( $seed, 1, null );
 
@@ -182,6 +201,10 @@ class TrapPageGenerator {
 		$children = array();
 
 		for ( $i = 0; $i < $this->links_per_trap_page; $i++ ) {
+			if ( ! $this->has_budget() ) {
+				break;
+			}
+
 			$child_seed = md5( $parent_seed . '_d' . $depth_level . '_c' . $i );
 			// Disable slug collision retry: if slug exists, a concurrent request
 			// already created this child page, so skip instead of creating duplicates.
@@ -237,6 +260,21 @@ class TrapPageGenerator {
 				'status'         => 'active',
 			)
 		);
+	}
+
+	/**
+	 * Check whether the global trap page budget allows more pages.
+	 *
+	 * Best-effort: concurrent requests may pass this check simultaneously
+	 * and overshoot the cap by up to (concurrent_workers * links_per_trap_page).
+	 * The duplicate-slug guard in create_page (INSERT IGNORE) limits the
+	 * practical overshoot, and the cap still prevents unbounded growth.
+	 *
+	 * @return bool True if under the global maximum.
+	 * @since 1.0.0
+	 */
+	private function has_budget(): bool {
+		return $this->repository->count_active() < $this->max_trap_pages;
 	}
 
 	/**

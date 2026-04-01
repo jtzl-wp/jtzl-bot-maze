@@ -41,9 +41,11 @@ class SettingsSanitizer {
 		'lby_max_depth'           => 10,
 		'lby_links_per_trap_page' => 10,
 		'lby_initial_page_count'  => 100,
+		'lby_max_trap_pages'      => 5000,
 		'lby_points_per_visit'    => 1000,
 		'lby_depth_bonus'         => 1000,
 		'lby_block_threshold'     => 10000,
+		'lby_tarpit_delay_ms'     => 5000,
 		'lby_retention_days'      => 365,
 	);
 
@@ -189,6 +191,46 @@ class SettingsSanitizer {
 	}
 
 	/**
+	 * Sanitize trusted proxy IPs/CIDRs.
+	 *
+	 * @param mixed $value Comma-separated IPs/CIDRs.
+	 * @return string Cleaned comma-separated string.
+	 * @since 1.0.0
+	 */
+	public static function sanitize_trusted_proxy_ips( $value ): string {
+		if ( ! is_string( $value ) || '' === trim( $value ) ) {
+			return '';
+		}
+
+		$tokens = array_map( 'trim', explode( ',', $value ) );
+		$valid  = array();
+
+		foreach ( $tokens as $token ) {
+			if ( '' === $token ) {
+				continue;
+			}
+
+			if ( str_contains( $token, '/' ) ) {
+				list( $ip, $bits ) = explode( '/', $token, 2 );
+				if ( ! ctype_digit( $bits ) ) {
+					continue;
+				}
+				$bits_int = (int) $bits;
+				$is_ipv6  = str_contains( $ip, ':' );
+				$max_bits = $is_ipv6 ? 128 : 32;
+
+				if ( filter_var( $ip, FILTER_VALIDATE_IP ) && $bits_int >= 0 && $bits_int <= $max_bits ) {
+					$valid[] = $ip . '/' . $bits_int;
+				}
+			} elseif ( filter_var( $token, FILTER_VALIDATE_IP ) ) {
+				$valid[] = $token;
+			}
+		}
+
+		return implode( ', ', $valid );
+	}
+
+	/**
 	 * Sanitize the blocking behavior.
 	 *
 	 * @param mixed $value The value to sanitize.
@@ -197,6 +239,6 @@ class SettingsSanitizer {
 	 */
 	public static function sanitize_blocking_behavior( $value ): string {
 		$valid = array( 'block', 'tarpit_light', 'tarpit' );
-		return in_array( $value, $valid, true ) ? $value : 'tarpit_light';
+		return in_array( $value, $valid, true ) ? $value : 'block';
 	}
 }

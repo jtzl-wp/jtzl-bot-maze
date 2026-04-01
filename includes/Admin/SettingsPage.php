@@ -188,8 +188,31 @@ class SettingsPage {
 					'CF-Connecting-IP' => __( 'Cloudflare (CF-Connecting-IP)', 'labyrinth' ),
 					'X-Real-IP'        => __( 'Nginx / Reverse proxy (X-Real-IP)', 'labyrinth' ),
 					'True-Client-IP'   => __( 'Enterprise CDN (True-Client-IP)', 'labyrinth' ),
-					'X-Forwarded-For'  => __( 'Advanced: X-Forwarded-For (rightmost IP)', 'labyrinth' ),
+					'X-Forwarded-For'  => __( 'Advanced: X-Forwarded-For (rightmost untrusted IP)', 'labyrinth' ),
 				),
+			)
+		);
+
+		// Trusted proxy IPs.
+		register_setting(
+			self::SETTINGS_GROUP,
+			'lby_trusted_proxy_ips',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => array( SettingsSanitizer::class, 'sanitize_trusted_proxy_ips' ),
+				'default'           => '',
+			)
+		);
+
+		add_settings_field(
+			'lby_trusted_proxy_ips',
+			__( 'Trusted Proxy IPs / CIDRs', 'labyrinth' ),
+			array( $this, 'render_text_field' ),
+			self::PAGE_SLUG,
+			'lby_general_settings',
+			array(
+				'label_for'   => 'lby_trusted_proxy_ips',
+				'description' => __( 'Comma-separated IP addresses or CIDR ranges allowed to set the trusted header above. Required when a trusted header is configured — the header is ignored until at least one proxy is listed. Example: <code>172.64.0.0/13, 173.245.48.0/20</code>', 'labyrinth' ),
 			)
 		);
 
@@ -367,6 +390,31 @@ class SettingsPage {
 				'max'         => 100,
 			)
 		);
+
+		// Global maximum trap pages.
+		register_setting(
+			self::SETTINGS_GROUP,
+			'lby_max_trap_pages',
+			array(
+				'type'              => 'integer',
+				'sanitize_callback' => $sanitize_bounded_positive( 'lby_max_trap_pages' ),
+				'default'           => 500,
+			)
+		);
+
+		add_settings_field(
+			'lby_max_trap_pages',
+			__( 'Global Maximum Trap Pages', 'labyrinth' ),
+			array( $this, 'render_number_field' ),
+			self::PAGE_SLUG,
+			'lby_labyrinth_settings',
+			array(
+				'label_for'   => 'lby_max_trap_pages',
+				'description' => __( 'Maximum total number of trap pages (all depths). Once reached, no new pages are generated. Set higher to allow deeper mazes at the cost of more database rows.', 'labyrinth' ),
+				'min'         => 20,
+				'max'         => 5000,
+			)
+		);
 	}
 
 	/**
@@ -455,7 +503,7 @@ class SettingsPage {
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => array( SettingsSanitizer::class, 'sanitize_blocking_behavior' ),
-				'default'           => 'tarpit_light',
+				'default'           => 'block',
 			)
 		);
 
@@ -468,14 +516,40 @@ class SettingsPage {
 			array(
 				'label_for'   => 'lby_blocking_behavior',
 				'description' => __(
-					'How to respond after a visitor is already flagged as blocked. Every option still loads WordPress to run this check, so very high volumes of blocked traffic can stress PHP workers. Trap/tarpit responses use the same minimal HTML (no theme) as normal labyrinth pages. <strong>Block</strong> — HTTP 403 with a short message; lowest cost. <strong>Light tarpit</strong> (default) — HTTP 200 with trap links; if the random trap page has no child links yet, children are generated the same way as normal labyrinth URLs (bounded by Max Depth and Links per Trap Page). <strong>Full tarpit</strong> — same behavior plus a 1 second delay before the response; holds each PHP worker longer.',
+					'How to respond after a visitor is already flagged as blocked. Every option still loads WordPress to run this check, so very high volumes of blocked traffic can stress PHP workers. <strong>Block</strong> (default) — HTTP 403 with a short message; lowest cost and recommended for most sites. <strong>Light tarpit</strong> — HTTP 200 serving a random existing trap page with links to keep bots crawling; no new child pages are generated for blocked traffic. <strong>Full tarpit</strong> — same decoy page plus a configurable delay (see below); holds each PHP worker longer to waste bot time.',
 					'labyrinth'
 				),
 				'options'     => array(
-					'block'        => __( 'Block — 403 Forbidden (lowest server cost)', 'labyrinth' ),
-					'tarpit_light' => __( 'Light tarpit — decoy page, no delay (default)', 'labyrinth' ),
-					'tarpit'       => __( 'Full tarpit — 1s delay + same decoy page as light', 'labyrinth' ),
+					'block'        => __( 'Block — 403 Forbidden (default, lowest server cost)', 'labyrinth' ),
+					'tarpit_light' => __( 'Light tarpit — serve existing decoy page, no delay', 'labyrinth' ),
+					'tarpit'       => __( 'Full tarpit — configurable delay + same decoy page', 'labyrinth' ),
 				),
+			)
+		);
+
+		// Tarpit delay.
+		register_setting(
+			self::SETTINGS_GROUP,
+			'lby_tarpit_delay_ms',
+			array(
+				'type'              => 'integer',
+				'sanitize_callback' => static fn( $value ): int => SettingsSanitizer::sanitize_option_bounded_integer( $value, 'lby_tarpit_delay_ms' ),
+				'default'           => 1000,
+			)
+		);
+
+		add_settings_field(
+			'lby_tarpit_delay_ms',
+			__( 'Full Tarpit Delay (ms)', 'labyrinth' ),
+			array( $this, 'render_number_field' ),
+			self::PAGE_SLUG,
+			'lby_scoring_settings',
+			array(
+				'label_for'   => 'lby_tarpit_delay_ms',
+				'description' => __( 'Delay in milliseconds before responding to blocked visitors when using the full tarpit. Each request ties up a PHP worker for this duration. Default: 1000 (1 second).', 'labyrinth' ),
+				'min'         => 100,
+				'max'         => 5000,
+				'step'        => 100,
 			)
 		);
 

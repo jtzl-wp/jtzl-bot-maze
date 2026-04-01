@@ -83,6 +83,7 @@ class Options {
 			'lby_enabled'                => true,
 			'lby_trap_base_path'         => 'lby',
 			'lby_trusted_proxy_header'   => '',
+			'lby_trusted_proxy_ips'      => '',
 
 			// Trap Links.
 			'lby_links_per_page'         => 3,
@@ -92,12 +93,14 @@ class Options {
 			'lby_max_depth'              => 5,
 			'lby_links_per_trap_page'    => 5,
 			'lby_initial_page_count'     => 20,
+			'lby_max_trap_pages'         => 500,
 
 			// Bot Scoring.
 			'lby_points_per_visit'       => 25,
 			'lby_depth_bonus'            => 15,
 			'lby_block_threshold'        => 100,
-			'lby_blocking_behavior'      => 'tarpit_light', // block, tarpit_light, tarpit (full).
+			'lby_blocking_behavior'      => 'block', // block, tarpit_light, tarpit.
+			'lby_tarpit_delay_ms'        => 1000,
 			'lby_track_blocked_activity' => false,
 
 			// Maintenance.

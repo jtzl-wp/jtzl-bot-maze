@@ -171,9 +171,17 @@ class TrapRouter {
 		$trap_page = $this->get_trap_page_by_slug( $slug );
 
 		if ( null === $trap_page ) {
-			// Return 404 for non-existent trap pages.
-			$this->wp->set_404();
+			// Lightweight plugin-owned 404 — avoids loading the full theme 404 template.
 			$this->wp->status_header( 404 );
+			if ( ! $this->wp->headers_sent() ) {
+				$this->wp->header( 'X-Robots-Tag: noindex, nofollow', true );
+				$this->wp->header( 'Cache-Control: no-store, no-cache, must-revalidate, max-age=0', true );
+			}
+			$this->wp->wp_die(
+				'<h1>' . esc_html__( 'Not Found', 'labyrinth' ) . '</h1>',
+				esc_html__( 'Not Found', 'labyrinth' ),
+				array( 'response' => 404 )
+			);
 			return;
 		}
 

@@ -86,16 +86,17 @@ class Bootstrap {
 		);
 
 		// Initialize bot blocking.
-		$detector   = $this->container->get( 'Labyrinth\Service\BotDetector' );
-		$repo       = $this->container->get( 'Labyrinth\Repository\TrapPageRepositoryInterface' );
-		$generator  = $this->container->get( 'Labyrinth\Service\TrapPageGenerator' );
-		$max_depth  = $this->container->get( 'config.lby_max_depth' );
-		$base_path  = $this->container->get( 'config.lby_trap_base_path' );
-		$container  = $this->container;
+		$detector     = $this->container->get( 'Labyrinth\Service\BotDetector' );
+		$repo         = $this->container->get( 'Labyrinth\Repository\TrapPageRepositoryInterface' );
+		$base_path    = $this->container->get( 'config.lby_trap_base_path' );
+		$tarpit_delay = $this->container->get( 'config.lby_tarpit_delay_ms' );
+		$home_path    = rtrim( (string) wp_parse_url( home_url( '/' ), PHP_URL_PATH ), '/' );
+		$trap_prefix  = $home_path . '/' . $base_path . '/';
+		$container    = $this->container;
 
 		$wp->add_action(
 			'template_redirect',
-			function () use ( $detector, $repo, $generator, $max_depth, $base_path, $wp, $container ) {
+			function () use ( $detector, $repo, $base_path, $tarpit_delay, $trap_prefix, $wp, $container ) {
 				// Skip blocking entirely when the labyrinth is disabled.
 				if ( ! (bool) $wp->get_option( 'lby_enabled', true ) ) {
 					return;
@@ -109,13 +110,13 @@ class Bootstrap {
 				if ( $detector->is_visitor_blocked() ) {
 					// Build a tracking helper that logs at each exit point with the actual response code.
 					// Only tracks trap page requests — non-trap visits from blocked bots are not recorded.
-					$track_visit = static function ( int $response_code ) use ( $wp, $container, $base_path ): void {
+					$track_visit = static function ( int $response_code ) use ( $wp, $container, $trap_prefix ): void {
 						if ( ! (bool) $wp->get_option( 'lby_track_blocked_activity', false ) ) {
 							return;
 						}
 						$ip_tracker  = $container->get( 'Labyrinth\Service\IPTrackerInterface' );
 						$request_uri = $ip_tracker->get_request_uri();
-						if ( strpos( $request_uri, '/' . $base_path . '/' ) !== 0 ) {
+						if ( ! str_starts_with( $request_uri, $trap_prefix ) ) {
 							return;
 						}
 						$collector = $container->get( 'Labyrinth\Service\AnalyticsCollector' );
@@ -127,39 +128,31 @@ class Bootstrap {
 						);
 					};
 
-					$behavior = $wp->get_option( 'lby_blocking_behavior', 'tarpit_light' );
+					$behavior = $wp->get_option( 'lby_blocking_behavior', 'block' );
 					$is_light = ( 'tarpit_light' === $behavior );
 					$is_full  = ( 'tarpit' === $behavior );
 
 					if ( $is_light || $is_full ) {
-						// Full tarpit only: delay to waste bot wall-clock (ties up this PHP worker).
-						if ( $is_full ) {
-							sleep( 1 );
+						// Full tarpit: intentional delay to waste bot wall-clock time.
+						// Admins opt into this knowing it ties up a PHP worker per request.
+						if ( $is_full && $tarpit_delay > 0 ) {
+							usleep( $tarpit_delay * 1000 );
 						}
 
-						// Get a random trap page to serve.
-						// Use random seed to confuse bot mapping.
+						// Get a random existing trap page to serve as decoy.
 						$pages = $repo->get_random_active( 1, $wp->wp_rand() );
 						$page  = ! empty( $pages ) ? $pages[0] : null;
 
 						if ( $page ) {
 							$track_visit( 200 );
 
-							// Set globals for the trap page template.
-							$GLOBALS['lby_trap_page'] = $page;
-							$children                 = $repo->get_children( $page->id );
-							// Match TrapRouter: lazy-generate children when empty so decoy pages keep outbound trap links.
-							if ( empty( $children ) && $page->depth_level < $max_depth ) {
-								$generator->generate_children_for( $page->id, $page->seed, $page->depth_level + 1 );
-								$children = $repo->get_children( $page->id );
-							}
-							$GLOBALS['lby_trap_children']  = $children;
+							$GLOBALS['lby_trap_page']      = $page;
+							$GLOBALS['lby_trap_children']  = $repo->get_children( $page->id );
 							$GLOBALS['lby_trap_base_path'] = $base_path;
 
 							// Force 200 OK status to keep them crawling.
 							$wp->status_header( 200 );
 
-							// Send noindex/nofollow to prevent indexing of this "page".
 							if ( ! $wp->headers_sent() ) {
 								$wp->header( 'X-Robots-Tag: noindex, nofollow', true );
 								$wp->header( 'Cache-Control: no-store, no-cache, must-revalidate, max-age=0', true );

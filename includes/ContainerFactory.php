@@ -110,8 +110,10 @@ class ContainerFactory {
 			},
 
 			IPTrackerInterface::class                 => function () {
-				$header = (string) get_option( 'lby_trusted_proxy_header', '' );
-				return new Service\IPTracker( $header );
+				$header  = (string) get_option( 'lby_trusted_proxy_header', '' );
+				$raw_ips = (string) get_option( 'lby_trusted_proxy_ips', '' );
+				$proxies = array_filter( array_map( 'trim', explode( ',', $raw_ips ) ) );
+				return new Service\IPTracker( $header, $proxies );
 			},
 
 			DnsResolverInterface::class               => autowire( Service\DnsResolver::class ),
@@ -175,7 +177,8 @@ class ContainerFactory {
 					get( 'Labyrinth\Service\ContentTemplateEngine' ),
 					get( 'config.lby_initial_page_count' ),
 					get( 'config.lby_max_depth' ),
-					get( 'config.lby_links_per_trap_page' )
+					get( 'config.lby_links_per_trap_page' ),
+					get( 'config.lby_max_trap_pages' )
 				),
 
 			'Labyrinth\Service\TrapRouter'            => autowire()
@@ -221,12 +224,20 @@ class ContainerFactory {
 				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'lby_initial_page_count', 20 ), 'lby_initial_page_count' );
 			},
 
+			'config.lby_max_trap_pages'               => function () {
+				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'lby_max_trap_pages', 500 ), 'lby_max_trap_pages' );
+			},
+
 			'config.lby_points_per_visit'             => function () {
 				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'lby_points_per_visit', 25 ), 'lby_points_per_visit' );
 			},
 
 			'config.lby_depth_bonus'                  => function () {
 				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'lby_depth_bonus', 15 ), 'lby_depth_bonus', true );
+			},
+
+			'config.lby_tarpit_delay_ms'              => function () {
+				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'lby_tarpit_delay_ms', 1000 ), 'lby_tarpit_delay_ms' );
 			},
 
 			'config.lby_block_threshold'              => function () {
