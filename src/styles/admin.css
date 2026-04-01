@@ -23,11 +23,31 @@
 a.lby-card-link {
 	display: block;
 	text-decoration: none;
-	transition: border-color 0.15s ease;
+	position: relative;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease, background 0.15s ease;
+}
+
+a.lby-card-link::after {
+	content: "\2192";
+	position: absolute;
+	right: 12px;
+	top: 50%;
+	transform: translateY(-50%);
+	font-size: 18px;
+	color: #c3c4c7;
+	transition: color 0.15s ease, right 0.15s ease;
 }
 
 a.lby-card-link:hover {
 	border-color: #2271b1;
+	background: #f6f7f7;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	transform: translateY(-1px);
+}
+
+a.lby-card-link:hover::after {
+	color: #2271b1;
+	right: 10px;
 }
 
 a.lby-card-link:focus {
