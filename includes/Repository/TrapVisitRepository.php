@@ -70,10 +70,11 @@ class TrapVisitRepository implements TrapVisitRepositoryInterface {
 			'depth_reached' => $data['depth_reached'] ?? 1,
 			'request_type'  => $data['request_type'] ?? '',
 			'response_code' => $data['response_code'] ?? 200,
+			'country_code'  => $data['country_code'] ?? '',
 			'visited_at'    => $data['visited_at'] ?? current_time( 'mysql' ),
 		);
 
-		$format = array( '%d', '%s', '%s', '%s', '%s', '%d', '%s', '%d', '%s' );
+		$format = array( '%d', '%s', '%s', '%s', '%s', '%d', '%s', '%d', '%s', '%s' );
 
 		$result = $this->wpdb->insert( $this->table_name, $insert_data, $format );
 
@@ -278,7 +279,8 @@ class TrapVisitRepository implements TrapVisitRepositoryInterface {
 			(int) ( $row['depth_reached'] ?? 1 ),
 			new DateTime( $row['visited_at'] ),
 			$row['request_type'] ?? '',
-			(int) ( $row['response_code'] ?? 200 )
+			(int) ( $row['response_code'] ?? 200 ),
+			$row['country_code'] ?? ''
 		);
 	}
 }

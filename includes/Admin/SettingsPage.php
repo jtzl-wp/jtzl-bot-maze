@@ -108,7 +108,15 @@ class SettingsPage {
 			self::PAGE_SLUG
 		);
 
-		// Section 5: Maintenance.
+		// Section 5: Geographic Tracking.
+		add_settings_section(
+			'lby_geo_settings',
+			__( 'Geographic Tracking', 'labyrinth' ),
+			array( $this, 'render_geo_section_description' ),
+			self::PAGE_SLUG
+		);
+
+		// Section 6: Maintenance.
 		add_settings_section(
 			'lby_maintenance_settings',
 			__( 'Maintenance', 'labyrinth' ),
@@ -116,7 +124,7 @@ class SettingsPage {
 			self::PAGE_SLUG
 		);
 
-		// Section 6: robots.txt.
+		// Section 7: robots.txt.
 		add_settings_section(
 			'lby_robots_settings',
 			__( 'robots.txt', 'labyrinth' ),
@@ -129,6 +137,7 @@ class SettingsPage {
 		$this->register_trap_link_fields();
 		$this->register_labyrinth_fields();
 		$this->register_scoring_fields();
+		$this->register_geo_fields();
 		$this->register_maintenance_fields();
 		$this->register_robots_fields();
 	}
@@ -578,6 +587,36 @@ class SettingsPage {
 	}
 
 	/**
+	 * Register geographic tracking settings fields.
+	 *
+	 * @return void
+	 * @since 1.0.0
+	 */
+	private function register_geo_fields(): void {
+		register_setting(
+			self::SETTINGS_GROUP,
+			'lby_enable_geo_tracking',
+			array(
+				'type'              => 'boolean',
+				'sanitize_callback' => array( SettingsSanitizer::class, 'sanitize_checkbox' ),
+				'default'           => false,
+			)
+		);
+
+		add_settings_field(
+			'lby_enable_geo_tracking',
+			__( 'Enable Geographic Tracking', 'labyrinth' ),
+			array( $this, 'render_checkbox_field' ),
+			self::PAGE_SLUG,
+			'lby_geo_settings',
+			array(
+				'label_for'   => 'lby_enable_geo_tracking',
+				'description' => __( 'Resolve visitor IP addresses to country codes using the <a href="http://ip-api.com" target="_blank" rel="noopener noreferrer">ip-api.com</a> free API. When enabled, each trap page visit triggers an HTTP request to ip-api.com with the visitor\'s IP address. This data is used to display a geographic heat map of bot activity. No data is sent when this setting is off.', 'labyrinth' ),
+			)
+		);
+	}
+
+	/**
 	 * Register maintenance settings fields.
 	 *
 	 * @return void
@@ -721,6 +760,16 @@ class SettingsPage {
 	 */
 	public function render_scoring_section_description(): void {
 		echo '<p>' . esc_html__( 'Configure the scoring algorithm that determines when a visitor is flagged as a bot.', 'labyrinth' ) . '</p>';
+	}
+
+	/**
+	 * Render geographic tracking section description.
+	 *
+	 * @return void
+	 * @since 1.0.0
+	 */
+	public function render_geo_section_description(): void {
+		echo '<p>' . esc_html__( 'Opt-in geographic tracking for bot activity visualization. When enabled, visitor IP addresses are sent to ip-api.com to resolve country codes.', 'labyrinth' ) . '</p>';
 	}
 
 	/**

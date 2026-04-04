@@ -89,13 +89,15 @@ class Schema {
   depth_reached int(10) UNSIGNED NOT NULL DEFAULT 1,
   request_type varchar(20) NOT NULL DEFAULT '',
   response_code smallint(5) UNSIGNED NOT NULL DEFAULT 200,
+  country_code char(2) NOT NULL DEFAULT '',
   visited_at datetime NOT NULL,
   PRIMARY KEY  (id),
   KEY idx_trap_page_id (trap_page_id),
   KEY idx_ip_address (ip_address),
   KEY idx_session_id (session_id),
   KEY idx_visited_at (visited_at),
-  KEY idx_request_type (request_type)
+  KEY idx_request_type (request_type),
+  KEY idx_country_code (country_code)
 ) $charset_collate;";
 
 		// SQL for lby_bot_scores table - Accumulated risk per IP+UA.

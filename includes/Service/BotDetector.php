@@ -62,6 +62,14 @@ class BotDetector {
 	private CrawlerVerifierInterface $crawler_verifier;
 
 	/**
+	 * GeoIP service for country code lookups.
+	 *
+	 * @var GeoIpService
+	 * @since 1.0.0
+	 */
+	private GeoIpService $geo_ip_service;
+
+	/**
 	 * Base points added per trap page visit.
 	 *
 	 * @var int
@@ -92,6 +100,7 @@ class BotDetector {
 	 * @param TrapVisitRepositoryInterface $visit_repo       Trap visit repository.
 	 * @param IPTrackerInterface           $ip_tracker       IP tracker service.
 	 * @param CrawlerVerifierInterface     $crawler_verifier Crawler verifier service.
+	 * @param GeoIpService                 $geo_ip_service   GeoIP lookup service.
 	 * @param int                          $points_per_visit Base points per visit.
 	 * @param int                          $depth_bonus      Depth-level bonus multiplier.
 	 * @param int                          $block_threshold  Auto-block threshold.
@@ -102,6 +111,7 @@ class BotDetector {
 		TrapVisitRepositoryInterface $visit_repo,
 		IPTrackerInterface $ip_tracker,
 		CrawlerVerifierInterface $crawler_verifier,
+		GeoIpService $geo_ip_service,
 		int $points_per_visit,
 		int $depth_bonus,
 		int $block_threshold
@@ -110,6 +120,7 @@ class BotDetector {
 		$this->visit_repo       = $visit_repo;
 		$this->ip_tracker       = $ip_tracker;
 		$this->crawler_verifier = $crawler_verifier;
+		$this->geo_ip_service   = $geo_ip_service;
 		$this->points_per_visit = $points_per_visit;
 		$this->depth_bonus      = $depth_bonus;
 		$this->block_threshold  = $block_threshold;
@@ -133,6 +144,8 @@ class BotDetector {
 			return;
 		}
 
+		$country_code = $this->geo_ip_service->resolve_country( $ip );
+
 		if ( $this->crawler_verifier->is_verified_crawler( $ip, $ua ) ) {
 			$this->visit_repo->create(
 				array(
@@ -144,6 +157,7 @@ class BotDetector {
 					'depth_reached' => $trap_page->depth_level,
 					'request_type'  => 'crawler_exempted',
 					'response_code' => 200,
+					'country_code'  => $country_code,
 				)
 			);
 			return;
@@ -160,6 +174,7 @@ class BotDetector {
 				'depth_reached' => $trap_page->depth_level,
 				'request_type'  => 'trap_visit',
 				'response_code' => 200,
+				'country_code'  => $country_code,
 			)
 		);
 

@@ -224,15 +224,16 @@ class Bootstrap {
 	 */
 	public function add_privacy_policy_content(): void {
 		$content = sprintf(
-			'<h2>%s</h2><p>%s</p><p>%s</p><p>%s</p>',
+			'<h2>%s</h2><p>%s</p><p>%s</p><p>%s</p><p>%s</p>',
 			esc_html__( 'Labyrinth Bot Protection', 'labyrinth' ),
 			esc_html__( 'This site uses the Labyrinth plugin to detect and block malicious bots and unauthorized scrapers. When a visitor accesses a trap page (a hidden page that only bots would find), the plugin records their IP address, user agent string, and the time of visit for security purposes.', 'labyrinth' ),
 			esc_html__( 'This data is collected under the legal basis of legitimate interest (GDPR Article 6(1)(f)) to protect the website from automated abuse. Only visitors that access trap pages are recorded; normal browsing of the site is not tracked by this plugin.', 'labyrinth' ),
 			sprintf(
 				/* translators: %s: default retention period */
-				esc_html__( 'Collected data is automatically deleted after a configurable retention period (default: %s days). No data is shared with third-party services.', 'labyrinth' ),
+				esc_html__( 'Collected data is automatically deleted after a configurable retention period (default: %s days).', 'labyrinth' ),
 				'30'
-			)
+			),
+			esc_html__( 'When the optional Geographic Tracking setting is enabled, visitor IP addresses are sent to ip-api.com to determine the country of origin. This feature is off by default and requires explicit opt-in by a site administrator.', 'labyrinth' )
 		);
 
 		wp_add_privacy_policy_content( 'Labyrinth', $content );

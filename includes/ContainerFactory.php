@@ -120,12 +120,19 @@ class ContainerFactory {
 			CrawlerVerifierInterface::class           => autowire( Service\CrawlerVerifier::class )
 				->constructor( get( DnsResolverInterface::class ) ),
 
+			'Labyrinth\Service\GeoIpService'          => function () {
+				return new Service\GeoIpService(
+					(bool) get_option( 'lby_enable_geo_tracking', false )
+				);
+			},
+
 			'Labyrinth\Service\BotDetector'           => autowire()
 				->constructor(
 					get( BotScoreRepositoryInterface::class ),
 					get( TrapVisitRepositoryInterface::class ),
 					get( IPTrackerInterface::class ),
 					get( CrawlerVerifierInterface::class ),
+					get( 'Labyrinth\Service\GeoIpService' ),
 					get( 'config.lby_points_per_visit' ),
 					get( 'config.lby_depth_bonus' ),
 					get( 'config.lby_block_threshold' )

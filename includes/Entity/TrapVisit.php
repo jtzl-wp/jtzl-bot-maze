@@ -106,6 +106,14 @@ class TrapVisit {
 	public int $response_code;
 
 	/**
+	 * ISO 3166-1 alpha-2 country code resolved via GeoIP lookup.
+	 *
+	 * @var string
+	 * @since 1.0.0
+	 */
+	public string $country_code;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param int      $id            Visit ID.
@@ -118,6 +126,7 @@ class TrapVisit {
 	 * @param DateTime $visited_at    Visit timestamp.
 	 * @param string   $request_type  Request type.
 	 * @param int      $response_code HTTP response code.
+	 * @param string   $country_code  Country code from GeoIP.
 	 * @since 1.0.0
 	 */
 	public function __construct(
@@ -130,7 +139,8 @@ class TrapVisit {
 		int $depth_reached,
 		DateTime $visited_at,
 		string $request_type = '',
-		int $response_code = 200
+		int $response_code = 200,
+		string $country_code = ''
 	) {
 		$this->id            = $id;
 		$this->trap_page_id  = $trap_page_id;
@@ -142,5 +152,6 @@ class TrapVisit {
 		$this->visited_at    = $visited_at;
 		$this->request_type  = $request_type;
 		$this->response_code = $response_code;
+		$this->country_code  = $country_code;
 	}
 }

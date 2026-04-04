@@ -33,7 +33,8 @@ Labyrinth protects your WordPress site from unwanted AI crawlers and scrapers by
 * Optional comprehensive tracking mode to monitor blocked bot persistence
 * Automatic log retention and maintenance via WP-Cron
 * Privacy policy suggestion for GDPR compliance
-* Lightweight — no external API calls, everything runs locally
+* Optional geographic heat map of bot activity using GeoIP lookups
+* Lightweight — minimal footprint, optional external API for geographic tracking only
 
 == Installation ==
 
@@ -70,6 +71,22 @@ Trap pages are generated from a built-in content template engine that produces r
 = How do I know it's working? =
 
 Check the **Labyrinth** analytics dashboard in the WordPress admin. It shows total trap visits, unique bot IPs, score distribution, and top offenders.
+
+== Third-Party Services ==
+
+This plugin optionally connects to the following external service:
+
+= ip-api.com =
+
+When the **Geographic Tracking** setting is enabled (Settings > Labyrinth > Geographic Tracking), the plugin sends visitor IP addresses to [ip-api.com](http://ip-api.com) to resolve their country of origin. This data is used to display a geographic heat map of bot activity in the admin dashboard.
+
+* **What is sent:** The visitor's IP address only.
+* **When it is sent:** At the time a trap page visit is recorded, only while the setting is enabled.
+* **Service website:** [http://ip-api.com](http://ip-api.com)
+* **Terms of service:** [https://ip-api.com/docs/legal](https://ip-api.com/docs/legal)
+* **Privacy policy:** ip-api.com does not log queries from the free API endpoint.
+
+This feature is **off by default** and requires explicit opt-in by a site administrator. No data is sent to any external service when the setting is disabled.
 
 == Changelog ==
 

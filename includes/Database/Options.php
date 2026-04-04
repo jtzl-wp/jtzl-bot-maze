@@ -103,6 +103,9 @@ class Options {
 			'lby_tarpit_delay_ms'        => 1000,
 			'lby_track_blocked_activity' => false,
 
+			// Geographic Tracking.
+			'lby_enable_geo_tracking'    => false,
+
 			// Maintenance.
 			'lby_retention_days'         => 30,
 
