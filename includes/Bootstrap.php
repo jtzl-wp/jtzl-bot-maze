@@ -336,18 +336,7 @@ class Bootstrap {
 		try {
 			$generator = $this->container->get( 'Labyrinth\Service\TrapPageGenerator' );
 			$count     = $generator->regenerate();
-
-			wp_send_json_success(
-				array(
-					'message' => sprintf(
-						/* translators: %d: number of trap pages generated */
-						__( 'Labyrinth regenerated with %d trap pages.', 'labyrinth' ),
-						$count
-					),
-					'count'   => $count,
-				)
-			);
-		} catch ( \Exception $e ) {
+		} catch ( \Throwable $e ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Error logging is appropriate here.
 			error_log( 'Labyrinth: Regenerate error: ' . $e->getMessage() );
 			wp_send_json_error(
@@ -357,6 +346,17 @@ class Bootstrap {
 				500
 			);
 		}
+
+		wp_send_json_success(
+			array(
+				'message' => sprintf(
+					/* translators: %d: number of trap pages generated */
+					__( 'Labyrinth regenerated with %d trap pages.', 'labyrinth' ),
+					$count
+				),
+				'count'   => $count,
+			)
+		);
 	}
 
 	/**
@@ -370,15 +370,10 @@ class Bootstrap {
 	public function handle_refresh_analytics_ajax(): void {
 		try {
 			$collector = $this->container->get( 'Labyrinth\Service\AnalyticsCollector' );
-
-			wp_send_json_success(
-				array(
-					'summary'    => $collector->get_summary_stats(),
-					'chart_data' => $collector->get_chart_data(),
-					'top_bots'   => $collector->get_top_bots(),
-				)
-			);
-		} catch ( \Exception $e ) {
+			$summary   = $collector->get_summary_stats();
+			$chart     = $collector->get_chart_data();
+			$bots      = $collector->get_top_bots();
+		} catch ( \Throwable $e ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Error logging is appropriate here.
 			error_log( 'Labyrinth: Analytics refresh error: ' . $e->getMessage() );
 			wp_send_json_error(
@@ -388,6 +383,14 @@ class Bootstrap {
 				500
 			);
 		}
+
+		wp_send_json_success(
+			array(
+				'summary'    => $summary,
+				'chart_data' => $chart,
+				'top_bots'   => $bots,
+			)
+		);
 	}
 
 	/**
@@ -402,14 +405,7 @@ class Bootstrap {
 		try {
 			$collector = $this->container->get( 'Labyrinth\Service\AnalyticsCollector' );
 			$countries = $collector->get_visits_by_country();
-
-			wp_send_json_success(
-				array(
-					'countries' => empty( $countries ) ? new \stdClass() : $countries,
-					'enabled'   => (bool) get_option( 'lby_enable_geo_tracking', false ),
-				)
-			);
-		} catch ( \Exception $e ) {
+		} catch ( \Throwable $e ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Error logging is appropriate here.
 			error_log( 'Labyrinth: Geo data error: ' . $e->getMessage() );
 			wp_send_json_error(
@@ -419,6 +415,13 @@ class Bootstrap {
 				500
 			);
 		}
+
+		wp_send_json_success(
+			array(
+				'countries' => empty( $countries ) ? new \stdClass() : $countries,
+				'enabled'   => (bool) get_option( 'lby_enable_geo_tracking', false ),
+			)
+		);
 	}
 
 	/**
