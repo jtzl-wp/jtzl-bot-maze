@@ -391,6 +391,37 @@ class Bootstrap {
 	}
 
 	/**
+	 * Handle geographic data AJAX request (business logic only).
+	 *
+	 * Nonce and capability checks are performed by the caller.
+	 *
+	 * @return void
+	 * @since 1.0.0
+	 */
+	public function handle_geo_data_ajax(): void {
+		try {
+			$collector = $this->container->get( 'Labyrinth\Service\AnalyticsCollector' );
+			$countries = $collector->get_visits_by_country();
+
+			wp_send_json_success(
+				array(
+					'countries' => empty( $countries ) ? new \stdClass() : $countries,
+					'enabled'   => (bool) get_option( 'lby_enable_geo_tracking', false ),
+				)
+			);
+		} catch ( \Exception $e ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Error logging is appropriate here.
+			error_log( 'Labyrinth: Geo data error: ' . $e->getMessage() );
+			wp_send_json_error(
+				array(
+					'message' => __( 'An error occurred while loading geographic data.', 'labyrinth' ),
+				),
+				500
+			);
+		}
+	}
+
+	/**
 	 * Handle daily maintenance cron.
 	 *
 	 * Prunes old evidence data and ensures minimum trap pages exist.

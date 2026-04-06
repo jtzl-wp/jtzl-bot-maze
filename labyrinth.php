@@ -138,6 +138,48 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	);
 
 	/**
+	 * Handle geographic data AJAX request.
+	 *
+	 * @return void
+	 */
+	function handle_geo_data_ajax() {
+		// Verify nonce.
+		if ( ! check_ajax_referer( 'lby_admin_action', 'nonce', false ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __(
+						'Invalid security token. Please refresh the page and try again.',
+						'labyrinth',
+					),
+				),
+				403,
+			);
+		}
+
+		// Check user capabilities.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __(
+						'You do not have permission to perform this action.',
+						'labyrinth',
+					),
+				),
+				403,
+			);
+		}
+
+		$container = Plugin::get_container();
+		$bootstrap = new Bootstrap( $container );
+		$bootstrap->handle_geo_data_ajax();
+	}
+
+	add_action(
+		'wp_ajax_lby_geo_data',
+		__NAMESPACE__ . '\\handle_geo_data_ajax',
+	);
+
+	/**
 	 * Plugin activation hook.
 	 *
 	 * Creates database tables and sets default options.

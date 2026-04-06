@@ -80,12 +80,12 @@ class AnalyticsCollector {
 	 */
 	public function get_summary_stats(): array {
 		return array(
-			'total_trap_pages'        => $this->trap_page_repo->count_active(),
-			'total_visits'            => $this->visit_repo->count_total(),
-			'visits_last_7_days'      => $this->visit_repo->count_recent_days( 7 ),
-			'all_visits_last_7_days'  => $this->visit_repo->count_all_recent_days( 7 ),
-			'total_bots'              => $this->score_repo->count_total(),
-			'blocked_bots'            => $this->score_repo->count_blocked(),
+			'total_trap_pages'       => $this->trap_page_repo->count_active(),
+			'total_visits'           => $this->visit_repo->count_total(),
+			'visits_last_7_days'     => $this->visit_repo->count_recent_days( 7 ),
+			'all_visits_last_7_days' => $this->visit_repo->count_all_recent_days( 7 ),
+			'total_bots'             => $this->score_repo->count_total(),
+			'blocked_bots'           => $this->score_repo->count_blocked(),
 		);
 	}
 
@@ -252,6 +252,20 @@ class AnalyticsCollector {
 	 */
 	public function get_all_active_trap_pages(): array {
 		return $this->trap_page_repo->get_all_active();
+	}
+
+	/**
+	 * Get trap visit counts grouped by country code.
+	 *
+	 * Returns an associative array of country_code => count for countries
+	 * with at least one resolved visit. Empty country codes (geo tracking
+	 * disabled at visit time) are excluded.
+	 *
+	 * @return array<string, int> Country code => visit count pairs.
+	 * @since 1.0.0
+	 */
+	public function get_visits_by_country(): array {
+		return $this->visit_repo->get_counts_by_country();
 	}
 
 	/**
