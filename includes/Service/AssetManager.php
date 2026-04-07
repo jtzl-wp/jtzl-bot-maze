@@ -131,6 +131,17 @@ class AssetManager {
 	}
 
 	/**
+	 * Enqueue map page assets (shared CSS and map-specific JavaScript).
+	 *
+	 * @return void
+	 * @since 1.0.0
+	 */
+	public function enqueue_map_assets(): void {
+		$this->enqueue_admin_styles();
+		$this->enqueue_map_script();
+	}
+
+	/**
 	 * Add module type attribute to admin script tag.
 	 *
 	 * @param string $tag    The script tag HTML.
@@ -139,11 +150,61 @@ class AssetManager {
 	 * @since 1.0.0
 	 */
 	public function add_module_type_attribute( string $tag, string $handle ): string {
-		if ( 'lby-admin-analytics' === $handle ) {
-			remove_filter( 'script_loader_tag', array( $this, 'add_module_type_attribute' ), 10 );
+		$module_handles = array( 'lby-admin-analytics', 'lby-admin-map' );
+		if ( in_array( $handle, $module_handles, true ) && false === strpos( $tag, ' type=' ) ) {
 			$tag = preg_replace( '/(<script\b)(?=[^>]*\ssrc=)/', '$1 type="module"', $tag, 1 );
 		}
 		return $tag;
+	}
+
+	/**
+	 * Enqueue map page JavaScript from manifest.
+	 *
+	 * @return void
+	 * @since 1.0.0
+	 */
+	private function enqueue_map_script(): void {
+		$manifest_path = $this->plugin_dir . 'build/asset-manifest.json';
+
+		if ( ! file_exists( $manifest_path ) ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local file read is appropriate here.
+		$manifest = json_decode( file_get_contents( $manifest_path ), true );
+
+		if ( ! is_array( $manifest ) || ! isset( $manifest['labyrinth-admin-map.js'] ) ) {
+			return;
+		}
+
+		wp_enqueue_script(
+			'lby-admin-map',
+			$this->plugin_url . 'build/' . $manifest['labyrinth-admin-map.js'],
+			array(),
+			$this->version,
+			true
+		);
+
+		add_filter( 'script_loader_tag', array( $this, 'add_module_type_attribute' ), 10, 2 );
+
+		wp_localize_script(
+			'lby-admin-map',
+			'lbyMap',
+			array(
+				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+				'nonce'   => wp_create_nonce( 'lby_admin_action' ),
+			)
+		);
+
+		// Enqueue map CSS from manifest.
+		if ( isset( $manifest['labyrinth-admin-map.css'] ) ) {
+			wp_enqueue_style(
+				'lby-admin-map-style',
+				$this->plugin_url . 'build/' . $manifest['labyrinth-admin-map.css'],
+				array(),
+				$this->version
+			);
+		}
 	}
 
 	/**

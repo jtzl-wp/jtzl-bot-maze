@@ -41,19 +41,30 @@ function generateManifest(metafile) {
 	}
 
 	if (metafile && metafile.outputs) {
+		const hashedPattern = /^(.+?)\.[A-Z0-9]+\.([^.]+)$/;
+
+		// Collect JS entries that have an entryPoint.
 		for (const [outputPath, outputMeta] of Object.entries(
 			metafile.outputs
 		)) {
 			if (outputMeta.entryPoint) {
 				const hashedFilename = path.basename(outputPath);
-
-				const match = hashedFilename.match(
-					/^(.+?)\.[A-Z0-9]+\.([^.]+)$/
-				);
+				const match = hashedFilename.match(hashedPattern);
 				if (match) {
 					const [, name, ext] = match;
-					const logicalName = `${name}.${ext}`;
-					manifest[logicalName] = hashedFilename;
+					manifest[`${name}.${ext}`] = hashedFilename;
+				}
+			}
+		}
+
+		// Collect CSS sidecar files (no entryPoint) that match a known JS entry.
+		for (const outputPath of Object.keys(metafile.outputs)) {
+			const hashedFilename = path.basename(outputPath);
+			const match = hashedFilename.match(hashedPattern);
+			if (match && match[2] === 'css') {
+				const baseName = match[1];
+				if (manifest[`${baseName}.js`]) {
+					manifest[`${baseName}.css`] = hashedFilename;
 				}
 			}
 		}
@@ -78,6 +89,7 @@ function cleanOldHashedFiles(manifest) {
 	try {
 		const files = fs.readdirSync(buildDir);
 		const activeFiles = new Set(Object.values(manifest).filter(Boolean));
+		const manifestKeys = new Set(Object.keys(manifest));
 
 		const hashedPattern = /^(.+?)\.[A-Za-z0-9]{8}\.([^.]+)$/;
 
@@ -85,10 +97,19 @@ function cleanOldHashedFiles(manifest) {
 			if (
 				!hashedPattern.test(file) ||
 				file === 'asset-manifest.json' ||
-				file.endsWith('.map') ||
-				file.endsWith('.css')
+				file.endsWith('.map')
 			) {
 				return;
+			}
+
+			// Only clean CSS files that have a corresponding JS entry in the
+			// manifest (i.e. esbuild sidecars). PostCSS-generated CSS does not
+			// have a JS counterpart and must be left alone.
+			if (file.endsWith('.css')) {
+				const match = file.match(hashedPattern);
+				if (match && !manifestKeys.has(`${match[1]}.css`)) {
+					return;
+				}
 			}
 
 			if (!activeFiles.has(file)) {
@@ -141,6 +162,8 @@ const baseConfig = {
 	loader: {
 		'.ts': 'ts',
 		'.tsx': 'tsx',
+		'.json': 'json',
+		'.png': 'dataurl',
 	},
 	define: {
 		'process.env.NODE_ENV': JSON.stringify(
@@ -158,6 +181,7 @@ const productionConfig = {
 	...baseConfig,
 	entryPoints: {
 		'labyrinth-admin-analytics': 'src/admin-analytics.ts',
+		'labyrinth-admin-map': 'src/admin-map.ts',
 	},
 	outdir: 'build',
 	format: 'esm',
@@ -180,6 +204,7 @@ const developmentConfig = {
 	...baseConfig,
 	entryPoints: {
 		'labyrinth-admin-analytics': 'src/admin-analytics.ts',
+		'labyrinth-admin-map': 'src/admin-map.ts',
 	},
 	outdir: 'build',
 	format: 'esm',

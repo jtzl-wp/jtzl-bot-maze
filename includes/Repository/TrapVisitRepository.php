@@ -264,11 +264,15 @@ class TrapVisitRepository implements TrapVisitRepositoryInterface {
 	/**
 	 * Get visit counts grouped by country code.
 	 *
+	 * @param int $days Number of days to look back (default 30).
 	 * @return array<string, int> Array of country_code => count pairs.
 	 * @since 1.0.0
 	 */
-	public function get_counts_by_country(): array {
-		$query = "SELECT country_code, COUNT(*) as visit_count FROM {$this->table_name} WHERE request_type IN ('', 'trap_visit') AND country_code != '' GROUP BY country_code ORDER BY visit_count DESC"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+	public function get_counts_by_country( int $days = 30 ): array {
+		$query = $this->wpdb->prepare(
+			"SELECT country_code, COUNT(*) as visit_count FROM {$this->table_name} WHERE request_type IN ('', 'trap_visit') AND country_code != '' AND visited_at >= %s GROUP BY country_code ORDER BY visit_count DESC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			gmdate( 'Y-m-d H:i:s', strtotime( "-{$days} days", strtotime( current_time( 'mysql' ) ) ) )
+		);
 
 		$results = $this->wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 

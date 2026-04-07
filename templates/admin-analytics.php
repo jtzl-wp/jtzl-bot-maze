@@ -4,10 +4,11 @@
  *
  * @package Labyrinth
  *
- * @var array $summary    Summary statistics.
- * @var array $chart_data Chart data with 'labels' and 'values'.
- * @var array $top_bots   Top bots by score.
- * @var array $activity   Recent trap visit activity.
+ * @var array $summary     Summary statistics.
+ * @var array $chart_data  Chart data with 'labels' and 'values'.
+ * @var array $top_bots    Top bots by score.
+ * @var array $countries   Country visit counts keyed by alpha-2 code.
+ * @var bool  $geo_enabled Whether geographic tracking is enabled.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -58,10 +59,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<?php echo esc_html__( 'Refresh', 'labyrinth' ); ?>
 				</button>
 			</h2>
+			<div class="lby-table-wrap">
 			<table class="widefat striped lby-top-bots-table" id="lby-top-bots-table">
 				<thead>
 					<tr>
 						<th><?php echo esc_html__( 'IP Address', 'labyrinth' ); ?></th>
+						<th><?php echo esc_html__( 'Country', 'labyrinth' ); ?></th>
 						<th><?php echo esc_html__( 'User Agent', 'labyrinth' ); ?></th>
 						<th><?php echo esc_html__( 'Score', 'labyrinth' ); ?></th>
 						<th><?php echo esc_html__( 'Visits', 'labyrinth' ); ?></th>
@@ -72,11 +75,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 				</thead>
 				<tbody>
 					<?php if ( empty( $top_bots ) ) : ?>
-						<tr><td colspan="7"><?php echo esc_html__( 'No bot activity detected yet.', 'labyrinth' ); ?></td></tr>
+						<tr><td colspan="8"><?php echo esc_html__( 'No bot activity detected yet.', 'labyrinth' ); ?></td></tr>
 					<?php else : ?>
 						<?php foreach ( $top_bots as $bot ) : ?>
 						<tr>
 							<td><code><?php echo esc_html( $bot['ip_address'] ); ?></code></td>
+							<td><?php echo esc_html( $bot['country_name'] ); ?></td>
 							<td><?php echo esc_html( $bot['user_agent'] ); ?></td>
 							<td><strong><?php echo esc_html( number_format( $bot['score'], 1 ) ); ?></strong></td>
 							<td><?php echo esc_html( $bot['trap_visits_count'] ); ?></td>
@@ -94,7 +98,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<?php endif; ?>
 				</tbody>
 			</table>
+			</div>
 		</div>
+
+		<?php require LABYRINTH_PLUGIN_DIR . 'templates/partials/geo-map-section.php'; ?>
 
 	</div>
 </div>

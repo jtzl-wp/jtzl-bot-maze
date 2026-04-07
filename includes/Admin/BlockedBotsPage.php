@@ -83,12 +83,14 @@ class BlockedBotsPage {
 
 		$bots          = $this->collector->get_blocked_bots();
 		$total_blocked = $this->collector->get_summary_stats()['blocked_bots'];
+		$countries     = $this->collector->get_visits_by_country();
+		$geo_enabled   = (bool) get_option( 'lby_enable_geo_tracking', false );
 
 		$template_path = LABYRINTH_PLUGIN_DIR . 'templates/admin-blocked-bots.php';
 
 		if ( file_exists( $template_path ) ) {
 			// phpcs:ignore WordPress.PHP.DontExtract.extract_extract -- Template variable extraction is intentional.
-			extract( compact( 'bots', 'total_blocked' ) );
+			extract( compact( 'bots', 'total_blocked', 'countries', 'geo_enabled' ) );
 			include $template_path; // @phpstan-ignore include.fileNotFound
 		}
 	}

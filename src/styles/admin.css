@@ -192,3 +192,15 @@ a.lby-card-link:focus {
 	color: #646970;
 	font-style: italic;
 }
+
+/* Responsive tables */
+.lby-table-wrap {
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 782px) {
+	.lby-summary-cards {
+		grid-template-columns: 1fr;
+	}
+}

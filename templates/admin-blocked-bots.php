@@ -6,6 +6,8 @@
  *
  * @var array $bots          Blocked bot data arrays.
  * @var int   $total_blocked True total blocked bot count.
+ * @var array $countries     Country visit counts keyed by alpha-2 code.
+ * @var bool  $geo_enabled   Whether geographic tracking is enabled.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -18,10 +20,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<?php echo esc_html__( 'Bots that have exceeded the suspicion score threshold and are currently blocked.', 'labyrinth' ); ?>
 	</p>
 
+	<div class="lby-table-wrap">
 	<table class="widefat striped lby-top-bots-table" style="margin-top: 16px;">
 		<thead>
 			<tr>
 				<th><?php echo esc_html__( 'IP Address', 'labyrinth' ); ?></th>
+				<th><?php echo esc_html__( 'Country', 'labyrinth' ); ?></th>
 				<th><?php echo esc_html__( 'User Agent', 'labyrinth' ); ?></th>
 				<th><?php echo esc_html__( 'Score', 'labyrinth' ); ?></th>
 				<th><?php echo esc_html__( 'Visits', 'labyrinth' ); ?></th>
@@ -32,11 +36,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</thead>
 		<tbody>
 			<?php if ( empty( $bots ) ) : ?>
-				<tr><td colspan="7"><?php echo esc_html__( 'No blocked bots yet. Bots are blocked when their suspicion score exceeds the configured threshold.', 'labyrinth' ); ?></td></tr>
+				<tr><td colspan="8"><?php echo esc_html__( 'No blocked bots yet. Bots are blocked when their suspicion score exceeds the configured threshold.', 'labyrinth' ); ?></td></tr>
 			<?php else : ?>
 				<?php foreach ( $bots as $bot ) : ?>
 				<tr>
 					<td><code><?php echo esc_html( $bot['ip_address'] ); ?></code></td>
+					<td><?php echo esc_html( $bot['country_name'] ); ?></td>
 					<td class="lby-ua-cell"><?php echo esc_html( $bot['user_agent'] ); ?></td>
 					<td><strong><?php echo esc_html( number_format( $bot['score'], 1 ) ); ?></strong></td>
 					<td><?php echo esc_html( $bot['trap_visits_count'] ); ?></td>
@@ -48,6 +53,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<?php endif; ?>
 		</tbody>
 	</table>
+	</div>
+
+	<?php require LABYRINTH_PLUGIN_DIR . 'templates/partials/geo-map-section.php'; ?>
 
 	<p style="margin-top: 12px;">
 		<?php

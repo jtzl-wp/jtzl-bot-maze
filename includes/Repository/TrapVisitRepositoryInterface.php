@@ -121,8 +121,9 @@ interface TrapVisitRepositoryInterface {
 	 * Only counts trap visits (excludes blocked/exempted). Excludes rows
 	 * with an empty country code (geo tracking was disabled at visit time).
 	 *
+	 * @param int $days Number of days to look back (default 30).
 	 * @return array<string, int> Array of country_code => count pairs.
 	 * @since 1.0.0
 	 */
-	public function get_counts_by_country(): array;
+	public function get_counts_by_country( int $days = 30 ): array;
 }

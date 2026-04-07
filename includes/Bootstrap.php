@@ -256,7 +256,9 @@ class Bootstrap {
 			return;
 		}
 
-		$this->container->get( 'Labyrinth\Service\AssetManager' )->enqueue_admin_assets();
+		$asset_manager = $this->container->get( 'Labyrinth\Service\AssetManager' );
+		$asset_manager->enqueue_admin_assets();
+		$asset_manager->enqueue_map_assets();
 	}
 
 	/**

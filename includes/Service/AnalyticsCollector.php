@@ -16,6 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // @codeCoverageIgnoreEnd
 
+use Labyrinth\Data\CountryNames;
 use Labyrinth\Repository\TrapPageRepositoryInterface;
 use Labyrinth\Repository\TrapVisitRepositoryInterface;
 use Labyrinth\Repository\BotScoreRepositoryInterface;
@@ -125,13 +126,15 @@ class AnalyticsCollector {
 	public function get_top_bots( int $limit = 10 ): array {
 		$bots = $this->score_repo->get_top_by_score( $limit );
 
-		// Resolve UA hashes to human-readable strings via recent visits.
-		$ua_map = $this->build_ua_lookup( $bots );
+		$lookups     = $this->build_bot_lookups( $bots );
+		$ua_map      = $lookups['ua'];
+		$country_map = $lookups['country'];
 
 		return array_map(
-			function ( $bot ) use ( $ua_map ) {
-				$key = $bot->ip_address . '|' . $bot->user_agent_hash;
-				$ua  = $ua_map[ $key ] ?? $bot->user_agent_hash;
+			function ( $bot ) use ( $ua_map, $country_map ) {
+				$key          = $bot->ip_address . '|' . $bot->user_agent_hash;
+				$ua           = $ua_map[ $key ] ?? $bot->user_agent_hash;
+				$country_code = $country_map[ $bot->ip_address ] ?? '';
 				return array(
 					'id'                => $bot->id,
 					'ip_address'        => $bot->ip_address,
@@ -142,6 +145,8 @@ class AnalyticsCollector {
 					'first_seen_at'     => $bot->first_seen_at->format( 'Y-m-d H:i:s' ),
 					'last_seen_at'      => $bot->last_seen_at->format( 'Y-m-d H:i:s' ),
 					'is_blocked'        => $bot->is_blocked,
+					'country_code'      => $country_code,
+					'country_name'      => CountryNames::get( $country_code ),
 				);
 			},
 			$bots
@@ -149,37 +154,46 @@ class AnalyticsCollector {
 	}
 
 	/**
-	 * Build a composite (IP|UA-hash) to user-agent lookup from recent visits.
+	 * Build user-agent and country lookups from recent visits for a set of bots.
 	 *
-	 * @param array $bots Bot score entities to resolve UAs for.
-	 * @return array<string, string> "ip|ua_hash" => user agent string.
+	 * @param array $bots Bot score entities to resolve data for.
+	 * @return array{ua: array<string, string>, country: array<string, string>}
 	 * @since 1.0.0
 	 */
-	private function build_ua_lookup( array $bots ): array {
+	private function build_bot_lookups( array $bots ): array {
 		if ( empty( $bots ) ) {
-			return array();
+			return array(
+				'ua'      => array(),
+				'country' => array(),
+			);
 		}
 
-		// Build the set of (ip, ua_hash) pairs we need to resolve.
 		$needed = array();
 		foreach ( $bots as $bot ) {
 			$needed[ $bot->ip_address . '|' . $bot->user_agent_hash ] = true;
 		}
 
-		// Scan recent visits to resolve hashes to raw UA strings.
-		$visits = $this->visit_repo->get_recent( count( $bots ) * 20 );
-		$map    = array();
+		$visits      = $this->visit_repo->get_recent( count( $bots ) * 20 );
+		$ua_map      = array();
+		$country_map = array();
 
 		foreach ( $visits as $visit ) {
 			$hash = hash( 'sha256', $visit->user_agent );
 			$key  = $visit->ip_address . '|' . $hash;
 
-			if ( isset( $needed[ $key ] ) && ! isset( $map[ $key ] ) ) {
-				$map[ $key ] = $visit->user_agent;
+			if ( isset( $needed[ $key ] ) && ! isset( $ua_map[ $key ] ) ) {
+				$ua_map[ $key ] = $visit->user_agent;
+			}
+
+			if ( ! empty( $visit->country_code ) && ! isset( $country_map[ $visit->ip_address ] ) ) {
+				$country_map[ $visit->ip_address ] = $visit->country_code;
 			}
 		}
 
-		return $map;
+		return array(
+			'ua'      => $ua_map,
+			'country' => $country_map,
+		);
 	}
 
 	/**
@@ -222,12 +236,15 @@ class AnalyticsCollector {
 	public function get_blocked_bots( int $limit = 50, int $offset = 0 ): array {
 		$bots = $this->score_repo->get_blocked( $limit, $offset );
 
-		$ua_map = $this->build_ua_lookup( $bots );
+		$lookups     = $this->build_bot_lookups( $bots );
+		$ua_map      = $lookups['ua'];
+		$country_map = $lookups['country'];
 
 		return array_map(
-			function ( $bot ) use ( $ua_map ) {
-				$key = $bot->ip_address . '|' . $bot->user_agent_hash;
-				$ua  = $ua_map[ $key ] ?? $bot->user_agent_hash;
+			function ( $bot ) use ( $ua_map, $country_map ) {
+				$key          = $bot->ip_address . '|' . $bot->user_agent_hash;
+				$ua           = $ua_map[ $key ] ?? $bot->user_agent_hash;
+				$country_code = $country_map[ $bot->ip_address ] ?? '';
 				return array(
 					'id'                => $bot->id,
 					'ip_address'        => $bot->ip_address,
@@ -238,6 +255,8 @@ class AnalyticsCollector {
 					'first_seen_at'     => $bot->first_seen_at->format( 'Y-m-d H:i:s' ),
 					'last_seen_at'      => $bot->last_seen_at->format( 'Y-m-d H:i:s' ),
 					'is_blocked'        => $bot->is_blocked,
+					'country_code'      => $country_code,
+					'country_name'      => CountryNames::get( $country_code ),
 				);
 			},
 			$bots
@@ -301,6 +320,8 @@ class AnalyticsCollector {
 					'depth_reached' => $visit->depth_reached,
 					'request_type'  => $visit->request_type,
 					'visited_at'    => $visit->visited_at->format( 'Y-m-d H:i:s' ),
+					'country_code'  => $visit->country_code,
+					'country_name'  => CountryNames::get( $visit->country_code ),
 				);
 			},
 			$visits

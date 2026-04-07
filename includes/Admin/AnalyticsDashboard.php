@@ -82,12 +82,14 @@ class AnalyticsDashboard {
 			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'labyrinth' ) );
 		}
 
-		$summary    = $this->collector->get_summary_stats();
-		$chart_data = $this->collector->get_chart_data();
-		$top_bots   = $this->collector->get_top_bots();
+		$summary     = $this->collector->get_summary_stats();
+		$chart_data  = $this->collector->get_chart_data();
+		$top_bots    = $this->collector->get_top_bots();
+		$countries   = $this->collector->get_visits_by_country();
+		$geo_enabled = (bool) get_option( 'lby_enable_geo_tracking', false );
 
 		// Pass data to template.
-		$template_data = compact( 'summary', 'chart_data', 'top_bots' );
+		$template_data = compact( 'summary', 'chart_data', 'top_bots', 'countries', 'geo_enabled' );
 
 		$template_path = LABYRINTH_PLUGIN_DIR . 'templates/admin-analytics.php';
 

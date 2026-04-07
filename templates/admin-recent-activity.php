@@ -9,6 +9,8 @@
  * @var int   $total_pages   Total number of pages.
  * @var int   $total_visits  Total visit count for the period.
  * @var int   $per_page      Items per page.
+ * @var array $countries     Country visit counts keyed by alpha-2 code.
+ * @var bool  $geo_enabled   Whether geographic tracking is enabled.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -50,11 +52,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	</div>
 	<?php endif; ?>
 
+	<div class="lby-table-wrap">
 	<table class="widefat striped" style="margin-top: 16px;">
 		<thead>
 			<tr>
 				<th><?php echo esc_html__( 'Time', 'labyrinth' ); ?></th>
 				<th><?php echo esc_html__( 'IP Address', 'labyrinth' ); ?></th>
+				<th><?php echo esc_html__( 'Country', 'labyrinth' ); ?></th>
 				<th><?php echo esc_html__( 'User Agent', 'labyrinth' ); ?></th>
 				<th><?php echo esc_html__( 'Depth', 'labyrinth' ); ?></th>
 				<th><?php echo esc_html__( 'Type', 'labyrinth' ); ?></th>
@@ -62,12 +66,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</thead>
 		<tbody>
 			<?php if ( empty( $activity ) ) : ?>
-				<tr><td colspan="5"><?php echo esc_html__( 'No activity in the last 7 days.', 'labyrinth' ); ?></td></tr>
+				<tr><td colspan="6"><?php echo esc_html__( 'No activity in the last 7 days.', 'labyrinth' ); ?></td></tr>
 			<?php else : ?>
 				<?php foreach ( $activity as $visit ) : ?>
 				<tr>
 					<td><?php echo esc_html( $visit['visited_at'] ); ?></td>
 					<td><code><?php echo esc_html( $visit['ip_address'] ); ?></code></td>
+					<td><?php echo esc_html( $visit['country_name'] ); ?></td>
 					<td class="lby-ua-cell"><?php echo esc_html( $visit['user_agent'] ); ?></td>
 					<td><?php echo esc_html( $visit['depth_reached'] ); ?></td>
 					<td>
@@ -84,6 +89,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<?php endif; ?>
 		</tbody>
 	</table>
+	</div>
+
+	<?php require LABYRINTH_PLUGIN_DIR . 'templates/partials/geo-map-section.php'; ?>
 
 	<?php if ( $total_pages > 1 ) : ?>
 	<div class="tablenav bottom">

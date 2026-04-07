@@ -1,0 +1,74 @@
+/* Labyrinth Geographic Map Page */
+
+.lby-geo-wrap {
+	max-width: 1200px;
+}
+
+/* Map Container */
+.lby-map-container {
+	width: 100%;
+	height: 500px;
+	background: #f0f0f1;
+	border-radius: 4px;
+}
+
+@media (max-width: 782px) {
+	.lby-map-container {
+		height: 300px;
+	}
+}
+
+.lby-map-container.leaflet-container {
+	border-radius: 4px;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+/* Legend */
+.lby-map-legend {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	margin: 12px 0 0;
+	font-size: 12px;
+	color: #646970;
+}
+
+.lby-map-legend-label {
+	margin: 0 6px;
+}
+
+.lby-map-legend-swatch {
+	display: inline-block;
+	width: 24px;
+	height: 14px;
+	border: 1px solid #c3c4c7;
+	border-radius: 2px;
+}
+
+/* Tooltip */
+.lby-map-tooltip {
+	font-size: 13px;
+	line-height: 1.4;
+	padding: 6px 10px;
+}
+
+.lby-map-tooltip strong {
+	display: block;
+	margin-bottom: 2px;
+}
+
+/* No-data overlay */
+.lby-map-no-data {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 1000;
+	background: rgba(255, 255, 255, 0.9);
+	padding: 16px 24px;
+	border-radius: 4px;
+	border: 1px solid #c3c4c7;
+	font-size: 14px;
+	color: #646970;
+	pointer-events: none;
+}

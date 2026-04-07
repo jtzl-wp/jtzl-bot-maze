@@ -33,6 +33,7 @@ interface BotEntry {
 	max_depth_reached: number;
 	last_seen_at: string;
 	is_blocked: boolean;
+	country_name: string;
 }
 
 /**
@@ -245,7 +246,7 @@ function updateTopBots(bots: BotEntry[]): void {
 	if (!bots.length) {
 		const tr = document.createElement('tr');
 		const td = createCell('td', 'No bot activity detected yet.');
-		td.setAttribute('colspan', '7');
+		td.setAttribute('colspan', '8');
 		tr.appendChild(td);
 		tbody.appendChild(tr);
 		return;
@@ -255,6 +256,7 @@ function updateTopBots(bots: BotEntry[]): void {
 		const tr = document.createElement('tr');
 
 		tr.appendChild(createCodeCell('td', bot.ip_address));
+		tr.appendChild(createCell('td', bot.country_name || ''));
 		tr.appendChild(createCell('td', bot.user_agent));
 
 		const scoreTd = document.createElement('td');
