@@ -121,8 +121,10 @@ class ContainerFactory {
 				->constructor( get( DnsResolverInterface::class ) ),
 
 			'Labyrinth\Service\GeoIpService'          => function () {
+				$enabled = (bool) get_option( 'lby_enable_geo_tracking', false );
 				return new Service\GeoIpService(
-					(bool) get_option( 'lby_enable_geo_tracking', false )
+					$enabled,
+					$enabled ? new Service\IpApiGeoIpProvider() : null
 				);
 			},
 
