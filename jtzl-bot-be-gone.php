@@ -3,7 +3,7 @@
  * Plugin Name: JTZL's Bot-be-Gone
  * Plugin URI: https://github.com/jtzl/bot-be-gone
  * Description: AI bot protection through invisible trap link mazes — hidden links lure bots into a maze of fake content for detection and blocking
- * Version: 1.0.0-rc.6
+ * Version: 1.0.0-rc.7
  * Requires at least: 6.9
  * Requires PHP: 8.2
  * Author: JTZL
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define plugin constants.
-define( 'JTZL_BBG_VERSION', '1.0.0-rc.6' );
+define( 'JTZL_BBG_VERSION', '1.0.0-rc.7' );
 define( 'JTZL_BBG_PLUGIN_FILE', __FILE__ );
 define( 'JTZL_BBG_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'JTZL_BBG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
