@@ -84,7 +84,7 @@ class BlockedBotsPage {
 		$bots          = $this->collector->get_blocked_bots();
 		$total_blocked = $this->collector->get_summary_stats()['blocked_bots'];
 		$countries     = $this->collector->get_visits_by_country();
-		$geo_enabled   = (bool) get_option( 'lby_enable_geo_tracking', false );
+		$geo_enabled   = 'none' !== (string) get_option( 'lby_geo_provider', 'none' );
 
 		$template_path = LABYRINTH_PLUGIN_DIR . 'templates/admin-blocked-bots.php';
 

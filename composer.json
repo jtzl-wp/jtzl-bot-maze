@@ -5,6 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"php": ">=8.2",
+		"maxmind-db/reader": "^1.11",
 		"php-di/php-di": "^7.0"
 	},
 	"require-dev": {

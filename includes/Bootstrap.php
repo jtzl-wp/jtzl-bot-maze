@@ -57,6 +57,9 @@ class Bootstrap {
 	public function register_hooks(): void {
 		$wp = $this->container->get( ContextInterface::class );
 
+		// Register weekly cron interval (WordPress only ships hourly/twicedaily/daily).
+		self::register_weekly_schedule();
+
 		// Check if we need to flush rewrite rules after activation.
 		// Late priority ensures trap rewrite rules are registered first.
 		$wp->add_action( 'init', array( $this, 'maybe_flush_rewrite_rules' ), 99 );
@@ -233,7 +236,7 @@ class Bootstrap {
 				esc_html__( 'Collected data is automatically deleted after a configurable retention period (default: %s days).', 'labyrinth' ),
 				'30'
 			),
-			esc_html__( 'When the optional Geographic Tracking setting is enabled, visitor IP addresses are sent to ip-api.com to determine the country of origin. This feature is off by default and requires explicit opt-in by a site administrator.', 'labyrinth' )
+			esc_html__( 'The plugin offers optional Geographic Tracking to display bot activity by country. This feature is off by default and requires explicit opt-in by a site administrator. Two provider options are available: (1) MaxMind GeoLite2, which performs lookups using a locally stored database — no visitor data leaves your server; (2) ip-api.com, which sends visitor IP addresses to a third-party service over unencrypted HTTP. The administrator chooses which provider to use in the plugin settings.', 'labyrinth' )
 		);
 
 		wp_add_privacy_policy_content( 'Labyrinth', $content );
@@ -274,6 +277,10 @@ class Bootstrap {
 		// Create database tables.
 		Database\Schema::create_tables();
 
+		// Migrate legacy options before set_defaults — defaults would
+		// create the new key and prevent migration from detecting the old one.
+		self::migrate_geo_tracking_option();
+
 		// Set default options.
 		Database\Options::set_defaults();
 
@@ -287,6 +294,13 @@ class Bootstrap {
 		// Schedule cron for maintenance tasks.
 		if ( ! wp_next_scheduled( 'lby_maintenance_cron' ) ) {
 			wp_schedule_event( time(), 'daily', 'lby_maintenance_cron' );
+		}
+
+		// Schedule weekly cron for MaxMind database updates.
+		// Register the weekly interval here too — activation fires before register_hooks().
+		self::register_weekly_schedule();
+		if ( ! wp_next_scheduled( 'lby_maxmind_update_cron' ) ) {
+			wp_schedule_event( time(), 'weekly', 'lby_maxmind_update_cron' );
 		}
 
 		// Generate initial trap pages (only if enabled and below minimum).
@@ -319,10 +333,15 @@ class Bootstrap {
 		// Flush rewrite rules to remove our custom rules.
 		flush_rewrite_rules();
 
-		// Unschedule cron.
+		// Unschedule crons.
 		$timestamp = wp_next_scheduled( 'lby_maintenance_cron' );
 		if ( $timestamp ) {
 			wp_unschedule_event( $timestamp, 'lby_maintenance_cron' );
+		}
+
+		$mm_timestamp = wp_next_scheduled( 'lby_maxmind_update_cron' );
+		if ( $mm_timestamp ) {
+			wp_unschedule_event( $mm_timestamp, 'lby_maxmind_update_cron' );
 		}
 	}
 
@@ -421,7 +440,7 @@ class Bootstrap {
 		wp_send_json_success(
 			array(
 				'countries' => empty( $countries ) ? new \stdClass() : $countries,
-				'enabled'   => (bool) get_option( 'lby_enable_geo_tracking', false ),
+				'enabled'   => 'none' !== (string) get_option( 'lby_geo_provider', 'none' ),
 			)
 		);
 	}
@@ -483,6 +502,7 @@ class Bootstrap {
 		if ( LABYRINTH_VERSION !== $stored_version ) {
 			self::clear_di_cache();
 			self::migrate_renamed_options();
+			self::migrate_geo_tracking_option();
 			Database\Schema::create_tables();
 			update_option( 'lby_plugin_version', LABYRINTH_VERSION );
 		}
@@ -514,6 +534,62 @@ class Bootstrap {
 	 * Clear all plugin transient caches.
 	 *
 	 * Static because it is also called from uninstall.php without a container.
+	 *
+	 * @return void
+	 * @since 1.0.0
+	 */
+	/**
+	 * Register the weekly cron schedule interval.
+	 *
+	 * WordPress only ships hourly/twicedaily/daily. This must be called
+	 * both during register_hooks() and activate() since activation fires
+	 * before plugins_loaded.
+	 *
+	 * @return void
+	 * @since 1.0.0
+	 */
+	public static function register_weekly_schedule(): void {
+		add_filter(
+			'cron_schedules',
+			static function ( array $schedules ): array {
+				if ( ! isset( $schedules['weekly'] ) ) {
+					$schedules['weekly'] = array(
+						'interval' => WEEK_IN_SECONDS,
+						'display'  => __( 'Once Weekly', 'labyrinth' ),
+					);
+				}
+				return $schedules;
+			}
+		);
+	}
+
+	/**
+	 * Migrate the legacy lby_enable_geo_tracking option to lby_geo_provider.
+	 *
+	 * @return void
+	 * @since 1.0.0
+	 */
+	public static function migrate_geo_tracking_option(): void {
+		$old_value = get_option( 'lby_enable_geo_tracking', 'not_set' );
+
+		if ( 'not_set' === $old_value ) {
+			return;
+		}
+
+		// Only migrate if the new option hasn't already been explicitly set.
+		if ( false === get_option( 'lby_geo_provider' ) ) {
+			$new_provider = $old_value ? 'ip_api' : 'none';
+			update_option( 'lby_geo_provider', $new_provider );
+		}
+
+		delete_option( 'lby_enable_geo_tracking' );
+	}
+
+	/**
+	 * Clear all plugin transient caches.
+	 *
+	 * Static because it is also called from labyrinth.php thin delegates
+	 * and from uninstall.php without a container.
 	 *
 	 * @return void
 	 * @since 1.0.0

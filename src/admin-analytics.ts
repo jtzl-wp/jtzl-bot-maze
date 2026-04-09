@@ -128,16 +128,9 @@ function renderChart(container: HTMLElement, data: ChartData): void {
  * @param text
  * @param className
  */
-function createCell(
-	tag: string,
-	text: string,
-	className?: string
-): HTMLElement {
+function createCell(tag: string, text: string): HTMLElement {
 	const el = document.createElement(tag);
 	el.textContent = text;
-	if (className) {
-		el.className = className;
-	}
 	return el;
 }
 

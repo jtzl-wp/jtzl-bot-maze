@@ -104,7 +104,9 @@ class Options {
 			'lby_track_blocked_activity' => false,
 
 			// Geographic Tracking.
-			'lby_enable_geo_tracking'    => false,
+			'lby_geo_provider'           => 'none', // none, ip_api, maxmind.
+			'lby_maxmind_license_key'    => '',
+			'lby_maxmind_last_updated'   => '',
 
 			// Maintenance.
 			'lby_retention_days'         => 30,

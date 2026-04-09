@@ -86,7 +86,7 @@ class AnalyticsDashboard {
 		$chart_data  = $this->collector->get_chart_data();
 		$top_bots    = $this->collector->get_top_bots();
 		$countries   = $this->collector->get_visits_by_country();
-		$geo_enabled = (bool) get_option( 'lby_enable_geo_tracking', false );
+		$geo_enabled = 'none' !== (string) get_option( 'lby_geo_provider', 'none' );
 
 		// Pass data to template.
 		$template_data = compact( 'summary', 'chart_data', 'top_bots', 'countries', 'geo_enabled' );

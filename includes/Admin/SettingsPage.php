@@ -593,26 +593,42 @@ class SettingsPage {
 	 * @since 1.0.0
 	 */
 	private function register_geo_fields(): void {
+		// Provider selector.
 		register_setting(
 			self::SETTINGS_GROUP,
-			'lby_enable_geo_tracking',
+			'lby_geo_provider',
 			array(
-				'type'              => 'boolean',
-				'sanitize_callback' => array( SettingsSanitizer::class, 'sanitize_checkbox' ),
-				'default'           => false,
+				'type'              => 'string',
+				'sanitize_callback' => array( SettingsSanitizer::class, 'sanitize_geo_provider' ),
+				'default'           => 'none',
 			)
 		);
 
 		add_settings_field(
-			'lby_enable_geo_tracking',
-			__( 'Enable Geographic Tracking', 'labyrinth' ),
-			array( $this, 'render_checkbox_field' ),
+			'lby_geo_provider',
+			__( 'GeoIP Provider', 'labyrinth' ),
+			array( $this, 'render_geo_provider_field' ),
 			self::PAGE_SLUG,
-			'lby_geo_settings',
+			'lby_geo_settings'
+		);
+
+		// MaxMind license key.
+		register_setting(
+			self::SETTINGS_GROUP,
+			'lby_maxmind_license_key',
 			array(
-				'label_for'   => 'lby_enable_geo_tracking',
-				'description' => __( 'Resolve visitor IP addresses to country codes using the <a href="http://ip-api.com" target="_blank" rel="noopener noreferrer">ip-api.com</a> free API. When enabled, each trap page visit triggers an HTTP request to ip-api.com with the visitor\'s IP address. This data is used to display a geographic heat map of bot activity. No data is sent when this setting is off.', 'labyrinth' ),
+				'type'              => 'string',
+				'sanitize_callback' => array( SettingsSanitizer::class, 'sanitize_maxmind_license_key' ),
+				'default'           => '',
 			)
+		);
+
+		add_settings_field(
+			'lby_maxmind_license_key',
+			__( 'MaxMind License Key', 'labyrinth' ),
+			array( $this, 'render_maxmind_fields' ),
+			self::PAGE_SLUG,
+			'lby_geo_settings'
 		);
 	}
 
@@ -769,7 +785,7 @@ class SettingsPage {
 	 * @since 1.0.0
 	 */
 	public function render_geo_section_description(): void {
-		echo '<p>' . esc_html__( 'Opt-in geographic tracking for bot activity visualization. When enabled, visitor IP addresses are sent to ip-api.com to resolve country codes.', 'labyrinth' ) . '</p>';
+		echo '<p>' . esc_html__( 'Optional geographic tracking resolves visitor IP addresses to country codes for the bot activity heat map. Choose a provider below. The local database option keeps all data on your server; the external API option is simpler to set up but sends IP data to a third party.', 'labyrinth' ) . '</p>';
 	}
 
 	/**
@@ -907,6 +923,190 @@ class SettingsPage {
 		if ( ! empty( $description ) ) {
 			printf( '<p class="description">%s</p>', wp_kses_post( $description ) );
 		}
+	}
+
+	/**
+	 * Render the GeoIP provider radio group.
+	 *
+	 * @return void
+	 * @since 1.0.0
+	 */
+	public function render_geo_provider_field(): void {
+		$current = get_option( 'lby_geo_provider', 'none' );
+
+		$providers = array(
+			'none'    => array(
+				'label' => __( 'Disabled', 'labyrinth' ),
+				'desc'  => __( 'No geographic tracking. No visitor data is sent to any external service.', 'labyrinth' ),
+			),
+			'maxmind' => array(
+				'label' => __( 'MaxMind GeoLite2 (Local Database) — Recommended', 'labyrinth' ),
+				'desc'  => __( 'Performs lookups locally using a downloaded database file. No visitor data leaves your server. Requires a free MaxMind license key. Database updates weekly (~60 MB download).', 'labyrinth' ),
+			),
+			'ip_api'  => array(
+				'label' => __( 'ip-api.com (External API)', 'labyrinth' ),
+				'desc'  => __( 'Sends each visitor\'s IP address to ip-api.com over unencrypted HTTP. Simple to set up, but transmits IP data to a third-party server without TLS. Free tier limited to 45 requests/minute (cached locally).', 'labyrinth' ),
+			),
+		);
+
+		echo '<fieldset>';
+		foreach ( $providers as $value => $provider ) {
+			printf(
+				'<label style="display: block; margin-bottom: 12px;"><input type="radio" name="lby_geo_provider" value="%s" %s /> <strong>%s</strong><br /><span class="description" style="margin-left: 24px; display: inline-block;">%s</span></label>',
+				esc_attr( $value ),
+				checked( $current, $value, false ),
+				esc_html( $provider['label'] ),
+				esc_html( $provider['desc'] )
+			);
+		}
+		echo '</fieldset>';
+
+		// Privacy warnings.
+		$ip_api_warning = __( 'Privacy notice: Visitor IP addresses will be sent to ip-api.com over unencrypted HTTP. This means visitor IPs are transmitted to a third-party server without encryption. If your site must comply with GDPR or similar privacy regulations, use the MaxMind local database option instead.', 'labyrinth' );
+		$maxmind_notice = __( 'All lookups are performed locally on your server. No visitor IP data is shared with any external service. This is the recommended option for GDPR compliance.', 'labyrinth' );
+
+		printf(
+			'<div id="lby-geo-warning-ip_api" class="notice notice-warning inline" style="display: none; margin-top: 10px; padding: 8px 12px;"><p>%s</p></div>',
+			esc_html( $ip_api_warning )
+		);
+		printf(
+			'<div id="lby-geo-notice-maxmind" class="notice notice-success inline" style="display: none; margin-top: 10px; padding: 8px 12px;"><p>%s</p></div>',
+			esc_html( $maxmind_notice )
+		);
+
+		?>
+		<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			var radios = document.querySelectorAll('input[name="lby_geo_provider"]');
+			var maxmindRow = document.getElementById('lby_maxmind_license_key');
+			if (maxmindRow) maxmindRow = maxmindRow.closest('tr');
+			var warningIpApi = document.getElementById('lby-geo-warning-ip_api');
+			var noticeMaxmind = document.getElementById('lby-geo-notice-maxmind');
+
+			function toggleFields() {
+				var selected = document.querySelector('input[name="lby_geo_provider"]:checked');
+				if (!selected) return;
+				var val = selected.value;
+
+				if (maxmindRow) maxmindRow.style.display = val === 'maxmind' ? '' : 'none';
+				if (warningIpApi) warningIpApi.style.display = val === 'ip_api' ? '' : 'none';
+				if (noticeMaxmind) noticeMaxmind.style.display = val === 'maxmind' ? '' : 'none';
+			}
+
+			radios.forEach(function(r) { r.addEventListener('change', toggleFields); });
+			toggleFields();
+		});
+		</script>
+		<?php
+	}
+
+	/**
+	 * Render MaxMind license key and database status fields.
+	 *
+	 * @return void
+	 * @since 1.0.0
+	 */
+	public function render_maxmind_fields(): void {
+		$license_key  = get_option( 'lby_maxmind_license_key', '' );
+		$last_updated = get_option( 'lby_maxmind_last_updated', '' );
+		$db_path      = \Labyrinth\Service\MaxMindDatabaseManager::get_database_path();
+		$db_exists    = file_exists( $db_path );
+
+		// Mask the license key in the UI.
+		$display_key = '';
+		if ( '' !== $license_key ) {
+			$display_key = str_repeat( '•', max( 0, strlen( $license_key ) - 4 ) ) . substr( $license_key, -4 );
+		}
+
+		// Use an empty value — the masked display is shown as placeholder.
+		// This prevents the sanitizer from receiving masked bullet characters.
+		$placeholder = '' !== $license_key
+			? $display_key
+			: __( 'Enter your MaxMind license key', 'labyrinth' );
+
+		printf(
+			'<input type="text" id="lby_maxmind_license_key" name="lby_maxmind_license_key" value="" class="regular-text" placeholder="%s" autocomplete="off" />',
+			esc_attr( $placeholder )
+		);
+
+		if ( '' !== $license_key ) {
+			printf(
+				' <label><input type="checkbox" name="lby_clear_maxmind_key" value="1" /> %s</label>',
+				esc_html__( 'Clear stored key', 'labyrinth' )
+			);
+		}
+
+		printf(
+			'<p class="description">%s <a href="https://www.maxmind.com/en/geolite2/signup" target="_blank" rel="noopener noreferrer">%s</a></p>',
+			esc_html__( 'Get a free license key from', 'labyrinth' ),
+			esc_html__( 'maxmind.com', 'labyrinth' )
+		);
+
+		// Database status.
+		echo '<div style="margin-top: 10px;">';
+		if ( $db_exists && '' !== $last_updated ) {
+			printf(
+				'<span style="color: #00a32a;">&#10003;</span> %s <strong>%s</strong>',
+				esc_html__( 'GeoLite2-Country database installed. Last updated:', 'labyrinth' ),
+				esc_html( wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $last_updated ) ) )
+			);
+		} elseif ( $db_exists ) {
+			printf(
+				'<span style="color: #00a32a;">&#10003;</span> %s',
+				esc_html__( 'GeoLite2-Country database installed.', 'labyrinth' )
+			);
+		} else {
+			printf(
+				'<span style="color: #dba617;">&#9888;</span> %s',
+				esc_html__( 'Database not yet downloaded. Save your license key, then click "Download Database" below.', 'labyrinth' )
+			);
+		}
+		echo '</div>';
+
+		// Download button.
+		printf(
+			'<div style="margin-top: 10px;"><button type="button" id="lby-maxmind-download-btn" class="button button-secondary">%s</button>',
+			esc_html__( 'Download Database', 'labyrinth' )
+		);
+		echo '<span id="lby-maxmind-download-status" style="margin-left: 10px;"></span></div>';
+
+		?>
+		<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			var btn = document.getElementById('lby-maxmind-download-btn');
+			var status = document.getElementById('lby-maxmind-download-status');
+			if (!btn) return;
+
+			btn.addEventListener('click', function() {
+				btn.disabled = true;
+				status.textContent = <?php echo wp_json_encode( __( 'Downloading...', 'labyrinth' ) ); ?>;
+				status.style.color = '';
+
+				var data = new FormData();
+				data.append('action', 'lby_maxmind_download');
+				data.append('nonce', <?php echo wp_json_encode( wp_create_nonce( 'lby_admin_action' ) ); ?>);
+
+				fetch(ajaxurl, { method: 'POST', body: data })
+					.then(function(r) { return r.json(); })
+					.then(function(response) {
+						if (response.success) {
+							status.textContent = response.data.message;
+							status.style.color = '#00a32a';
+						} else {
+							status.textContent = response.data.message || <?php echo wp_json_encode( __( 'Download failed.', 'labyrinth' ) ); ?>;
+							status.style.color = '#d63638';
+						}
+						btn.disabled = false;
+					})
+					.catch(function() {
+						status.textContent = <?php echo wp_json_encode( __( 'Request failed.', 'labyrinth' ) ); ?>;
+						status.style.color = '#d63638';
+						btn.disabled = false;
+					});
+			});
+		});
+		</script>
+		<?php
 	}
 
 	/**

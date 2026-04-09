@@ -4,7 +4,7 @@ Tags: security, bot-protection, anti-scraping, honeypot, ai-bot
 Requires at least: 6.9
 Tested up to: 6.9
 Requires PHP: 8.2
-Stable tag: 1.0.0-rc.5
+Stable tag: 1.0.0-rc.6
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,8 +33,10 @@ Labyrinth protects your WordPress site from unwanted AI crawlers and scrapers by
 * Optional comprehensive tracking mode to monitor blocked bot persistence
 * Automatic log retention and maintenance via WP-Cron
 * Privacy policy suggestion for GDPR compliance
-* Optional geographic heat map of bot activity using GeoIP lookups
-* Lightweight — minimal footprint, optional external API for geographic tracking only
+* Geographic heat map of bot activity by country with two GeoIP provider options
+* MaxMind GeoLite2 local database — all lookups on your server, GDPR-friendly (recommended)
+* ip-api.com external API — simple setup, no license key required
+* Lightweight — minimal footprint, geographic tracking is fully optional
 
 == Installation ==
 
@@ -74,23 +76,48 @@ Check the **Labyrinth** analytics dashboard in the WordPress admin. It shows tot
 
 == Third-Party Services ==
 
-This plugin optionally connects to the following external service:
+This plugin offers optional geographic tracking with two provider options. No data is sent to any external service unless a site administrator explicitly enables one of these providers.
+
+= MaxMind GeoLite2 (Recommended) =
+
+When **MaxMind GeoLite2** is selected as the GeoIP provider (Settings > Labyrinth > Geographic Tracking), the plugin downloads the GeoLite2-Country database from MaxMind and performs all IP-to-country lookups locally. **No visitor data leaves your server.**
+
+* **What is downloaded:** The GeoLite2-Country database (~60 MB), updated weekly via WP-Cron.
+* **What is sent to MaxMind:** Only your license key during database downloads. No visitor IP addresses are shared.
+* **Requires:** A free MaxMind license key from [maxmind.com/en/geolite2/signup](https://www.maxmind.com/en/geolite2/signup).
+* **Service website:** [https://www.maxmind.com](https://www.maxmind.com)
+* **License:** GeoLite2 databases are licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+* **Terms of service:** [https://www.maxmind.com/en/geolite2/eula](https://www.maxmind.com/en/geolite2/eula)
 
 = ip-api.com =
 
-When the **Geographic Tracking** setting is enabled (Settings > Labyrinth > Geographic Tracking), the plugin sends visitor IP addresses to [ip-api.com](http://ip-api.com) to resolve their country of origin. This data is used to display a geographic heat map of bot activity in the admin dashboard.
+When **ip-api.com** is selected as the GeoIP provider, the plugin sends visitor IP addresses to [ip-api.com](http://ip-api.com) to resolve their country of origin. This data is used to display a geographic heat map of bot activity in the admin dashboard.
 
-* **What is sent:** The visitor's IP address only.
-* **When it is sent:** At the time a trap page visit is recorded, only while the setting is enabled.
+* **What is sent:** The visitor's IP address only, over unencrypted HTTP.
+* **When it is sent:** At the time a trap page visit is recorded, only while this provider is selected.
 * **Service website:** [http://ip-api.com](http://ip-api.com)
 * **Terms of service:** [https://ip-api.com/docs/legal](https://ip-api.com/docs/legal)
 * **Privacy policy:** ip-api.com does not log queries from the free API endpoint.
+* **Note:** The free tier only supports HTTP (not HTTPS). If your site must comply with GDPR, use the MaxMind local database option instead.
 
-This feature is **off by default** and requires explicit opt-in by a site administrator. No data is sent to any external service when the setting is disabled.
+Geographic tracking is **off by default** and requires explicit opt-in by a site administrator.
 
 == Changelog ==
 
-= 1.0.0-rc.5
+= 1.0.0-rc.6 =
+* Added MaxMind GeoLite2 as a GDPR-friendly local GeoIP provider option.
+* Added 3-way GeoIP provider selector: Disabled, MaxMind GeoLite2 (local), or ip-api.com (external).
+* MaxMind database auto-updates weekly via WP-Cron.
+* Added clear privacy warnings for each provider option in the settings UI.
+* Updated privacy policy text to describe both provider options.
+* Geographic map section now hidden entirely when geo tracking is disabled.
+* Migrates existing geo tracking setting to new provider architecture.
+* Added Vitest job to CI with coverage reporting.
+
+= 1.0.0-rc.5 =
+* Added geographic heat map of bot activity by country using Leaflet.js choropleth.
+* Added GeoIP service for resolving visitor IP addresses to country codes.
+* Added AJAX endpoint for dynamic country data loading.
 * Added the "Full Tarpit Delay (ms)" setting.
 * UI improvements on the Analytics page.
 

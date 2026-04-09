@@ -231,6 +231,44 @@ class SettingsSanitizer {
 	}
 
 	/**
+	 * Sanitize the geographic tracking provider.
+	 *
+	 * @param mixed $value The value to sanitize.
+	 * @return string The sanitized value.
+	 * @since 1.0.0
+	 */
+	public static function sanitize_geo_provider( $value ): string {
+		$valid = array( 'none', 'ip_api', 'maxmind' );
+		return in_array( $value, $valid, true ) ? $value : 'none';
+	}
+
+	/**
+	 * Sanitize the MaxMind license key.
+	 *
+	 * @param mixed $value The value to sanitize.
+	 * @return string The sanitized value.
+	 * @since 1.0.0
+	 */
+	public static function sanitize_maxmind_license_key( $value ): string {
+		// Explicit clear via checkbox — also remove the downloaded database.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified by the Settings API.
+		if ( ! empty( $_POST['lby_clear_maxmind_key'] ) ) {
+			\Labyrinth\Service\MaxMindDatabaseManager::cleanup();
+			delete_option( 'lby_maxmind_last_updated' );
+			return '';
+		}
+
+		$key = sanitize_text_field( $value );
+
+		// Empty submission preserves the existing key (UI sends empty to avoid exposing it).
+		if ( '' === $key ) {
+			return (string) get_option( 'lby_maxmind_license_key', '' );
+		}
+
+		return preg_match( '/^[a-zA-Z0-9_]+$/', $key ) ? $key : (string) get_option( 'lby_maxmind_license_key', '' );
+	}
+
+	/**
 	 * Sanitize the blocking behavior.
 	 *
 	 * @param mixed $value The value to sanitize.

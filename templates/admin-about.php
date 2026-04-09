@@ -83,9 +83,43 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<li><?php echo esc_html__( 'Blocked Bots detail page showing full user agent, score, and visit history.', 'labyrinth' ); ?></li>
 			<li><?php echo esc_html__( 'Optional comprehensive tracking mode to monitor blocked bot persistence on trap pages.', 'labyrinth' ); ?></li>
 			<li><?php echo esc_html__( 'Automatic log retention and maintenance via WP-Cron.', 'labyrinth' ); ?></li>
+			<li><?php echo esc_html__( 'Geographic heat map of bot activity by country with interactive choropleth visualization.', 'labyrinth' ); ?></li>
+			<li><?php echo esc_html__( 'Two GeoIP provider options: MaxMind GeoLite2 local database (GDPR-friendly, recommended) or ip-api.com external API.', 'labyrinth' ); ?></li>
 			<li><?php echo esc_html__( 'Privacy policy suggestion for GDPR compliance.', 'labyrinth' ); ?></li>
-			<li><?php echo esc_html__( 'Lightweight — no external API calls, everything runs locally.', 'labyrinth' ); ?></li>
+			<li><?php echo esc_html__( 'Lightweight — geographic tracking is fully optional, and the MaxMind option keeps all data on your server.', 'labyrinth' ); ?></li>
 		</ul>
+	</div>
+
+	<div class="card" style="max-width: 800px;">
+		<h2><?php echo esc_html__( 'Geographic Tracking', 'labyrinth' ); ?></h2>
+		<p><?php echo esc_html__( 'Labyrinth can resolve bot IP addresses to country codes and display a geographic heat map of bot activity. This feature is optional and disabled by default.', 'labyrinth' ); ?></p>
+
+		<h3><?php echo esc_html__( 'Provider Options', 'labyrinth' ); ?></h3>
+		<ul style="list-style: disc; padding-left: 20px;">
+			<li>
+				<strong><?php echo esc_html__( 'MaxMind GeoLite2 (Recommended)', 'labyrinth' ); ?></strong> &mdash;
+				<?php echo esc_html__( 'Downloads a local database and performs all lookups on your server. No visitor data leaves your site. Requires a free license key from maxmind.com. The database updates automatically once per week.', 'labyrinth' ); ?>
+			</li>
+			<li>
+				<strong><?php echo esc_html__( 'ip-api.com', 'labyrinth' ); ?></strong> &mdash;
+				<?php echo esc_html__( 'Sends visitor IP addresses to a third-party API over unencrypted HTTP. Simpler to set up (no license key required), but not recommended for sites that must comply with GDPR or similar privacy regulations.', 'labyrinth' ); ?>
+			</li>
+		</ul>
+
+		<h3><?php echo esc_html__( 'Setup', 'labyrinth' ); ?></h3>
+		<ol>
+			<li>
+				<?php
+				printf(
+					/* translators: %s: link to the settings page */
+					esc_html__( 'Go to %s and choose a GeoIP provider under Geographic Tracking.', 'labyrinth' ),
+					'<a href="' . esc_url( admin_url( 'admin.php?page=labyrinth-settings' ) ) . '">' . esc_html__( 'Settings', 'labyrinth' ) . '</a>'
+				);
+				?>
+			</li>
+			<li><?php echo esc_html__( 'For MaxMind: enter your license key and click "Download Database". The heat map will appear on dashboard pages once country data is collected.', 'labyrinth' ); ?></li>
+			<li><?php echo esc_html__( 'For ip-api.com: simply select the provider. No additional setup required.', 'labyrinth' ); ?></li>
+		</ol>
 	</div>
 
 	<div class="card" style="max-width: 800px;">

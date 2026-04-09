@@ -12,6 +12,12 @@ import { feature } from 'topojson-client';
 import type { Topology, GeometryCollection } from 'topojson-specification';
 import worldData from 'world-atlas/countries-110m.json';
 import { numericToAlpha2, countryNames } from './data/country-codes';
+import {
+	COLOR_SCALE,
+	getColor,
+	computeThresholds,
+	resolveCountryName,
+} from './map-utils';
 
 declare const lbyMap: {
 	ajaxUrl: string;
@@ -22,44 +28,8 @@ interface CountryData {
 	[countryCode: string]: number;
 }
 
-/**
- * Color scale for the choropleth (5 steps, light-to-dark blue).
- */
-const COLOR_SCALE = ['#dceefb', '#90c4e4', '#4a9bc7', '#2271b1', '#0a4b78'];
 const NO_DATA_COLOR = '#e0e0e0';
 const BORDER_COLOR = '#fff';
-
-/**
- * Get color for a visit count based on quantile thresholds.
- */
-function getColor(count: number, thresholds: number[]): string {
-	for (let i = thresholds.length - 1; i >= 0; i--) {
-		if (count >= thresholds[i]) {
-			return COLOR_SCALE[i];
-		}
-	}
-	return COLOR_SCALE[0];
-}
-
-/**
- * Compute quantile-based thresholds from visit counts.
- */
-function computeThresholds(values: number[]): number[] {
-	if (values.length === 0) {
-		return [1, 2, 5, 10, 50];
-	}
-
-	const sorted = [...values].sort((a, b) => a - b);
-	const quantiles = [0, 0.25, 0.5, 0.75, 0.95];
-
-	return quantiles.map((q) => {
-		const idx = Math.min(
-			Math.floor(q * sorted.length),
-			sorted.length - 1
-		);
-		return Math.max(1, sorted[idx]);
-	});
-}
 
 /**
  * Build the legend below the map.
@@ -167,10 +137,11 @@ function initMap(): void {
 			onEachFeature: (feature, layer) => {
 				const numericId = feature.id as string;
 				const alpha2 = numericToAlpha2[numericId] || '';
-				const name =
-					countryNames[alpha2] ||
-					(feature.properties as { name?: string })?.name ||
-					'Unknown';
+				const name = resolveCountryName(
+					alpha2,
+					countryNames,
+					feature.properties as { name?: string }
+				);
 				const count = countries[alpha2] || 0;
 
 				layer.bindTooltip(
@@ -182,8 +153,6 @@ function initMap(): void {
 					mouseover: (e: L.LeafletMouseEvent) => {
 						const target = e.target as L.Path;
 						target.setStyle({
-							weight: 2,
-							color: '#1d2327',
 							fillOpacity: 0.95,
 						});
 					},

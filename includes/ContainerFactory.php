@@ -121,11 +121,19 @@ class ContainerFactory {
 				->constructor( get( DnsResolverInterface::class ) ),
 
 			'Labyrinth\Service\GeoIpService'          => function () {
-				$enabled = (bool) get_option( 'lby_enable_geo_tracking', false );
-				return new Service\GeoIpService(
-					$enabled,
-					$enabled ? new Service\IpApiGeoIpProvider() : null
-				);
+				$provider_key = (string) get_option( 'lby_geo_provider', 'none' );
+
+				$provider = null;
+				if ( 'ip_api' === $provider_key ) {
+					$provider = new Service\IpApiGeoIpProvider();
+				} elseif ( 'maxmind' === $provider_key ) {
+					$db_path = Service\MaxMindDatabaseManager::get_database_path();
+					if ( file_exists( $db_path ) ) {
+						$provider = new Service\MaxMindGeoIpProvider( $db_path );
+					}
+				}
+
+				return new Service\GeoIpService( null !== $provider, $provider );
 			},
 
 			'Labyrinth\Service\BotDetector'           => autowire()

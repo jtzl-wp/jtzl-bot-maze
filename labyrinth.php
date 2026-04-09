@@ -3,7 +3,7 @@
  * Plugin Name: Labyrinth
  * Plugin URI: https://github.com/labyrinth/labyrinth
  * Description: AI bot protection through invisible trap link labyrinths — hidden links lure bots into a maze of fake content for detection and blocking
- * Version: 1.0.0-rc.5
+ * Version: 1.0.0-rc.6
  * Requires at least: 6.9
  * Requires PHP: 8.2
  * Author: Labyrinth
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define plugin constants.
-define( 'LABYRINTH_VERSION', '1.0.0-rc.5' );
+define( 'LABYRINTH_VERSION', '1.0.0-rc.6' );
 define( 'LABYRINTH_PLUGIN_FILE', __FILE__ );
 define( 'LABYRINTH_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'LABYRINTH_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -177,6 +177,87 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	add_action(
 		'wp_ajax_lby_geo_data',
 		__NAMESPACE__ . '\\handle_geo_data_ajax',
+	);
+
+	/**
+	 * Handle MaxMind database download AJAX request.
+	 *
+	 * @return void
+	 */
+	function handle_maxmind_download_ajax() {
+		// Verify nonce.
+		if ( ! check_ajax_referer( 'lby_admin_action', 'nonce', false ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __(
+						'Invalid security token. Please refresh the page and try again.',
+						'labyrinth',
+					),
+				),
+				403,
+			);
+		}
+
+		// Check user capabilities.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __(
+						'You do not have permission to perform this action.',
+						'labyrinth',
+					),
+				),
+				403,
+			);
+		}
+
+		$manager     = new Service\MaxMindDatabaseManager();
+		$license_key = (string) get_option( 'lby_maxmind_license_key', '' );
+
+		try {
+			$result = $manager->download_database( $license_key );
+		} catch ( \Throwable $e ) {
+			wp_send_json_error( array( 'message' => $e->getMessage() ) );
+		}
+
+		// $result is always set: try assigns it, catch terminates via wp_die.
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+		}
+
+		wp_send_json_success( array( 'message' => __( 'Database downloaded successfully.', 'labyrinth' ) ) );
+	}
+
+	add_action(
+		'wp_ajax_lby_maxmind_download',
+		__NAMESPACE__ . '\\handle_maxmind_download_ajax',
+	);
+
+	/**
+	 * Handle weekly MaxMind database update cron.
+	 *
+	 * @return void
+	 */
+	function handle_maxmind_update_cron() {
+		$provider    = (string) get_option( 'lby_geo_provider', 'none' );
+		$license_key = (string) get_option( 'lby_maxmind_license_key', '' );
+
+		if ( 'maxmind' !== $provider || '' === $license_key ) {
+			return;
+		}
+
+		$manager = new Service\MaxMindDatabaseManager();
+		$result  = $manager->download_database( $license_key );
+
+		if ( is_wp_error( $result ) ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Cron error logging is appropriate.
+			error_log( 'Labyrinth: MaxMind database update failed: ' . $result->get_error_message() );
+		}
+	}
+
+	add_action(
+		'lby_maxmind_update_cron',
+		__NAMESPACE__ . '\\handle_maxmind_update_cron',
 	);
 
 	/**
