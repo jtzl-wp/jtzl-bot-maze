@@ -4,11 +4,11 @@
  *
  * Centralizes admin asset enqueuing logic with manifest-based content-hashed loading.
  *
- * @package Labyrinth
+ * @package JTZL\Bot_Be_Gone
  * @since 1.0.0
  */
 
-namespace Labyrinth\Service;
+namespace JTZL\Bot_Be_Gone\Service;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -106,13 +106,13 @@ class AssetManager {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local file read is appropriate here.
 		$manifest = json_decode( file_get_contents( $manifest_path ), true );
 
-		if ( ! is_array( $manifest ) || ! isset( $manifest['labyrinth-admin-analytics.js'] ) ) {
+		if ( ! is_array( $manifest ) || ! isset( $manifest['jtzl-bbg-admin-analytics.js'] ) ) {
 			return;
 		}
 
 		wp_enqueue_script(
-			'lby-admin-analytics',
-			$this->plugin_url . 'build/' . $manifest['labyrinth-admin-analytics.js'],
+			'jtzl-bbg-admin-analytics',
+			$this->plugin_url . 'build/' . $manifest['jtzl-bbg-admin-analytics.js'],
 			array(),
 			$this->version,
 			true
@@ -121,11 +121,11 @@ class AssetManager {
 		add_filter( 'script_loader_tag', array( $this, 'add_module_type_attribute' ), 10, 2 );
 
 		wp_localize_script(
-			'lby-admin-analytics',
-			'lbyAdmin',
+			'jtzl-bbg-admin-analytics',
+			'jtzlBbgAdmin',
 			array(
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-				'nonce'   => wp_create_nonce( 'lby_admin_action' ),
+				'nonce'   => wp_create_nonce( 'jtzl_bbg_admin_action' ),
 			)
 		);
 	}
@@ -150,7 +150,7 @@ class AssetManager {
 	 * @since 1.0.0
 	 */
 	public function add_module_type_attribute( string $tag, string $handle ): string {
-		$module_handles = array( 'lby-admin-analytics', 'lby-admin-map' );
+		$module_handles = array( 'jtzl-bbg-admin-analytics', 'jtzl-bbg-admin-map' );
 		if ( in_array( $handle, $module_handles, true ) && false === strpos( $tag, ' type=' ) ) {
 			$tag = preg_replace( '/(<script\b)(?=[^>]*\ssrc=)/', '$1 type="module"', $tag, 1 );
 		}
@@ -173,13 +173,13 @@ class AssetManager {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local file read is appropriate here.
 		$manifest = json_decode( file_get_contents( $manifest_path ), true );
 
-		if ( ! is_array( $manifest ) || ! isset( $manifest['labyrinth-admin-map.js'] ) ) {
+		if ( ! is_array( $manifest ) || ! isset( $manifest['jtzl-bbg-admin-map.js'] ) ) {
 			return;
 		}
 
 		wp_enqueue_script(
-			'lby-admin-map',
-			$this->plugin_url . 'build/' . $manifest['labyrinth-admin-map.js'],
+			'jtzl-bbg-admin-map',
+			$this->plugin_url . 'build/' . $manifest['jtzl-bbg-admin-map.js'],
 			array(),
 			$this->version,
 			true
@@ -188,19 +188,19 @@ class AssetManager {
 		add_filter( 'script_loader_tag', array( $this, 'add_module_type_attribute' ), 10, 2 );
 
 		wp_localize_script(
-			'lby-admin-map',
-			'lbyMap',
+			'jtzl-bbg-admin-map',
+			'jtzlBbgMap',
 			array(
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-				'nonce'   => wp_create_nonce( 'lby_admin_action' ),
+				'nonce'   => wp_create_nonce( 'jtzl_bbg_admin_action' ),
 			)
 		);
 
 		// Enqueue map CSS from manifest.
-		if ( isset( $manifest['labyrinth-admin-map.css'] ) ) {
+		if ( isset( $manifest['jtzl-bbg-admin-map.css'] ) ) {
 			wp_enqueue_style(
-				'lby-admin-map-style',
-				$this->plugin_url . 'build/' . $manifest['labyrinth-admin-map.css'],
+				'jtzl-bbg-admin-map-style',
+				$this->plugin_url . 'build/' . $manifest['jtzl-bbg-admin-map.css'],
 				array(),
 				$this->version
 			);
@@ -216,12 +216,12 @@ class AssetManager {
 	 * @since 1.0.0
 	 */
 	private function enqueue_admin_styles(): void {
-		$css_files = glob( $this->plugin_dir . 'build/labyrinth-admin.*.css' );
+		$css_files = glob( $this->plugin_dir . 'build/jtzl-bbg-admin.*.css' );
 
 		if ( ! empty( $css_files ) ) {
 			$css_file = basename( $css_files[0] );
 			wp_enqueue_style(
-				'lby-admin-style',
+				'jtzl-bbg-admin-style',
 				$this->plugin_url . 'build/' . $css_file,
 				array(),
 				$this->version
@@ -229,10 +229,10 @@ class AssetManager {
 			return;
 		}
 
-		if ( file_exists( $this->plugin_dir . 'build/labyrinth-admin.css' ) ) {
+		if ( file_exists( $this->plugin_dir . 'build/jtzl-bbg-admin.css' ) ) {
 			wp_enqueue_style(
-				'lby-admin-style',
-				$this->plugin_url . 'build/labyrinth-admin.css',
+				'jtzl-bbg-admin-style',
+				$this->plugin_url . 'build/jtzl-bbg-admin.css',
 				array(),
 				$this->version
 			);

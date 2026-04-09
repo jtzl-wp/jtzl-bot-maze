@@ -2,11 +2,11 @@
 /**
  * Recent Activity Admin Page
  *
- * @package Labyrinth
+ * @package JTZL\Bot_Be_Gone
  * @since 1.0.0
  */
 
-namespace Labyrinth\Admin;
+namespace JTZL\Bot_Be_Gone\Admin;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // @codeCoverageIgnoreEnd
 
-use Labyrinth\Service\AnalyticsCollector;
+use JTZL\Bot_Be_Gone\Service\AnalyticsCollector;
 
 /**
  * Recent Activity Page
@@ -69,11 +69,11 @@ class RecentActivityPage {
 	 */
 	public function register_menu(): void {
 		add_submenu_page(
-			'labyrinth',
-			__( 'Recent Activity', 'labyrinth' ),
-			__( 'Recent Activity', 'labyrinth' ),
+			'jtzl-bot-be-gone',
+			__( 'Recent Activity', 'jtzl-bot-be-gone' ),
+			__( 'Recent Activity', 'jtzl-bot-be-gone' ),
 			'manage_options',
-			'labyrinth-recent-activity',
+			'jtzl-bot-be-gone-recent-activity',
 			array( $this, 'render_page' )
 		);
 	}
@@ -86,7 +86,7 @@ class RecentActivityPage {
 	 */
 	public function render_page(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'labyrinth' ) );
+			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'jtzl-bot-be-gone' ) );
 		}
 
 		$current_page = max( 1, (int) ( $_GET['paged'] ?? 1 ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only pagination parameter.
@@ -96,9 +96,9 @@ class RecentActivityPage {
 		$total_pages  = max( 1, (int) ceil( $total_visits / self::PER_PAGE ) );
 		$per_page     = self::PER_PAGE;
 		$countries    = $this->collector->get_visits_by_country();
-		$geo_enabled  = 'none' !== (string) get_option( 'lby_geo_provider', 'none' );
+		$geo_enabled  = 'none' !== (string) get_option( 'jtzl_bbg_geo_provider', 'none' );
 
-		$template_path = LABYRINTH_PLUGIN_DIR . 'templates/admin-recent-activity.php';
+		$template_path = JTZL_BBG_PLUGIN_DIR . 'templates/admin-recent-activity.php';
 
 		if ( file_exists( $template_path ) ) {
 			// phpcs:ignore WordPress.PHP.DontExtract.extract_extract -- Template variable extraction is intentional.

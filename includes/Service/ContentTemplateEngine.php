@@ -4,11 +4,11 @@
  *
  * Generates deterministic fake content from templates and seeds.
  *
- * @package Labyrinth
+ * @package JTZL\Bot_Be_Gone
  * @since 1.0.0
  */
 
-namespace Labyrinth\Service;
+namespace JTZL\Bot_Be_Gone\Service;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // @codeCoverageIgnoreEnd
 
-use Labyrinth\Template\ContentPool;
+use JTZL\Bot_Be_Gone\Template\ContentPool;
 
 /**
  * Content Template Engine

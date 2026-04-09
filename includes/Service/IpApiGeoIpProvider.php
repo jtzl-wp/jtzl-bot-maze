@@ -4,11 +4,11 @@
  *
  * Resolves IP addresses to country codes via the ip-api.com free API.
  *
- * @package Labyrinth
+ * @package JTZL\Bot_Be_Gone
  * @since 1.0.0
  */
 
-namespace Labyrinth\Service;
+namespace JTZL\Bot_Be_Gone\Service;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -70,7 +70,7 @@ class IpApiGeoIpProvider implements GeoIpProviderInterface {
 			return '';
 		}
 
-		$cache_key = 'lby_geo_ipapi_' . md5( $ip_address );
+		$cache_key = 'jtzl_bbg_geo_ipapi_' . md5( $ip_address );
 		$cached    = get_transient( $cache_key );
 		if ( false !== $cached ) {
 			return (string) $cached;

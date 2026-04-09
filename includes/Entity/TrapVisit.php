@@ -2,11 +2,11 @@
 /**
  * Trap Visit Entity
  *
- * @package Labyrinth
+ * @package JTZL\Bot_Be_Gone
  * @since 1.0.0
  */
 
-namespace Labyrinth\Entity;
+namespace JTZL\Bot_Be_Gone\Entity;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {

@@ -4,11 +4,11 @@
  *
  * Generates trap pages from content templates.
  *
- * @package Labyrinth
+ * @package JTZL\Bot_Be_Gone
  * @since 1.0.0
  */
 
-namespace Labyrinth\Service;
+namespace JTZL\Bot_Be_Gone\Service;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // @codeCoverageIgnoreEnd
 
-use Labyrinth\Repository\TrapPageRepositoryInterface;
+use JTZL\Bot_Be_Gone\Repository\TrapPageRepositoryInterface;
 
 /**
  * Trap Page Generator
@@ -52,7 +52,7 @@ class TrapPageGenerator {
 	private int $initial_page_count;
 
 	/**
-	 * Maximum depth of the labyrinth.
+	 * Maximum depth of the trap maze.
 	 *
 	 * @var int
 	 * @since 1.0.0
@@ -81,7 +81,7 @@ class TrapPageGenerator {
 	 * @param TrapPageRepositoryInterface $repository          Trap page repository.
 	 * @param ContentTemplateEngine       $engine               Content generation engine.
 	 * @param int                         $initial_page_count  Number of entry pages to generate.
-	 * @param int                         $max_depth           Maximum labyrinth depth.
+	 * @param int                         $max_depth           Maximum trap maze depth.
 	 * @param int                         $links_per_trap_page Links per trap page.
 	 * @param int                         $max_trap_pages      Global maximum trap pages.
 	 * @since 1.0.0
@@ -146,7 +146,7 @@ class TrapPageGenerator {
 	/**
 	 * Ensure minimum number of entry pages exist.
 	 *
-	 * Called by daily cron to maintain the labyrinth.
+	 * Called by daily cron to maintain the trap maze.
 	 *
 	 * @return int Number of new pages added.
 	 * @since 1.0.0
@@ -284,6 +284,6 @@ class TrapPageGenerator {
 	 * @since 1.0.0
 	 */
 	private function generate_seed(): string {
-		return md5( uniqid( 'lby_', true ) . wp_rand() );
+		return md5( uniqid( 'jtzl_bbg_', true ) . wp_rand() );
 	}
 }

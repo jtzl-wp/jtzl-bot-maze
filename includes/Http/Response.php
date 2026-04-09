@@ -2,11 +2,11 @@
 /**
  * HTTP Response Value Object
  *
- * @package Labyrinth
+ * @package JTZL\Bot_Be_Gone
  * @since 1.0.0
  */
 
-namespace Labyrinth\Http;
+namespace JTZL\Bot_Be_Gone\Http;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {

@@ -1,18 +1,18 @@
-/* Labyrinth Admin Analytics Dashboard */
+/* JTZL's Bot-be-Gone Admin Analytics Dashboard */
 
-.lby-analytics-wrap {
+.jtzl-bbg-analytics-wrap {
 	max-width: 1200px;
 }
 
 /* Summary Cards */
-.lby-summary-cards {
+.jtzl-bbg-summary-cards {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 	gap: 16px;
 	margin: 20px 0;
 }
 
-.lby-card {
+.jtzl-bbg-card {
 	background: #fff;
 	border: 1px solid #c3c4c7;
 	border-radius: 4px;
@@ -20,14 +20,14 @@
 	text-align: center;
 }
 
-a.lby-card-link {
+a.jtzl-bbg-card-link {
 	display: block;
 	text-decoration: none;
 	position: relative;
 	transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease, background 0.15s ease;
 }
 
-a.lby-card-link::after {
+a.jtzl-bbg-card-link::after {
 	content: "\2192";
 	position: absolute;
 	right: 12px;
@@ -38,31 +38,31 @@ a.lby-card-link::after {
 	transition: color 0.15s ease, right 0.15s ease;
 }
 
-a.lby-card-link:hover {
+a.jtzl-bbg-card-link:hover {
 	border-color: #2271b1;
 	background: #f6f7f7;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 	transform: translateY(-1px);
 }
 
-a.lby-card-link:hover::after {
+a.jtzl-bbg-card-link:hover::after {
 	color: #2271b1;
 	right: 10px;
 }
 
-a.lby-card-link:focus {
+a.jtzl-bbg-card-link:focus {
 	box-shadow: 0 0 0 1px #2271b1;
 	outline: none;
 }
 
-.lby-card h3 {
+.jtzl-bbg-card h3 {
 	margin: 0 0 8px;
 	font-size: 13px;
 	color: #646970;
 	font-weight: 400;
 }
 
-.lby-card-value {
+.jtzl-bbg-card-value {
 	display: block;
 	font-size: 28px;
 	font-weight: 600;
@@ -70,23 +70,23 @@ a.lby-card-link:focus {
 	line-height: 1.2;
 }
 
-.lby-card-alert .lby-card-value {
+.jtzl-bbg-card-alert .jtzl-bbg-card-value {
 	color: #d63638;
 }
 
-.lby-ratio-separator {
+.jtzl-bbg-ratio-separator {
 	color: #646970;
 	font-weight: 400;
 }
 
-.lby-card-alert #lby-stat-total-bots {
+.jtzl-bbg-card-alert #jtzl-bbg-stat-total-bots {
 	color: #646970;
 	font-size: 20px;
 	font-weight: 400;
 }
 
 /* Sections */
-.lby-section {
+.jtzl-bbg-section {
 	background: #fff;
 	border: 1px solid #c3c4c7;
 	border-radius: 4px;
@@ -94,7 +94,7 @@ a.lby-card-link:focus {
 	margin: 20px 0;
 }
 
-.lby-section h2 {
+.jtzl-bbg-section h2 {
 	display: flex;
 	align-items: center;
 	gap: 12px;
@@ -103,52 +103,52 @@ a.lby-card-link:focus {
 }
 
 /* Chart */
-.lby-chart-container {
+.jtzl-bbg-chart-container {
 	width: 100%;
 	height: 250px;
 	position: relative;
 	overflow: hidden;
 }
 
-.lby-chart-container svg {
+.jtzl-bbg-chart-container svg {
 	width: 100%;
 	height: 100%;
 }
 
-.lby-chart-bar {
+.jtzl-bbg-chart-bar {
 	fill: #2271b1;
 	transition: fill 0.15s ease;
 }
 
-.lby-chart-bar:hover {
+.jtzl-bbg-chart-bar:hover {
 	fill: #135e96;
 }
 
-.lby-chart-label {
+.jtzl-bbg-chart-label {
 	font-size: 10px;
 	fill: #646970;
 	text-anchor: middle;
 }
 
-.lby-chart-value {
+.jtzl-bbg-chart-value {
 	font-size: 10px;
 	fill: #1d2327;
 	text-anchor: middle;
 	font-weight: 600;
 }
 
-.lby-chart-grid {
+.jtzl-bbg-chart-grid {
 	stroke: #e0e0e0;
 	stroke-width: 1;
 }
 
 /* Tables */
-.lby-top-bots-table code,
-.lby-ua-cell {
+.jtzl-bbg-top-bots-table code,
+.jtzl-bbg-ua-cell {
 	font-size: 12px;
 }
 
-.lby-ua-cell {
+.jtzl-bbg-ua-cell {
 	max-width: 300px;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -156,7 +156,7 @@ a.lby-card-link:focus {
 }
 
 /* Badges */
-.lby-badge {
+.jtzl-bbg-badge {
 	display: inline-block;
 	padding: 2px 8px;
 	border-radius: 3px;
@@ -165,28 +165,28 @@ a.lby-card-link:focus {
 	line-height: 1.4;
 }
 
-.lby-badge-blocked {
+.jtzl-bbg-badge-blocked {
 	background: #facfd2;
 	color: #8a1116;
 }
 
-.lby-badge-tracking {
+.jtzl-bbg-badge-tracking {
 	background: #d7f0d5;
 	color: #1a5e13;
 }
 
-.lby-badge-exempted {
+.jtzl-bbg-badge-exempted {
 	background: #dce5f5;
 	color: #1d4078;
 }
 
 /* Refresh button */
-.lby-refresh-btn {
+.jtzl-bbg-refresh-btn {
 	font-size: 12px !important;
 }
 
 /* No-data state */
-.lby-no-data {
+.jtzl-bbg-no-data {
 	text-align: center;
 	padding: 40px 20px;
 	color: #646970;
@@ -194,13 +194,13 @@ a.lby-card-link:focus {
 }
 
 /* Responsive tables */
-.lby-table-wrap {
+.jtzl-bbg-table-wrap {
 	overflow-x: auto;
 	-webkit-overflow-scrolling: touch;
 }
 
 @media (max-width: 782px) {
-	.lby-summary-cards {
+	.jtzl-bbg-summary-cards {
 		grid-template-columns: 1fr;
 	}
 }

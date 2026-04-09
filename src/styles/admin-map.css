@@ -1,11 +1,11 @@
-/* Labyrinth Geographic Map Page */
+/* JTZL's Bot-be-Gone Geographic Map Page */
 
-.lby-geo-wrap {
+.jtzl-bbg-geo-wrap {
 	max-width: 1200px;
 }
 
 /* Map Container */
-.lby-map-container {
+.jtzl-bbg-map-container {
 	width: 100%;
 	height: 500px;
 	background: #f0f0f1;
@@ -13,18 +13,18 @@
 }
 
 @media (max-width: 782px) {
-	.lby-map-container {
+	.jtzl-bbg-map-container {
 		height: 300px;
 	}
 }
 
-.lby-map-container.leaflet-container {
+.jtzl-bbg-map-container.leaflet-container {
 	border-radius: 4px;
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
 
 /* Legend */
-.lby-map-legend {
+.jtzl-bbg-map-legend {
 	display: flex;
 	align-items: center;
 	gap: 4px;
@@ -33,11 +33,11 @@
 	color: #646970;
 }
 
-.lby-map-legend-label {
+.jtzl-bbg-map-legend-label {
 	margin: 0 6px;
 }
 
-.lby-map-legend-swatch {
+.jtzl-bbg-map-legend-swatch {
 	display: inline-block;
 	width: 24px;
 	height: 14px;
@@ -46,19 +46,19 @@
 }
 
 /* Tooltip */
-.lby-map-tooltip {
+.jtzl-bbg-map-tooltip {
 	font-size: 13px;
 	line-height: 1.4;
 	padding: 6px 10px;
 }
 
-.lby-map-tooltip strong {
+.jtzl-bbg-map-tooltip strong {
 	display: block;
 	margin-bottom: 2px;
 }
 
 /* No-data overlay */
-.lby-map-no-data {
+.jtzl-bbg-map-no-data {
 	position: absolute;
 	top: 50%;
 	left: 50%;

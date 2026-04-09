@@ -1,5 +1,5 @@
-=== Labyrinth ===
-Contributors: labyrinth
+=== JTZL's Bot-be-Gone ===
+Contributors: jtzl
 Tags: security, bot-protection, anti-scraping, honeypot, ai-bot
 Requires at least: 6.9
 Tested up to: 6.9
@@ -8,16 +8,16 @@ Stable tag: 1.0.0-rc.6
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-AI bot protection through invisible trap link labyrinths — hidden links lure bots into a maze of fake content for detection and blocking.
+AI bot protection through invisible trap link mazes — hidden links lure bots into a maze of fake content for detection and blocking.
 
 == Description ==
 
-Labyrinth protects your WordPress site from unwanted AI crawlers and scrapers by planting invisible trap links that only bots will follow. When a bot enters the labyrinth, it gets lost in an ever-expanding maze of realistic-looking fake pages while Labyrinth quietly builds a suspicion score based on its behavior.
+JTZL's Bot-be-Gone protects your WordPress site from unwanted AI crawlers and scrapers by planting invisible trap links that only bots will follow. When a bot enters the trap maze, it gets lost in an ever-expanding maze of realistic-looking fake pages while it quietly builds a suspicion score based on its behavior.
 
 **How it works:**
 
-1. **Trap link injection** — Invisible links are added to your real pages. Legitimate visitors never see them, but bots following every link on the page will enter the labyrinth.
-2. **Lazy labyrinth generation** — Trap pages link to more trap pages, generated on demand. The deeper a bot goes, the more time it wastes.
+1. **Trap link injection** — Invisible links are added to your real pages. Legitimate visitors never see them, but bots following every link on the page will enter the trap maze.
+2. **Lazy maze generation** — Trap pages link to more trap pages, generated on demand. The deeper a bot goes, the more time it wastes.
 3. **Bot scoring** — Each trap page visit adds suspicion points. Deeper traversal earns bonus points. Once a threshold is reached, the visitor is flagged as a bot.
 4. **Blocking and tarpitting** — Flagged bots can be blocked outright (403), served decoy pages (light tarpit), or slowed down with a deliberate delay (full tarpit).
 5. **Crawler verification** — Known search engine crawlers (Googlebot, Bingbot, etc.) are verified via reverse DNS and exempted from scoring.
@@ -40,9 +40,9 @@ Labyrinth protects your WordPress site from unwanted AI crawlers and scrapers by
 
 == Installation ==
 
-1. Upload the `labyrinth` folder to `/wp-content/plugins/`.
+1. Upload the `jtzl-bot-be-gone` folder to `/wp-content/plugins/`.
 2. Activate the plugin through the **Plugins** menu in WordPress.
-3. Go to **Settings > Labyrinth** to configure trap link injection, scoring thresholds, and blocking behavior.
+3. Go to **Settings > Bot-be-Gone** to configure trap link injection, scoring thresholds, and blocking behavior.
 
 The plugin works out of the box with sensible defaults. Trap pages are generated automatically on first visit.
 
@@ -72,7 +72,7 @@ Trap pages are generated from a built-in content template engine that produces r
 
 = How do I know it's working? =
 
-Check the **Labyrinth** analytics dashboard in the WordPress admin. It shows total trap visits, unique bot IPs, score distribution, and top offenders.
+Check the **Bot-be-Gone** analytics dashboard in the WordPress admin. It shows total trap visits, unique bot IPs, score distribution, and top offenders.
 
 == Third-Party Services ==
 
@@ -80,7 +80,7 @@ This plugin offers optional geographic tracking with two provider options. No da
 
 = MaxMind GeoLite2 (Recommended) =
 
-When **MaxMind GeoLite2** is selected as the GeoIP provider (Settings > Labyrinth > Geographic Tracking), the plugin downloads the GeoLite2-Country database from MaxMind and performs all IP-to-country lookups locally. **No visitor data leaves your server.**
+When **MaxMind GeoLite2** is selected as the GeoIP provider (Settings > Bot-be-Gone > Geographic Tracking), the plugin downloads the GeoLite2-Country database from MaxMind and performs all IP-to-country lookups locally. **No visitor data leaves your server.**
 
 * **What is downloaded:** The GeoLite2-Country database (~60 MB), updated weekly via WP-Cron.
 * **What is sent to MaxMind:** Only your license key during database downloads. No visitor IP addresses are shared.
@@ -166,7 +166,7 @@ Geographic tracking is **off by default** and requires explicit opt-in by a site
 = 1.0.0-alpha.1 =
 * Initial release
 * Trap link injection into post content and footer
-* Lazy labyrinth generation with configurable depth and branching
+* Lazy maze generation with configurable depth and branching
 * Bot scoring based on trap page visits and traversal depth
 * IP tracking with proxy-aware detection
 * Admin settings page

@@ -4,11 +4,11 @@
  *
  * Static arrays of fake content components for trap page generation.
  *
- * @package Labyrinth
+ * @package JTZL\Bot_Be_Gone
  * @since 1.0.0
  */
 
-namespace Labyrinth\Template;
+namespace JTZL\Bot_Be_Gone\Template;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {

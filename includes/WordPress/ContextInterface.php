@@ -4,11 +4,11 @@
  *
  * Abstracts WordPress global functions for testability.
  *
- * @package Labyrinth
+ * @package JTZL\Bot_Be_Gone
  * @since 1.0.0
  */
 
-namespace Labyrinth\WordPress;
+namespace JTZL\Bot_Be_Gone\WordPress;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {

@@ -3,10 +3,10 @@
  * Trap page template
  *
  * Standalone minimal HTML (no get_header/get_footer / active theme). Used for
- * all labyrinth trap URLs (TrapRouter) and blocked-visitor tarpit responses
+ * all trap maze URLs (TrapRouter) and blocked-visitor tarpit responses
  * (Bootstrap). Trade-off: lower PHP cost vs pixel-perfect mimicry of real pages.
  *
- * @package Labyrinth
+ * @package JTZL\Bot_Be_Gone
  */
 
 // Exit if accessed directly.
@@ -14,9 +14,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$trap_page = $GLOBALS['lby_trap_page'] ?? null;
-$children  = $GLOBALS['lby_trap_children'] ?? array();
-$base_path = $GLOBALS['lby_trap_base_path'] ?? 'lby';
+$trap_page = $GLOBALS['jtzl_bbg_trap_page'] ?? null;
+$children  = $GLOBALS['jtzl_bbg_trap_children'] ?? array();
+$base_path = $GLOBALS['jtzl_bbg_trap_base_path'] ?? 'bbg';
 
 if ( null === $trap_page ) {
 	return;
@@ -29,16 +29,16 @@ if ( null === $trap_page ) {
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title><?php echo esc_html( $trap_page->title ); ?></title>
 </head>
-<body class="lby-trap">
-	<main class="lby-trap-page" style="max-width: 800px; margin: 0 auto; padding: 20px;">
+<body class="jtzl-bbg-trap">
+	<main class="jtzl-bbg-trap-page" style="max-width: 800px; margin: 0 auto; padding: 20px;">
 		<article>
 			<h1><?php echo esc_html( $trap_page->title ); ?></h1>
-			<div class="lby-trap-content">
+			<div class="jtzl-bbg-trap-content">
 				<?php echo wp_kses_post( $trap_page->content ); ?>
 			</div>
 			<?php if ( ! empty( $children ) ) : ?>
-			<nav class="lby-trap-nav" style="margin-top: 2em; padding-top: 1em; border-top: 1px solid #ddd;" aria-label="<?php echo esc_attr__( 'Related', 'labyrinth' ); ?>">
-				<h2><?php echo esc_html__( 'Related articles', 'labyrinth' ); ?></h2>
+			<nav class="jtzl-bbg-trap-nav" style="margin-top: 2em; padding-top: 1em; border-top: 1px solid #ddd;" aria-label="<?php echo esc_attr__( 'Related', 'jtzl-bot-be-gone' ); ?>">
+				<h2><?php echo esc_html__( 'Related articles', 'jtzl-bot-be-gone' ); ?></h2>
 				<ul>
 					<?php foreach ( $children as $child ) : ?>
 					<li>

@@ -4,11 +4,11 @@
  *
  * Aggregates data for the admin analytics dashboard.
  *
- * @package Labyrinth
+ * @package JTZL\Bot_Be_Gone
  * @since 1.0.0
  */
 
-namespace Labyrinth\Service;
+namespace JTZL\Bot_Be_Gone\Service;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -16,11 +16,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // @codeCoverageIgnoreEnd
 
-use Labyrinth\Data\CountryNames;
-use Labyrinth\Repository\TrapPageRepositoryInterface;
-use Labyrinth\Repository\TrapVisitRepositoryInterface;
-use Labyrinth\Repository\BotScoreRepositoryInterface;
-use Labyrinth\Service\GeoIpService;
+use JTZL\Bot_Be_Gone\Data\CountryNames;
+use JTZL\Bot_Be_Gone\Repository\TrapPageRepositoryInterface;
+use JTZL\Bot_Be_Gone\Repository\TrapVisitRepositoryInterface;
+use JTZL\Bot_Be_Gone\Repository\BotScoreRepositoryInterface;
+use JTZL\Bot_Be_Gone\Service\GeoIpService;
 
 /**
  * Analytics Collector

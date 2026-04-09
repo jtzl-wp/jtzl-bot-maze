@@ -2,11 +2,11 @@
 /**
  * Trap Page Entity
  *
- * @package Labyrinth
+ * @package JTZL\Bot_Be_Gone
  * @since 1.0.0
  */
 
-namespace Labyrinth\Entity;
+namespace JTZL\Bot_Be_Gone\Entity;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -19,7 +19,7 @@ use DateTime;
 /**
  * Trap Page Entity
  *
- * Represents a virtual trap page in the labyrinth.
+ * Represents a virtual trap page in the trap maze.
  *
  * @since 1.0.0
  */

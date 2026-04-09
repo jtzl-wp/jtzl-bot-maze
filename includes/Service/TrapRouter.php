@@ -4,11 +4,11 @@
  *
  * Handles URL routing for trap pages via WordPress rewrite rules.
  *
- * @package Labyrinth
+ * @package JTZL\Bot_Be_Gone
  * @since 1.0.0
  */
 
-namespace Labyrinth\Service;
+namespace JTZL\Bot_Be_Gone\Service;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -16,10 +16,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // @codeCoverageIgnoreEnd
 
-use Labyrinth\Repository\TrapPageRepositoryInterface;
-use Labyrinth\Entity\TrapPage;
-use Labyrinth\Service\TrapPageGenerator;
-use Labyrinth\WordPress\ContextInterface;
+use JTZL\Bot_Be_Gone\Repository\TrapPageRepositoryInterface;
+use JTZL\Bot_Be_Gone\Entity\TrapPage;
+use JTZL\Bot_Be_Gone\Service\TrapPageGenerator;
+use JTZL\Bot_Be_Gone\WordPress\ContextInterface;
 
 /**
  * Trap Router
@@ -74,7 +74,7 @@ class TrapRouter {
 	private string $base_path;
 
 	/**
-	 * Maximum labyrinth depth.
+	 * Maximum trap maze depth.
 	 *
 	 * @var int
 	 * @since 1.0.0
@@ -96,7 +96,7 @@ class TrapRouter {
 	 * @param BotDetector                 $bot_detector Bot detector service.
 	 * @param TrapPageGenerator           $generator    Trap page generator.
 	 * @param string                      $base_path    URL base path for trap pages.
-	 * @param int                         $max_depth    Maximum labyrinth depth.
+	 * @param int                         $max_depth    Maximum trap maze depth.
 	 * @param ContextInterface            $wp           WordPress context facade.
 	 * @since 1.0.0
 	 */
@@ -125,7 +125,7 @@ class TrapRouter {
 	public function register_rewrite_rules(): void {
 		$this->wp->add_rewrite_rule(
 			'^' . preg_quote( $this->base_path, '#' ) . '/([a-z0-9-]+)/?$',
-			'index.php?lby_view=trap_page&lby_slug=$matches[1]',
+			'index.php?jtzl_bbg_view=trap_page&jtzl_bbg_slug=$matches[1]',
 			'top'
 		);
 	}
@@ -138,8 +138,8 @@ class TrapRouter {
 	 * @since 1.0.0
 	 */
 	public function register_query_vars( array $vars ): array {
-		$vars[] = 'lby_view';
-		$vars[] = 'lby_slug';
+		$vars[] = 'jtzl_bbg_view';
+		$vars[] = 'jtzl_bbg_slug';
 		return $vars;
 	}
 
@@ -152,7 +152,7 @@ class TrapRouter {
 	 * @since 1.0.0
 	 */
 	public function handle_request(): void {
-		$view = $this->wp->get_query_var( 'lby_view', '' );
+		$view = $this->wp->get_query_var( 'jtzl_bbg_view', '' );
 
 		if ( empty( $view ) ) {
 			return;
@@ -162,7 +162,7 @@ class TrapRouter {
 			return;
 		}
 
-		$slug = $this->wp->get_query_var( 'lby_slug', '' );
+		$slug = $this->wp->get_query_var( 'jtzl_bbg_slug', '' );
 
 		if ( empty( $slug ) ) {
 			return;
@@ -178,8 +178,8 @@ class TrapRouter {
 				$this->wp->header( 'Cache-Control: no-store, no-cache, must-revalidate, max-age=0', true );
 			}
 			$this->wp->wp_die(
-				'<h1>' . esc_html__( 'Not Found', 'labyrinth' ) . '</h1>',
-				esc_html__( 'Not Found', 'labyrinth' ),
+				'<h1>' . esc_html__( 'Not Found', 'jtzl-bot-be-gone' ) . '</h1>',
+				esc_html__( 'Not Found', 'jtzl-bot-be-gone' ),
 				array( 'response' => 404 )
 			);
 			return;
@@ -218,13 +218,13 @@ class TrapRouter {
 	 * @since 1.0.0
 	 */
 	public function template_loader( string $template ): string {
-		$view = $this->wp->get_query_var( 'lby_view', '' );
+		$view = $this->wp->get_query_var( 'jtzl_bbg_view', '' );
 
 		if ( 'trap_page' !== $view ) {
 			return $template;
 		}
 
-		$slug = $this->wp->get_query_var( 'lby_slug', '' );
+		$slug = $this->wp->get_query_var( 'jtzl_bbg_slug', '' );
 
 		if ( empty( $slug ) ) {
 			return $template;
@@ -237,7 +237,7 @@ class TrapRouter {
 		}
 
 		// Store trap page data for the template.
-		$GLOBALS['lby_trap_page'] = $trap_page;
+		$GLOBALS['jtzl_bbg_trap_page'] = $trap_page;
 
 		// Get child pages for internal links, generating lazily if needed.
 		$children = $this->repository->get_children( $trap_page->id );
@@ -251,8 +251,8 @@ class TrapRouter {
 			$children = $this->repository->get_children( $trap_page->id );
 		}
 
-		$GLOBALS['lby_trap_children']  = $children;
-		$GLOBALS['lby_trap_base_path'] = $this->base_path;
+		$GLOBALS['jtzl_bbg_trap_children']  = $children;
+		$GLOBALS['jtzl_bbg_trap_base_path'] = $this->base_path;
 
 		$plugin_template = $this->wp->get_plugin_dir() . 'templates/trap-page.php';
 

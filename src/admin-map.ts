@@ -1,5 +1,5 @@
 /**
- * Labyrinth Geographic Map
+ * JTZL's Bot-be-Gone Geographic Map
  *
  * Renders a Leaflet choropleth map showing bot visit counts by country.
  */
@@ -19,7 +19,7 @@ import {
 	resolveCountryName,
 } from './map-utils';
 
-declare const lbyMap: {
+declare const jtzlBbgMap: {
 	ajaxUrl: string;
 	nonce: string;
 };
@@ -46,31 +46,31 @@ function buildLegend(
 	}
 
 	const lowLabel = document.createElement('span');
-	lowLabel.className = 'lby-map-legend-label';
+	lowLabel.className = 'jtzl-bbg-map-legend-label';
 	lowLabel.textContent = 'Low';
 	container.appendChild(lowLabel);
 
 	for (let i = 0; i < COLOR_SCALE.length; i++) {
 		const swatch = document.createElement('span');
-		swatch.className = 'lby-map-legend-swatch';
+		swatch.className = 'jtzl-bbg-map-legend-swatch';
 		swatch.style.background = COLOR_SCALE[i];
 		swatch.title = `>= ${thresholds[i]} visits`;
 		container.appendChild(swatch);
 	}
 
 	const highLabel = document.createElement('span');
-	highLabel.className = 'lby-map-legend-label';
+	highLabel.className = 'jtzl-bbg-map-legend-label';
 	highLabel.textContent = 'High';
 	container.appendChild(highLabel);
 
 	const noDataSwatch = document.createElement('span');
-	noDataSwatch.className = 'lby-map-legend-swatch';
+	noDataSwatch.className = 'jtzl-bbg-map-legend-swatch';
 	noDataSwatch.style.background = NO_DATA_COLOR;
 	noDataSwatch.style.marginLeft = '12px';
 	container.appendChild(noDataSwatch);
 
 	const noDataLabel = document.createElement('span');
-	noDataLabel.className = 'lby-map-legend-label';
+	noDataLabel.className = 'jtzl-bbg-map-legend-label';
 	noDataLabel.textContent = 'No data';
 	container.appendChild(noDataLabel);
 }
@@ -79,8 +79,8 @@ function buildLegend(
  * Initialize the Leaflet choropleth map.
  */
 function initMap(): void {
-	const mapContainer = document.getElementById('lby-map');
-	const legendContainer = document.getElementById('lby-map-legend');
+	const mapContainer = document.getElementById('jtzl-bbg-map');
+	const legendContainer = document.getElementById('jtzl-bbg-map-legend');
 
 	if (!mapContainer) {
 		return;
@@ -145,7 +145,7 @@ function initMap(): void {
 				const count = countries[alpha2] || 0;
 
 				layer.bindTooltip(
-					`<div class="lby-map-tooltip"><strong>${name}</strong>${count > 0 ? `${count.toLocaleString()} visits` : 'No data'}</div>`,
+					`<div class="jtzl-bbg-map-tooltip"><strong>${name}</strong>${count > 0 ? `${count.toLocaleString()} visits` : 'No data'}</div>`,
 					{ sticky: true }
 				);
 
@@ -169,7 +169,7 @@ function initMap(): void {
 	// No-data overlay.
 	if (!hasData) {
 		const overlay = document.createElement('div');
-		overlay.className = 'lby-map-no-data';
+		overlay.className = 'jtzl-bbg-map-no-data';
 		overlay.textContent = 'No geographic data available yet.';
 		mapContainer.style.position = 'relative';
 		mapContainer.appendChild(overlay);

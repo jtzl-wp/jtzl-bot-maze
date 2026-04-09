@@ -2,11 +2,11 @@
 /**
  * Bot Score Repository
  *
- * @package Labyrinth
+ * @package JTZL\Bot_Be_Gone
  * @since 1.0.0
  */
 
-namespace Labyrinth\Repository;
+namespace JTZL\Bot_Be_Gone\Repository;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // @codeCoverageIgnoreEnd
 
 use DateTime;
-use Labyrinth\Entity\BotScore;
+use JTZL\Bot_Be_Gone\Entity\BotScore;
 
 /**
  * Bot Score Repository
@@ -50,7 +50,7 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 	 */
 	public function __construct( \wpdb $wpdb ) {
 		$this->wpdb       = $wpdb;
-		$this->table_name = $wpdb->prefix . 'lby_bot_scores';
+		$this->table_name = $wpdb->prefix . 'jtzl_bbg_bot_scores';
 	}
 
 	/**

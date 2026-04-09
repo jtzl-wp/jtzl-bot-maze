@@ -1,6 +1,6 @@
 {
-	"name": "labyrinth/labyrinth",
-	"description": "Labyrinth - AI bot protection through invisible trap link labyrinths for WordPress",
+	"name": "jtzl/bot-be-gone",
+	"description": "JTZL's Bot-be-Gone - AI bot protection through invisible trap link mazes for WordPress",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
@@ -22,12 +22,12 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"Labyrinth\\": "includes/"
+			"JTZL\\Bot_Be_Gone\\": "includes/"
 		}
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"Labyrinth\\Tests\\": "tests/"
+			"JTZL\\Bot_Be_Gone\\Tests\\": "tests/"
 		}
 	},
 	"config": {

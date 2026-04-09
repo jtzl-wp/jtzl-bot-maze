@@ -2,7 +2,7 @@
 /**
  * Admin Recent Activity Page Template
  *
- * @package Labyrinth
+ * @package JTZL\Bot_Be_Gone
  *
  * @var array $activity      Visit data arrays.
  * @var int   $current_page  Current page number.
@@ -18,9 +18,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 <div class="wrap">
-	<h1><?php echo esc_html__( 'Recent Activity (7 Days)', 'labyrinth' ); ?></h1>
+	<h1><?php echo esc_html__( 'Recent Activity (7 Days)', 'jtzl-bot-be-gone' ); ?></h1>
 	<p class="description">
-		<?php echo esc_html__( 'Trap page visits from the last 7 days. Only bots that follow hidden trap links generate visits.', 'labyrinth' ); ?>
+		<?php echo esc_html__( 'Trap page visits from the last 7 days. Only bots that follow hidden trap links generate visits.', 'jtzl-bot-be-gone' ); ?>
 	</p>
 
 	<?php if ( $total_pages > 1 ) : ?>
@@ -30,7 +30,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<?php
 				printf(
 					/* translators: %s: number of visits */
-					esc_html( _n( '%s visit', '%s visits', $total_visits, 'labyrinth' ) ),
+					esc_html( _n( '%s visit', '%s visits', $total_visits, 'jtzl-bot-be-gone' ) ),
 					(int) $total_visits
 				);
 				?>
@@ -52,36 +52,36 @@ if ( ! defined( 'ABSPATH' ) ) {
 	</div>
 	<?php endif; ?>
 
-	<div class="lby-table-wrap">
+	<div class="jtzl-bbg-table-wrap">
 	<table class="widefat striped" style="margin-top: 16px;">
 		<thead>
 			<tr>
-				<th><?php echo esc_html__( 'Time', 'labyrinth' ); ?></th>
-				<th><?php echo esc_html__( 'IP Address', 'labyrinth' ); ?></th>
-				<th><?php echo esc_html__( 'Country', 'labyrinth' ); ?></th>
-				<th><?php echo esc_html__( 'User Agent', 'labyrinth' ); ?></th>
-				<th><?php echo esc_html__( 'Depth', 'labyrinth' ); ?></th>
-				<th><?php echo esc_html__( 'Type', 'labyrinth' ); ?></th>
+				<th><?php echo esc_html__( 'Time', 'jtzl-bot-be-gone' ); ?></th>
+				<th><?php echo esc_html__( 'IP Address', 'jtzl-bot-be-gone' ); ?></th>
+				<th><?php echo esc_html__( 'Country', 'jtzl-bot-be-gone' ); ?></th>
+				<th><?php echo esc_html__( 'User Agent', 'jtzl-bot-be-gone' ); ?></th>
+				<th><?php echo esc_html__( 'Depth', 'jtzl-bot-be-gone' ); ?></th>
+				<th><?php echo esc_html__( 'Type', 'jtzl-bot-be-gone' ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
 			<?php if ( empty( $activity ) ) : ?>
-				<tr><td colspan="6"><?php echo esc_html__( 'No activity in the last 7 days.', 'labyrinth' ); ?></td></tr>
+				<tr><td colspan="6"><?php echo esc_html__( 'No activity in the last 7 days.', 'jtzl-bot-be-gone' ); ?></td></tr>
 			<?php else : ?>
 				<?php foreach ( $activity as $visit ) : ?>
 				<tr>
 					<td><?php echo esc_html( $visit['visited_at'] ); ?></td>
 					<td><code><?php echo esc_html( $visit['ip_address'] ); ?></code></td>
 					<td><?php echo esc_html( $visit['country_name'] ); ?></td>
-					<td class="lby-ua-cell"><?php echo esc_html( $visit['user_agent'] ); ?></td>
+					<td class="jtzl-bbg-ua-cell"><?php echo esc_html( $visit['user_agent'] ); ?></td>
 					<td><?php echo esc_html( $visit['depth_reached'] ); ?></td>
 					<td>
 						<?php if ( 'blocked_visit' === $visit['request_type'] ) : ?>
-							<span class="lby-badge lby-badge-blocked"><?php echo esc_html__( 'Blocked', 'labyrinth' ); ?></span>
+							<span class="jtzl-bbg-badge jtzl-bbg-badge-blocked"><?php echo esc_html__( 'Blocked', 'jtzl-bot-be-gone' ); ?></span>
 						<?php elseif ( 'crawler_exempted' === $visit['request_type'] ) : ?>
-							<span class="lby-badge lby-badge-exempted"><?php echo esc_html__( 'Exempted', 'labyrinth' ); ?></span>
+							<span class="jtzl-bbg-badge jtzl-bbg-badge-exempted"><?php echo esc_html__( 'Exempted', 'jtzl-bot-be-gone' ); ?></span>
 						<?php else : ?>
-							<span class="lby-badge lby-badge-tracking"><?php echo esc_html__( 'Trap Visit', 'labyrinth' ); ?></span>
+							<span class="jtzl-bbg-badge jtzl-bbg-badge-tracking"><?php echo esc_html__( 'Trap Visit', 'jtzl-bot-be-gone' ); ?></span>
 						<?php endif; ?>
 					</td>
 				</tr>
@@ -91,7 +91,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	</table>
 	</div>
 
-	<?php require LABYRINTH_PLUGIN_DIR . 'templates/partials/geo-map-section.php'; ?>
+	<?php require JTZL_BBG_PLUGIN_DIR . 'templates/partials/geo-map-section.php'; ?>
 
 	<?php if ( $total_pages > 1 ) : ?>
 	<div class="tablenav bottom">

@@ -4,11 +4,11 @@
  *
  * Encapsulates plugin initialization, hook registration, and lifecycle logic.
  *
- * @package Labyrinth
+ * @package JTZL\Bot_Be_Gone
  * @since 1.0.0
  */
 
-namespace Labyrinth;
+namespace JTZL\Bot_Be_Gone;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // @codeCoverageIgnoreEnd
 
 use DI\Container;
-use Labyrinth\WordPress\ContextInterface;
+use JTZL\Bot_Be_Gone\WordPress\ContextInterface;
 
 /**
  * Bootstrap Class
@@ -65,21 +65,21 @@ class Bootstrap {
 		$wp->add_action( 'init', array( $this, 'maybe_flush_rewrite_rules' ), 99 );
 
 		// Initialize trap router (rewrite rules, query vars, template loading).
-		// Only register routing hooks when the labyrinth is enabled.
-		if ( (bool) get_option( 'lby_enabled', true ) ) {
-			$router = $this->container->get( 'Labyrinth\Service\TrapRouter' );
+		// Only register routing hooks when the trap maze is enabled.
+		if ( (bool) get_option( 'jtzl_bbg_enabled', true ) ) {
+			$router = $this->container->get( 'JTZL\Bot_Be_Gone\Service\TrapRouter' );
 			$wp->add_action( 'init', array( $router, 'register_rewrite_rules' ) );
 			$wp->add_filter( 'query_vars', array( $router, 'register_query_vars' ) );
 			$wp->add_filter( 'template_include', array( $router, 'template_loader' ) );
 			$wp->add_action( 'template_redirect', array( $router, 'handle_request' ) );
 
 			// Initialize robots.txt manager (only when enabled — directives reference trap routes).
-			$robots = $this->container->get( 'Labyrinth\Service\RobotsTxtManager' );
+			$robots = $this->container->get( 'JTZL\Bot_Be_Gone\Service\RobotsTxtManager' );
 			$wp->add_filter( 'robots_txt', array( $robots, 'modify_robots_txt' ), 10, 2 );
 		}
 
 		// Initialize trap link injector (hidden links in content/footer).
-		$injector = $this->container->get( 'Labyrinth\Service\TrapLinkInjector' );
+		$injector = $this->container->get( 'JTZL\Bot_Be_Gone\Service\TrapLinkInjector' );
 		$wp->add_filter( 'the_content', array( $injector, 'inject_into_content' ) );
 		$wp->add_action(
 			'wp_footer',
@@ -89,10 +89,10 @@ class Bootstrap {
 		);
 
 		// Initialize bot blocking.
-		$detector     = $this->container->get( 'Labyrinth\Service\BotDetector' );
-		$repo         = $this->container->get( 'Labyrinth\Repository\TrapPageRepositoryInterface' );
-		$base_path    = $this->container->get( 'config.lby_trap_base_path' );
-		$tarpit_delay = $this->container->get( 'config.lby_tarpit_delay_ms' );
+		$detector     = $this->container->get( 'JTZL\Bot_Be_Gone\Service\BotDetector' );
+		$repo         = $this->container->get( 'JTZL\Bot_Be_Gone\Repository\TrapPageRepositoryInterface' );
+		$base_path    = $this->container->get( 'config.jtzl_bbg_trap_base_path' );
+		$tarpit_delay = $this->container->get( 'config.jtzl_bbg_tarpit_delay_ms' );
 		$home_path    = rtrim( (string) wp_parse_url( home_url( '/' ), PHP_URL_PATH ), '/' );
 		$trap_prefix  = $home_path . '/' . $base_path . '/';
 		$container    = $this->container;
@@ -100,8 +100,8 @@ class Bootstrap {
 		$wp->add_action(
 			'template_redirect',
 			function () use ( $detector, $repo, $base_path, $tarpit_delay, $trap_prefix, $wp, $container ) {
-				// Skip blocking entirely when the labyrinth is disabled.
-				if ( ! (bool) $wp->get_option( 'lby_enabled', true ) ) {
+				// Skip blocking entirely when the trap maze is disabled.
+				if ( ! (bool) $wp->get_option( 'jtzl_bbg_enabled', true ) ) {
 					return;
 				}
 
@@ -114,15 +114,15 @@ class Bootstrap {
 					// Build a tracking helper that logs at each exit point with the actual response code.
 					// Only tracks trap page requests — non-trap visits from blocked bots are not recorded.
 					$track_visit = static function ( int $response_code ) use ( $wp, $container, $trap_prefix ): void {
-						if ( ! (bool) $wp->get_option( 'lby_track_blocked_activity', false ) ) {
+						if ( ! (bool) $wp->get_option( 'jtzl_bbg_track_blocked_activity', false ) ) {
 							return;
 						}
-						$ip_tracker  = $container->get( 'Labyrinth\Service\IPTrackerInterface' );
+						$ip_tracker  = $container->get( 'JTZL\Bot_Be_Gone\Service\IPTrackerInterface' );
 						$request_uri = $ip_tracker->get_request_uri();
 						if ( ! str_starts_with( $request_uri, $trap_prefix ) ) {
 							return;
 						}
-						$collector = $container->get( 'Labyrinth\Service\AnalyticsCollector' );
+						$collector = $container->get( 'JTZL\Bot_Be_Gone\Service\AnalyticsCollector' );
 						$collector->record_blocked_visit(
 							$ip_tracker->get_client_ip(),
 							$ip_tracker->get_user_agent_hash(),
@@ -131,7 +131,7 @@ class Bootstrap {
 						);
 					};
 
-					$behavior = $wp->get_option( 'lby_blocking_behavior', 'block' );
+					$behavior = $wp->get_option( 'jtzl_bbg_blocking_behavior', 'block' );
 					$is_light = ( 'tarpit_light' === $behavior );
 					$is_full  = ( 'tarpit' === $behavior );
 
@@ -149,9 +149,9 @@ class Bootstrap {
 						if ( $page ) {
 							$track_visit( 200 );
 
-							$GLOBALS['lby_trap_page']      = $page;
-							$GLOBALS['lby_trap_children']  = $repo->get_children( $page->id );
-							$GLOBALS['lby_trap_base_path'] = $base_path;
+							$GLOBALS['jtzl_bbg_trap_page']      = $page;
+							$GLOBALS['jtzl_bbg_trap_children']  = $repo->get_children( $page->id );
+							$GLOBALS['jtzl_bbg_trap_base_path'] = $base_path;
 
 							// Force 200 OK status to keep them crawling.
 							$wp->status_header( 200 );
@@ -161,7 +161,7 @@ class Bootstrap {
 								$wp->header( 'Cache-Control: no-store, no-cache, must-revalidate, max-age=0', true );
 							}
 
-							$wp->load_template( LABYRINTH_PLUGIN_DIR . 'templates/trap-page.php' );
+							$wp->load_template( JTZL_BBG_PLUGIN_DIR . 'templates/trap-page.php' );
 							// @codeCoverageIgnoreStart
 							exit;
 							// @codeCoverageIgnoreEnd
@@ -171,9 +171,9 @@ class Bootstrap {
 					// Default 'block' behavior (also tarpit fallback when no trap pages exist).
 					$track_visit( 403 );
 					$wp->wp_die(
-						'<h1>' . esc_html__( 'Access Denied', 'labyrinth' ) . '</h1>' .
-						'<p>' . esc_html__( 'Your IP address has been blocked due to suspicious activity.', 'labyrinth' ) . '</p>',
-						esc_html__( 'Forbidden', 'labyrinth' ),
+						'<h1>' . esc_html__( 'Access Denied', 'jtzl-bot-be-gone' ) . '</h1>' .
+						'<p>' . esc_html__( 'Your IP address has been blocked due to suspicious activity.', 'jtzl-bot-be-gone' ) . '</p>',
+						esc_html__( 'Forbidden', 'jtzl-bot-be-gone' ),
 						array( 'response' => 403 )
 					);
 				}
@@ -191,23 +191,23 @@ class Bootstrap {
 			$settings_page->init();
 
 			$trap_pages_page = new Admin\TrapPagesPage(
-				$this->container->get( 'Labyrinth\Service\AnalyticsCollector' ),
-				$this->container->get( 'config.lby_trap_base_path' )
+				$this->container->get( 'JTZL\Bot_Be_Gone\Service\AnalyticsCollector' ),
+				$this->container->get( 'config.jtzl_bbg_trap_base_path' )
 			);
 			$trap_pages_page->init();
 
 			$analytics_dashboard = new Admin\AnalyticsDashboard(
-				$this->container->get( 'Labyrinth\Service\AnalyticsCollector' )
+				$this->container->get( 'JTZL\Bot_Be_Gone\Service\AnalyticsCollector' )
 			);
 			$analytics_dashboard->init();
 
 			$blocked_bots_page = new Admin\BlockedBotsPage(
-				$this->container->get( 'Labyrinth\Service\AnalyticsCollector' )
+				$this->container->get( 'JTZL\Bot_Be_Gone\Service\AnalyticsCollector' )
 			);
 			$blocked_bots_page->init();
 
 			$recent_activity_page = new Admin\RecentActivityPage(
-				$this->container->get( 'Labyrinth\Service\AnalyticsCollector' )
+				$this->container->get( 'JTZL\Bot_Be_Gone\Service\AnalyticsCollector' )
 			);
 			$recent_activity_page->init();
 
@@ -228,18 +228,18 @@ class Bootstrap {
 	public function add_privacy_policy_content(): void {
 		$content = sprintf(
 			'<h2>%s</h2><p>%s</p><p>%s</p><p>%s</p><p>%s</p>',
-			esc_html__( 'Labyrinth Bot Protection', 'labyrinth' ),
-			esc_html__( 'This site uses the Labyrinth plugin to detect and block malicious bots and unauthorized scrapers. When a visitor accesses a trap page (a hidden page that only bots would find), the plugin records their IP address, user agent string, and the time of visit for security purposes.', 'labyrinth' ),
-			esc_html__( 'This data is collected under the legal basis of legitimate interest (GDPR Article 6(1)(f)) to protect the website from automated abuse. Only visitors that access trap pages are recorded; normal browsing of the site is not tracked by this plugin.', 'labyrinth' ),
+			esc_html__( 'JTZL\'s Bot-be-Gone', 'jtzl-bot-be-gone' ),
+			esc_html__( 'This site uses the JTZL\'s Bot-be-Gone plugin to detect and block malicious bots and unauthorized scrapers. When a visitor accesses a trap page (a hidden page that only bots would find), the plugin records their IP address, user agent string, and the time of visit for security purposes.', 'jtzl-bot-be-gone' ),
+			esc_html__( 'This data is collected under the legal basis of legitimate interest (GDPR Article 6(1)(f)) to protect the website from automated abuse. Only visitors that access trap pages are recorded; normal browsing of the site is not tracked by this plugin.', 'jtzl-bot-be-gone' ),
 			sprintf(
 				/* translators: %s: default retention period */
-				esc_html__( 'Collected data is automatically deleted after a configurable retention period (default: %s days).', 'labyrinth' ),
+				esc_html__( 'Collected data is automatically deleted after a configurable retention period (default: %s days).', 'jtzl-bot-be-gone' ),
 				'30'
 			),
-			esc_html__( 'The plugin offers optional Geographic Tracking to display bot activity by country. This feature is off by default and requires explicit opt-in by a site administrator. Two provider options are available: (1) MaxMind GeoLite2, which performs lookups using a locally stored database — no visitor data leaves your server; (2) ip-api.com, which sends visitor IP addresses to a third-party service over unencrypted HTTP. The administrator chooses which provider to use in the plugin settings.', 'labyrinth' )
+			esc_html__( 'The plugin offers optional Geographic Tracking to display bot activity by country. This feature is off by default and requires explicit opt-in by a site administrator. Two provider options are available: (1) MaxMind GeoLite2, which performs lookups using a locally stored database — no visitor data leaves your server; (2) ip-api.com, which sends visitor IP addresses to a third-party service over unencrypted HTTP. The administrator chooses which provider to use in the plugin settings.', 'jtzl-bot-be-gone' )
 		);
 
-		wp_add_privacy_policy_content( 'Labyrinth', $content );
+		wp_add_privacy_policy_content( 'JTZL\'s Bot-be-Gone', $content );
 	}
 
 	/**
@@ -251,15 +251,15 @@ class Bootstrap {
 	 */
 	public function enqueue_admin_assets( string $hook_suffix ): void {
 		$allowed = array(
-			'labyrinth_page_labyrinth-analytics',
-			'labyrinth_page_labyrinth-blocked-bots',
-			'labyrinth_page_labyrinth-recent-activity',
+			'bot-be-gone_page_jtzl-bot-be-gone-analytics',
+			'bot-be-gone_page_jtzl-bot-be-gone-blocked-bots',
+			'bot-be-gone_page_jtzl-bot-be-gone-recent-activity',
 		);
 		if ( ! in_array( $hook_suffix, $allowed, true ) ) {
 			return;
 		}
 
-		$asset_manager = $this->container->get( 'Labyrinth\Service\AssetManager' );
+		$asset_manager = $this->container->get( 'JTZL\Bot_Be_Gone\Service\AssetManager' );
 		$asset_manager->enqueue_admin_assets();
 		$asset_manager->enqueue_map_assets();
 	}
@@ -277,40 +277,36 @@ class Bootstrap {
 		// Create database tables.
 		Database\Schema::create_tables();
 
-		// Migrate legacy options before set_defaults — defaults would
-		// create the new key and prevent migration from detecting the old one.
-		self::migrate_geo_tracking_option();
-
 		// Set default options.
 		Database\Options::set_defaults();
 
 		// Clear DI compiled cache on activation.
 		self::clear_di_cache();
-		update_option( 'lby_plugin_version', LABYRINTH_VERSION );
+		update_option( 'jtzl_bbg_plugin_version', JTZL_BBG_VERSION );
 
 		// Set flag to flush rewrite rules on next init.
-		update_option( 'lby_flush_rewrite_rules_flag', true );
+		update_option( 'jtzl_bbg_flush_rewrite_rules_flag', true );
 
 		// Schedule cron for maintenance tasks.
-		if ( ! wp_next_scheduled( 'lby_maintenance_cron' ) ) {
-			wp_schedule_event( time(), 'daily', 'lby_maintenance_cron' );
+		if ( ! wp_next_scheduled( 'jtzl_bbg_maintenance_cron' ) ) {
+			wp_schedule_event( time(), 'daily', 'jtzl_bbg_maintenance_cron' );
 		}
 
 		// Schedule weekly cron for MaxMind database updates.
 		// Register the weekly interval here too — activation fires before register_hooks().
 		self::register_weekly_schedule();
-		if ( ! wp_next_scheduled( 'lby_maxmind_update_cron' ) ) {
-			wp_schedule_event( time(), 'weekly', 'lby_maxmind_update_cron' );
+		if ( ! wp_next_scheduled( 'jtzl_bbg_maxmind_update_cron' ) ) {
+			wp_schedule_event( time(), 'weekly', 'jtzl_bbg_maxmind_update_cron' );
 		}
 
 		// Generate initial trap pages (only if enabled and below minimum).
-		if ( (bool) get_option( 'lby_enabled', true ) ) {
+		if ( (bool) get_option( 'jtzl_bbg_enabled', true ) ) {
 			try {
-				$generator = $this->container->get( 'Labyrinth\Service\TrapPageGenerator' );
+				$generator = $this->container->get( 'JTZL\Bot_Be_Gone\Service\TrapPageGenerator' );
 				$generator->ensure_minimum_pages();
 			} catch ( \Exception $e ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Error logging is appropriate here.
-				error_log( 'Labyrinth: Failed to generate initial trap pages: ' . $e->getMessage() );
+				error_log( 'JTZL Bot-be-Gone: Failed to generate initial trap pages: ' . $e->getMessage() );
 			}
 		}
 	}
@@ -334,19 +330,19 @@ class Bootstrap {
 		flush_rewrite_rules();
 
 		// Unschedule crons.
-		$timestamp = wp_next_scheduled( 'lby_maintenance_cron' );
+		$timestamp = wp_next_scheduled( 'jtzl_bbg_maintenance_cron' );
 		if ( $timestamp ) {
-			wp_unschedule_event( $timestamp, 'lby_maintenance_cron' );
+			wp_unschedule_event( $timestamp, 'jtzl_bbg_maintenance_cron' );
 		}
 
-		$mm_timestamp = wp_next_scheduled( 'lby_maxmind_update_cron' );
+		$mm_timestamp = wp_next_scheduled( 'jtzl_bbg_maxmind_update_cron' );
 		if ( $mm_timestamp ) {
-			wp_unschedule_event( $mm_timestamp, 'lby_maxmind_update_cron' );
+			wp_unschedule_event( $mm_timestamp, 'jtzl_bbg_maxmind_update_cron' );
 		}
 	}
 
 	/**
-	 * Handle regenerate labyrinth AJAX request (business logic only).
+	 * Handle regenerate trap maze AJAX request (business logic only).
 	 *
 	 * Nonce and capability checks are performed by the caller.
 	 *
@@ -355,14 +351,14 @@ class Bootstrap {
 	 */
 	public function handle_regenerate_ajax(): void {
 		try {
-			$generator = $this->container->get( 'Labyrinth\Service\TrapPageGenerator' );
+			$generator = $this->container->get( 'JTZL\Bot_Be_Gone\Service\TrapPageGenerator' );
 			$count     = $generator->regenerate();
 		} catch ( \Throwable $e ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Error logging is appropriate here.
-			error_log( 'Labyrinth: Regenerate error: ' . $e->getMessage() );
+			error_log( 'JTZL Bot-be-Gone: Regenerate error: ' . $e->getMessage() );
 			wp_send_json_error(
 				array(
-					'message' => __( 'An error occurred while regenerating the labyrinth.', 'labyrinth' ),
+					'message' => __( 'An error occurred while regenerating the trap maze.', 'jtzl-bot-be-gone' ),
 				),
 				500
 			);
@@ -372,7 +368,7 @@ class Bootstrap {
 			array(
 				'message' => sprintf(
 					/* translators: %d: number of trap pages generated */
-					__( 'Labyrinth regenerated with %d trap pages.', 'labyrinth' ),
+					__( 'Trap maze regenerated with %d trap pages.', 'jtzl-bot-be-gone' ),
 					$count
 				),
 				'count'   => $count,
@@ -390,16 +386,16 @@ class Bootstrap {
 	 */
 	public function handle_refresh_analytics_ajax(): void {
 		try {
-			$collector = $this->container->get( 'Labyrinth\Service\AnalyticsCollector' );
+			$collector = $this->container->get( 'JTZL\Bot_Be_Gone\Service\AnalyticsCollector' );
 			$summary   = $collector->get_summary_stats();
 			$chart     = $collector->get_chart_data();
 			$bots      = $collector->get_top_bots();
 		} catch ( \Throwable $e ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Error logging is appropriate here.
-			error_log( 'Labyrinth: Analytics refresh error: ' . $e->getMessage() );
+			error_log( 'JTZL Bot-be-Gone: Analytics refresh error: ' . $e->getMessage() );
 			wp_send_json_error(
 				array(
-					'message' => __( 'An error occurred while refreshing analytics.', 'labyrinth' ),
+					'message' => __( 'An error occurred while refreshing analytics.', 'jtzl-bot-be-gone' ),
 				),
 				500
 			);
@@ -424,14 +420,14 @@ class Bootstrap {
 	 */
 	public function handle_geo_data_ajax(): void {
 		try {
-			$collector = $this->container->get( 'Labyrinth\Service\AnalyticsCollector' );
+			$collector = $this->container->get( 'JTZL\Bot_Be_Gone\Service\AnalyticsCollector' );
 			$countries = $collector->get_visits_by_country();
 		} catch ( \Throwable $e ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Error logging is appropriate here.
-			error_log( 'Labyrinth: Geo data error: ' . $e->getMessage() );
+			error_log( 'JTZL Bot-be-Gone: Geo data error: ' . $e->getMessage() );
 			wp_send_json_error(
 				array(
-					'message' => __( 'An error occurred while loading geographic data.', 'labyrinth' ),
+					'message' => __( 'An error occurred while loading geographic data.', 'jtzl-bot-be-gone' ),
 				),
 				500
 			);
@@ -440,7 +436,7 @@ class Bootstrap {
 		wp_send_json_success(
 			array(
 				'countries' => empty( $countries ) ? new \stdClass() : $countries,
-				'enabled'   => 'none' !== (string) get_option( 'lby_geo_provider', 'none' ),
+				'enabled'   => 'none' !== (string) get_option( 'jtzl_bbg_geo_provider', 'none' ),
 			)
 		);
 	}
@@ -455,23 +451,23 @@ class Bootstrap {
 	 */
 	public function handle_maintenance_cron(): void {
 		try {
-			$retention_days = $this->container->get( 'config.lby_retention_days' );
+			$retention_days = $this->container->get( 'config.jtzl_bbg_retention_days' );
 
 			// Prune old trap visits and stale bot scores.
-			$visit_repo = $this->container->get( 'Labyrinth\Repository\TrapVisitRepositoryInterface' );
-			$score_repo = $this->container->get( 'Labyrinth\Repository\BotScoreRepositoryInterface' );
+			$visit_repo = $this->container->get( 'JTZL\Bot_Be_Gone\Repository\TrapVisitRepositoryInterface' );
+			$score_repo = $this->container->get( 'JTZL\Bot_Be_Gone\Repository\BotScoreRepositoryInterface' );
 
 			$visit_repo->prune_old_entries( $retention_days );
 			$score_repo->prune_stale_entries( $retention_days );
 
 			// Ensure minimum trap pages exist (only when enabled).
-			if ( (bool) get_option( 'lby_enabled', true ) ) {
-				$generator = $this->container->get( 'Labyrinth\Service\TrapPageGenerator' );
+			if ( (bool) get_option( 'jtzl_bbg_enabled', true ) ) {
+				$generator = $this->container->get( 'JTZL\Bot_Be_Gone\Service\TrapPageGenerator' );
 				$generator->ensure_minimum_pages();
 			}
 		} catch ( \Exception $e ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Error logging is appropriate here.
-			error_log( 'Labyrinth: Maintenance cron error: ' . $e->getMessage() );
+			error_log( 'JTZL Bot-be-Gone: Maintenance cron error: ' . $e->getMessage() );
 		}
 	}
 
@@ -482,9 +478,9 @@ class Bootstrap {
 	 * @since 1.0.0
 	 */
 	public function maybe_flush_rewrite_rules(): void {
-		if ( get_option( 'lby_flush_rewrite_rules_flag' ) ) {
+		if ( get_option( 'jtzl_bbg_flush_rewrite_rules_flag' ) ) {
 			flush_rewrite_rules();
-			delete_option( 'lby_flush_rewrite_rules_flag' );
+			delete_option( 'jtzl_bbg_flush_rewrite_rules_flag' );
 		}
 	}
 
@@ -497,38 +493,16 @@ class Bootstrap {
 	 * @since 1.0.0
 	 */
 	public static function maybe_handle_version_change(): void {
-		$stored_version = (string) get_option( 'lby_plugin_version', '' );
+		$stored_version = (string) get_option( 'jtzl_bbg_plugin_version', '' );
 
-		if ( LABYRINTH_VERSION !== $stored_version ) {
+		if ( JTZL_BBG_VERSION !== $stored_version ) {
 			self::clear_di_cache();
-			self::migrate_renamed_options();
-			self::migrate_geo_tracking_option();
 			Database\Schema::create_tables();
-			update_option( 'lby_plugin_version', LABYRINTH_VERSION );
+			update_option( 'jtzl_bbg_plugin_version', JTZL_BBG_VERSION );
 		}
 	}
 
-	/**
-	 * Migrate renamed option keys from earlier versions.
-	 *
-	 * @return void
-	 * @since 1.0.0
-	 */
-	private static function migrate_renamed_options(): void {
-		$renames = array(
-			'lby_log_retention_days' => 'lby_retention_days',
-		);
 
-		foreach ( $renames as $old_key => $new_key ) {
-			$old_value = get_option( $old_key );
-			if ( false !== $old_value ) {
-				if ( false === get_option( $new_key ) ) {
-					update_option( $new_key, $old_value );
-				}
-				delete_option( $old_key );
-			}
-		}
-	}
 
 	/**
 	 * Clear all plugin transient caches.
@@ -555,7 +529,7 @@ class Bootstrap {
 				if ( ! isset( $schedules['weekly'] ) ) {
 					$schedules['weekly'] = array(
 						'interval' => WEEK_IN_SECONDS,
-						'display'  => __( 'Once Weekly', 'labyrinth' ),
+						'display'  => __( 'Once Weekly', 'jtzl-bot-be-gone' ),
 					);
 				}
 				return $schedules;
@@ -563,32 +537,12 @@ class Bootstrap {
 		);
 	}
 
-	/**
-	 * Migrate the legacy lby_enable_geo_tracking option to lby_geo_provider.
-	 *
-	 * @return void
-	 * @since 1.0.0
-	 */
-	public static function migrate_geo_tracking_option(): void {
-		$old_value = get_option( 'lby_enable_geo_tracking', 'not_set' );
 
-		if ( 'not_set' === $old_value ) {
-			return;
-		}
-
-		// Only migrate if the new option hasn't already been explicitly set.
-		if ( false === get_option( 'lby_geo_provider' ) ) {
-			$new_provider = $old_value ? 'ip_api' : 'none';
-			update_option( 'lby_geo_provider', $new_provider );
-		}
-
-		delete_option( 'lby_enable_geo_tracking' );
-	}
 
 	/**
 	 * Clear all plugin transient caches.
 	 *
-	 * Static because it is also called from labyrinth.php thin delegates
+	 * Static because it is also called from jtzl-bot-be-gone.php thin delegates
 	 * and from uninstall.php without a container.
 	 *
 	 * @return void
@@ -597,13 +551,13 @@ class Bootstrap {
 	public static function clear_transients(): void {
 		global $wpdb;
 
-		// Delete all transients with lby_ prefix.
+		// Delete all transients with jtzl_bbg_ prefix.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
-				$wpdb->esc_like( '_transient_lby_' ) . '%',
-				$wpdb->esc_like( '_transient_timeout_lby_' ) . '%'
+				$wpdb->esc_like( '_transient_jtzl_bbg_' ) . '%',
+				$wpdb->esc_like( '_transient_timeout_jtzl_bbg_' ) . '%'
 			)
 		);
 	}
@@ -613,19 +567,19 @@ class Bootstrap {
 	 *
 	 * Static because it is also called from uninstall.php without a container.
 	 *
-	 * @param string|null $base_dir Plugin base directory. Defaults to LABYRINTH_PLUGIN_DIR.
+	 * @param string|null $base_dir Plugin base directory. Defaults to JTZL_BBG_PLUGIN_DIR.
 	 * @return void
 	 * @since 1.0.0
 	 */
 	public static function clear_di_cache( ?string $base_dir = null ): void {
-		$base_dir   = $base_dir ?? LABYRINTH_PLUGIN_DIR;
+		$base_dir   = $base_dir ?? JTZL_BBG_PLUGIN_DIR;
 		$cache_dir  = $base_dir . 'var/cache';
 		$plugin_dir = realpath( $base_dir );
 
 		$log_failure = static function ( string $message ): void {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging only.
-				error_log( 'Labyrinth: ' . $message );
+				error_log( 'JTZL Bot-be-Gone: ' . $message );
 			}
 		};
 

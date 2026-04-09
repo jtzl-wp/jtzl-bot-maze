@@ -4,11 +4,11 @@
  *
  * Modifies robots.txt to prevent good bots from wasting crawl budget.
  *
- * @package Labyrinth
+ * @package JTZL\Bot_Be_Gone
  * @since 1.0.0
  */
 
-namespace Labyrinth\Service;
+namespace JTZL\Bot_Be_Gone\Service;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -84,7 +84,7 @@ class RobotsTxtManager {
 		// Trim trailing whitespace first — WordPress may end with a blank
 		// line which per RFC 9309 would terminate the User-agent: * group.
 		$output  = rtrim( $output ) . "\n";
-		$output .= "# Labyrinth Bot Protection\n";
+		$output .= "# JTZL's Bot-be-Gone\n";
 		$output .= 'Disallow: ' . $this->home_path . '/' . $this->base_path . "/\n";
 
 		return $output;

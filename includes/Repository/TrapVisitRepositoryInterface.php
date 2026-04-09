@@ -2,11 +2,11 @@
 /**
  * Trap Visit Repository Interface
  *
- * @package Labyrinth
+ * @package JTZL\Bot_Be_Gone
  * @since 1.0.0
  */
 
-namespace Labyrinth\Repository;
+namespace JTZL\Bot_Be_Gone\Repository;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // @codeCoverageIgnoreEnd
 
-use Labyrinth\Entity\TrapVisit;
+use JTZL\Bot_Be_Gone\Entity\TrapVisit;
 
 /**
  * Interface for trap visit repository implementations.

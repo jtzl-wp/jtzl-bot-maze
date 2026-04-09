@@ -2,11 +2,11 @@
 /**
  * Bot Score Repository Interface
  *
- * @package Labyrinth
+ * @package JTZL\Bot_Be_Gone
  * @since 1.0.0
  */
 
-namespace Labyrinth\Repository;
+namespace JTZL\Bot_Be_Gone\Repository;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // @codeCoverageIgnoreEnd
 
-use Labyrinth\Entity\BotScore;
+use JTZL\Bot_Be_Gone\Entity\BotScore;
 
 /**
  * Interface for bot score repository implementations.

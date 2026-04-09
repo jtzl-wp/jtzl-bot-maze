@@ -4,11 +4,11 @@
  *
  * Handles default plugin options and settings.
  *
- * @package Labyrinth
+ * @package JTZL\Bot_Be_Gone
  * @since 1.0.0
  */
 
-namespace Labyrinth\Database;
+namespace JTZL\Bot_Be_Gone\Database;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -52,8 +52,8 @@ class Options {
 	public function remove_all(): void {
 		$options = array_keys( self::get_default_options() );
 
-		$options[] = 'lby_plugin_version';
-		$options[] = 'lby_flush_rewrite_rules_flag';
+		$options[] = 'jtzl_bbg_plugin_version';
+		$options[] = 'jtzl_bbg_flush_rewrite_rules_flag';
 
 		foreach ( $options as $option_name ) {
 			delete_option( $option_name );
@@ -80,39 +80,39 @@ class Options {
 	public static function get_default_options(): array {
 		return array(
 			// General.
-			'lby_enabled'                => true,
-			'lby_trap_base_path'         => 'lby',
-			'lby_trusted_proxy_header'   => '',
-			'lby_trusted_proxy_ips'      => '',
+			'jtzl_bbg_enabled'                => true,
+			'jtzl_bbg_trap_base_path'         => 'bbg',
+			'jtzl_bbg_trusted_proxy_header'   => '',
+			'jtzl_bbg_trusted_proxy_ips'      => '',
 
 			// Trap Links.
-			'lby_links_per_page'         => 3,
-			'lby_injection_method'       => 'content', // content, footer, both.
+			'jtzl_bbg_links_per_page'         => 3,
+			'jtzl_bbg_injection_method'       => 'content', // content, footer, both.
 
-			// Labyrinth.
-			'lby_max_depth'              => 5,
-			'lby_links_per_trap_page'    => 5,
-			'lby_initial_page_count'     => 20,
-			'lby_max_trap_pages'         => 500,
+			// Trap Maze.
+			'jtzl_bbg_max_depth'              => 5,
+			'jtzl_bbg_links_per_trap_page'    => 5,
+			'jtzl_bbg_initial_page_count'     => 20,
+			'jtzl_bbg_max_trap_pages'         => 500,
 
 			// Bot Scoring.
-			'lby_points_per_visit'       => 25,
-			'lby_depth_bonus'            => 15,
-			'lby_block_threshold'        => 100,
-			'lby_blocking_behavior'      => 'block', // block, tarpit_light, tarpit.
-			'lby_tarpit_delay_ms'        => 1000,
-			'lby_track_blocked_activity' => false,
+			'jtzl_bbg_points_per_visit'       => 25,
+			'jtzl_bbg_depth_bonus'            => 15,
+			'jtzl_bbg_block_threshold'        => 100,
+			'jtzl_bbg_blocking_behavior'      => 'block', // block, tarpit_light, tarpit.
+			'jtzl_bbg_tarpit_delay_ms'        => 1000,
+			'jtzl_bbg_track_blocked_activity' => false,
 
 			// Geographic Tracking.
-			'lby_geo_provider'           => 'none', // none, ip_api, maxmind.
-			'lby_maxmind_license_key'    => '',
-			'lby_maxmind_last_updated'   => '',
+			'jtzl_bbg_geo_provider'           => 'none', // none, ip_api, maxmind.
+			'jtzl_bbg_maxmind_license_key'    => '',
+			'jtzl_bbg_maxmind_last_updated'   => '',
 
 			// Maintenance.
-			'lby_retention_days'         => 30,
+			'jtzl_bbg_retention_days'         => 30,
 
 			// robots.txt.
-			'lby_robots_txt_enabled'     => true,
+			'jtzl_bbg_robots_txt_enabled'     => true,
 		);
 	}
 

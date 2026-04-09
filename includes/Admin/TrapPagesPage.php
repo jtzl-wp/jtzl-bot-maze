@@ -2,11 +2,11 @@
 /**
  * Trap Pages Admin Page
  *
- * @package Labyrinth
+ * @package JTZL\Bot_Be_Gone
  * @since 1.0.0
  */
 
-namespace Labyrinth\Admin;
+namespace JTZL\Bot_Be_Gone\Admin;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // @codeCoverageIgnoreEnd
 
-use Labyrinth\Service\AnalyticsCollector;
+use JTZL\Bot_Be_Gone\Service\AnalyticsCollector;
 
 /**
  * Trap Pages Page
@@ -71,11 +71,11 @@ class TrapPagesPage {
 	 */
 	public function register_menu(): void {
 		add_submenu_page(
-			'labyrinth',
-			__( 'Trap Pages', 'labyrinth' ),
-			__( 'Trap Pages', 'labyrinth' ),
+			'jtzl-bot-be-gone',
+			__( 'Trap Pages', 'jtzl-bot-be-gone' ),
+			__( 'Trap Pages', 'jtzl-bot-be-gone' ),
 			'manage_options',
-			'labyrinth-trap-pages',
+			'jtzl-bot-be-gone-trap-pages',
 			array( $this, 'render_page' )
 		);
 	}
@@ -88,13 +88,13 @@ class TrapPagesPage {
 	 */
 	public function render_page(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'labyrinth' ) );
+			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'jtzl-bot-be-gone' ) );
 		}
 
 		$pages     = $this->collector->get_all_active_trap_pages();
 		$base_path = $this->base_path;
 
-		$template_path = LABYRINTH_PLUGIN_DIR . 'templates/admin-trap-pages.php';
+		$template_path = JTZL_BBG_PLUGIN_DIR . 'templates/admin-trap-pages.php';
 
 		if ( file_exists( $template_path ) ) {
 			// phpcs:ignore WordPress.PHP.DontExtract.extract_extract -- Template variable extraction is intentional.
