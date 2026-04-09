@@ -20,6 +20,7 @@ use Labyrinth\Data\CountryNames;
 use Labyrinth\Repository\TrapPageRepositoryInterface;
 use Labyrinth\Repository\TrapVisitRepositoryInterface;
 use Labyrinth\Repository\BotScoreRepositoryInterface;
+use Labyrinth\Service\GeoIpService;
 
 /**
  * Analytics Collector
@@ -56,21 +57,32 @@ class AnalyticsCollector {
 	private BotScoreRepositoryInterface $score_repo;
 
 	/**
+	 * GeoIP service for resolving visitor country.
+	 *
+	 * @var GeoIpService
+	 * @since 1.0.0
+	 */
+	private GeoIpService $geo_ip_service;
+
+	/**
 	 * Constructor.
 	 *
-	 * @param TrapPageRepositoryInterface  $trap_page_repo Trap page repository.
-	 * @param TrapVisitRepositoryInterface $visit_repo     Trap visit repository.
-	 * @param BotScoreRepositoryInterface  $score_repo     Bot score repository.
+	 * @param TrapPageRepositoryInterface  $trap_page_repo  Trap page repository.
+	 * @param TrapVisitRepositoryInterface $visit_repo      Trap visit repository.
+	 * @param BotScoreRepositoryInterface  $score_repo      Bot score repository.
+	 * @param GeoIpService                 $geo_ip_service  GeoIP service.
 	 * @since 1.0.0
 	 */
 	public function __construct(
 		TrapPageRepositoryInterface $trap_page_repo,
 		TrapVisitRepositoryInterface $visit_repo,
-		BotScoreRepositoryInterface $score_repo
+		BotScoreRepositoryInterface $score_repo,
+		GeoIpService $geo_ip_service
 	) {
 		$this->trap_page_repo = $trap_page_repo;
 		$this->visit_repo     = $visit_repo;
 		$this->score_repo     = $score_repo;
+		$this->geo_ip_service = $geo_ip_service;
 	}
 
 	/**
@@ -211,6 +223,8 @@ class AnalyticsCollector {
 	public function record_blocked_visit( string $ip_address, string $user_agent_hash, string $user_agent, int $response_code = 403 ): void {
 		$this->score_repo->touch_blocked_visit( $ip_address, $user_agent_hash );
 
+		$country_code = $this->geo_ip_service->resolve_country( $ip_address );
+
 		$this->visit_repo->create(
 			array(
 				'trap_page_id'  => 0,
@@ -221,6 +235,7 @@ class AnalyticsCollector {
 				'depth_reached' => 0,
 				'request_type'  => 'blocked_visit',
 				'response_code' => $response_code,
+				'country_code'  => $country_code,
 			)
 		);
 	}

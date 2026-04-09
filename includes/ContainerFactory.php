@@ -158,7 +158,8 @@ class ContainerFactory {
 				->constructor(
 					get( TrapPageRepositoryInterface::class ),
 					get( TrapVisitRepositoryInterface::class ),
-					get( BotScoreRepositoryInterface::class )
+					get( BotScoreRepositoryInterface::class ),
+					get( 'Labyrinth\Service\GeoIpService' )
 				),
 
 			'Labyrinth\Service\TrapLinkInjector'      => autowire()
