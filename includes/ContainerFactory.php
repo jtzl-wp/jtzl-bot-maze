@@ -205,7 +205,6 @@ class ContainerFactory {
 					get( 'JTZL\Bot_Be_Gone\Service\BotDetector' ),
 					get( 'JTZL\Bot_Be_Gone\Service\TrapPageGenerator' ),
 					get( 'config.jtzl_bbg_trap_base_path' ),
-					get( 'config.jtzl_bbg_max_depth' ),
 					get( ContextInterface::class )
 				),
 

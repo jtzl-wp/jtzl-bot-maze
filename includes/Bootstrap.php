@@ -149,8 +149,10 @@ class Bootstrap {
 						if ( $page ) {
 							$track_visit( 200 );
 
+							$generator = $container->get( 'JTZL\Bot_Be_Gone\Service\TrapPageGenerator' );
+
 							$GLOBALS['jtzl_bbg_trap_page']      = $page;
-							$GLOBALS['jtzl_bbg_trap_children']  = $repo->get_children( $page->id );
+							$GLOBALS['jtzl_bbg_trap_children']  = $generator->get_or_generate_children( $page );
 							$GLOBALS['jtzl_bbg_trap_base_path'] = $base_path;
 
 							// Force 200 OK status to keep them crawling.

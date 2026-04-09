@@ -178,6 +178,28 @@ class TrapPageGenerator {
 	}
 
 	/**
+	 * Get existing children for a trap page, lazily generating them if needed.
+	 *
+	 * @param \JTZL\Bot_Be_Gone\Entity\TrapPage $page Trap page entity.
+	 * @return array Child TrapPage entities.
+	 * @since 1.0.0
+	 */
+	public function get_or_generate_children( \JTZL\Bot_Be_Gone\Entity\TrapPage $page ): array {
+		$children = $this->repository->get_children( $page->id );
+
+		if ( empty( $children ) && $page->depth_level < $this->max_depth ) {
+			$this->generate_children_for(
+				$page->id,
+				$page->seed,
+				$page->depth_level + 1
+			);
+			$children = $this->repository->get_children( $page->id );
+		}
+
+		return $children;
+	}
+
+	/**
 	 * Generate child pages for a parent trap page (one level deep).
 	 *
 	 * Called lazily when a bot visits a trap page that has no children yet.

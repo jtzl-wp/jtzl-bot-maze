@@ -74,14 +74,6 @@ class TrapRouter {
 	private string $base_path;
 
 	/**
-	 * Maximum trap maze depth.
-	 *
-	 * @var int
-	 * @since 1.0.0
-	 */
-	private int $max_depth;
-
-	/**
 	 * WordPress context facade.
 	 *
 	 * @var ContextInterface
@@ -96,7 +88,6 @@ class TrapRouter {
 	 * @param BotDetector                 $bot_detector Bot detector service.
 	 * @param TrapPageGenerator           $generator    Trap page generator.
 	 * @param string                      $base_path    URL base path for trap pages.
-	 * @param int                         $max_depth    Maximum trap maze depth.
 	 * @param ContextInterface            $wp           WordPress context facade.
 	 * @since 1.0.0
 	 */
@@ -105,14 +96,12 @@ class TrapRouter {
 		BotDetector $bot_detector,
 		TrapPageGenerator $generator,
 		string $base_path,
-		int $max_depth,
 		ContextInterface $wp
 	) {
 		$this->repository   = $repository;
 		$this->bot_detector = $bot_detector;
 		$this->generator    = $generator;
 		$this->base_path    = $base_path;
-		$this->max_depth    = $max_depth;
 		$this->wp           = $wp;
 	}
 
@@ -240,16 +229,7 @@ class TrapRouter {
 		$GLOBALS['jtzl_bbg_trap_page'] = $trap_page;
 
 		// Get child pages for internal links, generating lazily if needed.
-		$children = $this->repository->get_children( $trap_page->id );
-
-		if ( empty( $children ) && $trap_page->depth_level < $this->max_depth ) {
-			$this->generator->generate_children_for(
-				$trap_page->id,
-				$trap_page->seed,
-				$trap_page->depth_level + 1
-			);
-			$children = $this->repository->get_children( $trap_page->id );
-		}
+		$children = $this->generator->get_or_generate_children( $trap_page );
 
 		$GLOBALS['jtzl_bbg_trap_children']  = $children;
 		$GLOBALS['jtzl_bbg_trap_base_path'] = $this->base_path;
