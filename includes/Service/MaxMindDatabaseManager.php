@@ -145,40 +145,51 @@ class MaxMindDatabaseManager {
 				file_put_contents( $index_path, "<?php\n// Silence is golden.\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 			}
 
-			// Find the .mmdb file inside the archive (it's in a subdirectory).
-			$mmdb_found = false;
-			foreach ( $phar as $file ) {
-				if ( $file->isDir() ) {
-					$inner_phar = new \PharData( $file->getPathname() );
-					foreach ( $inner_phar as $inner_file ) {
-						if ( self::DB_FILENAME === $inner_file->getFilename() ) {
-							$install_result = $this->install_mmdb( $inner_file->getPathname(), $storage );
-							if ( is_wp_error( $install_result ) ) { // @codeCoverageIgnoreStart
-								return $install_result; // Filesystem write failure.
-							} // @codeCoverageIgnoreEnd
-							$mmdb_found = true;
-							break 2;
-						}
-					}
-				}
-				if ( self::DB_FILENAME === $file->getFilename() ) {
-					$install_result = $this->install_mmdb( $file->getPathname(), $storage );
-					if ( is_wp_error( $install_result ) ) { // @codeCoverageIgnoreStart
-						return $install_result; // Filesystem write failure.
-					} // @codeCoverageIgnoreEnd
-					$mmdb_found = true;
-					break;
-				}
-			}
-
-			if ( ! $mmdb_found ) {
+			$mmdb_path = $this->find_mmdb_in_archive( $phar );
+			if ( null === $mmdb_path ) {
 				return new \WP_Error( 'jtzl_bbg_maxmind_no_mmdb', __( 'No .mmdb file found in the MaxMind archive.', 'jtzl-bot-be-gone' ) );
 			}
+
+			$install_result = $this->install_mmdb( $mmdb_path, $storage );
+			if ( is_wp_error( $install_result ) ) { // @codeCoverageIgnoreStart
+				return $install_result; // Filesystem write failure.
+			} // @codeCoverageIgnoreEnd
 
 			return true;
 		} catch ( \Throwable $e ) {
 			return new \WP_Error( 'jtzl_bbg_maxmind_extract_failed', $e->getMessage() );
 		}
+	}
+
+	/**
+	 * Walk a MaxMind tar archive to locate the .mmdb payload.
+	 *
+	 * MaxMind ships the database inside a versioned subdirectory, so we
+	 * look one level deep as well as at the archive root.
+	 *
+	 * @param \PharData $phar Opened archive.
+	 * @return string|null Absolute path to the .mmdb file, or null if not found.
+	 * @since 1.0.0
+	 */
+	private function find_mmdb_in_archive( \PharData $phar ): ?string {
+		foreach ( $phar as $file ) {
+			if ( self::DB_FILENAME === $file->getFilename() ) {
+				return $file->getPathname();
+			}
+
+			if ( ! $file->isDir() ) {
+				continue;
+			}
+
+			$inner_phar = new \PharData( $file->getPathname() );
+			foreach ( $inner_phar as $inner_file ) {
+				if ( self::DB_FILENAME === $inner_file->getFilename() ) {
+					return $inner_file->getPathname();
+				}
+			}
+		}
+
+		return null;
 	}
 
 	/**

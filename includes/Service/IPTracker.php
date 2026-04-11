@@ -231,56 +231,85 @@ class IPTracker implements IPTrackerInterface {
 			return $ip === $cidr;
 		}
 
-		list( $subnet, $bits ) = explode( '/', $cidr, 2 );
-		if ( ! ctype_digit( $bits ) ) {
+		list( $subnet, $bits_str ) = explode( '/', $cidr, 2 );
+		if ( ! ctype_digit( $bits_str ) ) {
 			return false;
 		}
-		$bits = (int) $bits;
 
-		// Reject cross-family comparisons and out-of-range prefix lengths.
 		$ip_is_v6     = str_contains( $ip, ':' );
 		$subnet_is_v6 = str_contains( $subnet, ':' );
 		if ( $ip_is_v6 !== $subnet_is_v6 ) {
 			return false;
 		}
-		$max_bits = $ip_is_v6 ? 128 : 32;
-		if ( $bits < 0 || $bits > $max_bits ) {
+
+		$bits = (int) $bits_str;
+
+		return $ip_is_v6
+			? $this->match_ipv6_cidr( $ip, $subnet, $bits )
+			: $this->match_ipv4_cidr( $ip, $subnet, $bits );
+	}
+
+	/**
+	 * Check if an IPv4 address falls inside a CIDR range.
+	 *
+	 * @param string $ip     IPv4 address.
+	 * @param string $subnet IPv4 subnet.
+	 * @param int    $bits   Prefix length.
+	 * @return bool
+	 * @since 1.0.0
+	 */
+	private function match_ipv4_cidr( string $ip, string $subnet, int $bits ): bool {
+		if ( $bits < 0 || $bits > 32 ) {
 			return false;
 		}
 
-		// IPv4.
 		$ip_long     = ip2long( $ip );
 		$subnet_long = ip2long( $subnet );
-
-		if ( false !== $ip_long && false !== $subnet_long ) {
-			if ( 0 === $bits ) {
-				return true;
-			}
-			$mask = -1 << ( 32 - $bits );
-			return ( $ip_long & $mask ) === ( $subnet_long & $mask );
+		if ( false === $ip_long || false === $subnet_long ) {
+			return false;
 		}
 
-		// IPv6.
+		if ( 0 === $bits ) {
+			return true;
+		}
+
+		$mask = -1 << ( 32 - $bits );
+		return ( $ip_long & $mask ) === ( $subnet_long & $mask );
+	}
+
+	/**
+	 * Check if an IPv6 address falls inside a CIDR range.
+	 *
+	 * @param string $ip     IPv6 address.
+	 * @param string $subnet IPv6 subnet.
+	 * @param int    $bits   Prefix length.
+	 * @return bool
+	 * @since 1.0.0
+	 */
+	private function match_ipv6_cidr( string $ip, string $subnet, int $bits ): bool {
+		if ( $bits < 0 || $bits > 128 ) {
+			return false;
+		}
+
 		$ip_bin     = inet_pton( $ip );
 		$subnet_bin = inet_pton( $subnet );
-
 		if ( false === $ip_bin || false === $subnet_bin ) {
 			return false;
 		}
 
-		$full_bytes    = intdiv( $bits, 8 );
+		$full_bytes     = intdiv( $bits, 8 );
 		$remaining_bits = $bits % 8;
 
 		if ( substr( $ip_bin, 0, $full_bytes ) !== substr( $subnet_bin, 0, $full_bytes ) ) {
 			return false;
 		}
 
-		if ( $remaining_bits > 0 ) {
-			$mask = 0xFF << ( 8 - $remaining_bits );
-			return ( ord( $ip_bin[ $full_bytes ] ) & $mask ) === ( ord( $subnet_bin[ $full_bytes ] ) & $mask );
+		if ( 0 === $remaining_bits ) {
+			return true;
 		}
 
-		return true;
+		$mask = 0xFF << ( 8 - $remaining_bits );
+		return ( ord( $ip_bin[ $full_bytes ] ) & $mask ) === ( ord( $subnet_bin[ $full_bytes ] ) & $mask );
 	}
 
 	/**

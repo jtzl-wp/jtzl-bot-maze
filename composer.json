@@ -12,6 +12,8 @@
 		"deptrac/deptrac": "^2.0",
 		"php-stubs/wordpress-stubs": "^6.8",
 		"phpcompatibility/phpcompatibility-wp": "*",
+		"phpmd/phpmd": "^2.15",
+		"phpmetrics/phpmetrics": "^2.9",
 		"phpstan/extension-installer": "^1.4",
 		"phpstan/phpstan": "^2.0",
 		"phpunit/phpunit": "^9.6",
@@ -44,12 +46,31 @@
 		"lint": "@php ./vendor/bin/phpcs . --report=summary,source",
 		"lint:errors": "@lint -n",
 		"deptrac": "@php ./vendor/bin/deptrac analyze --config-file=deptrac.yaml",
+		"metrics:phpmetrics": [
+			"mkdir -p build/reports/phpmetrics",
+			"@php -d error_reporting=E_ERROR ./vendor/bin/phpmetrics --exclude=tests,vendor,node_modules,build,.github,bin,scripts,stubs,languages,var,templates --report-json=build/reports/phpmetrics.json --report-summary-json=build/reports/phpmetrics-summary.json --report-html=build/reports/phpmetrics ."
+		],
+		"metrics:phpmd": [
+			"@php ./vendor/bin/phpmd includes,jtzl-bot-be-gone.php,uninstall.php text phpmd.xml --exclude tests,vendor",
+			"@php -r \"echo 'PHPMD: no size/complexity anomalies found.' . PHP_EOL;\""
+		],
+		"metrics:size": [
+			"@metrics:phpmetrics"
+		],
+		"metrics:guard": [
+			"@metrics:size",
+			"@php ./bin/check-phpmetrics-thresholds"
+		],
+		"anomaly": [
+			"@deptrac",
+			"@metrics:phpmd"
+		],
 		"phpstan": [
 			"@php ./vendor/bin/phpstan clear-result-cache",
 			"@php ./vendor/bin/phpstan analyse --memory-limit=1G"
 		],
 		"check": [
-			"@deptrac",
+			"@anomaly",
 			"@phpstan",
 			"@lint:errors"
 		],

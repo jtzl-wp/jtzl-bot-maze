@@ -126,48 +126,48 @@ class ContentTemplateEngine {
 		foreach ( $template as $section_type ) {
 			switch ( $section_type ) {
 				case 'intro':
-					$html .= '<p>' . esc_html( $paragraphs[ $paragraph_index % count( $paragraphs ) ] ) . '</p>' . "\n\n";
-					++$paragraph_index;
-					break;
-
-				case 'h2':
-					$html .= '<h2>' . esc_html( $headings[ $heading_index % count( $headings ) ] ) . '</h2>' . "\n\n";
-					++$heading_index;
-					break;
-
-				case 'h3':
-					$html .= '<h3>' . esc_html( $headings[ $heading_index % count( $headings ) ] ) . '</h3>' . "\n\n";
-					++$heading_index;
-					break;
-
 				case 'p':
 					$html .= '<p>' . esc_html( $paragraphs[ $paragraph_index % count( $paragraphs ) ] ) . '</p>' . "\n\n";
 					++$paragraph_index;
 					break;
 
-				case 'ul':
-					$count = mt_rand( 3, 6 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
-					$html .= "<ul>\n";
-					for ( $i = 0; $i < $count; $i++ ) {
-						$html .= '<li>' . esc_html( $list_items[ $list_index % count( $list_items ) ] ) . "</li>\n";
-						++$list_index;
-					}
-					$html .= "</ul>\n\n";
+				case 'h2':
+				case 'h3':
+					$html .= "<{$section_type}>" . esc_html( $headings[ $heading_index % count( $headings ) ] ) . "</{$section_type}>\n\n";
+					++$heading_index;
 					break;
 
+				case 'ul':
 				case 'ol':
-					$count = mt_rand( 3, 6 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
-					$html .= "<ol>\n";
-					for ( $i = 0; $i < $count; $i++ ) {
-						$html .= '<li>' . esc_html( $list_items[ $list_index % count( $list_items ) ] ) . "</li>\n";
-						++$list_index;
-					}
-					$html .= "</ol>\n\n";
+					$html .= $this->render_list_section( $section_type, $list_items, $list_index );
 					break;
 			}
 		}
 
 		return trim( $html );
+	}
+
+	/**
+	 * Render an ordered or unordered list section.
+	 *
+	 * Advances $list_index by the number of items emitted so the caller's
+	 * cursor stays in sync — callers pass it by reference on purpose.
+	 *
+	 * @param string   $tag        Either 'ul' or 'ol'.
+	 * @param string[] $list_items Pool of list item strings.
+	 * @param int      $list_index Cursor into the pool, advanced by ref.
+	 * @return string
+	 * @since 1.0.0
+	 */
+	private function render_list_section( string $tag, array $list_items, int &$list_index ): string {
+		$count = mt_rand( 3, 6 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
+		$html  = "<{$tag}>\n";
+		for ( $i = 0; $i < $count; $i++ ) {
+			$html .= '<li>' . esc_html( $list_items[ $list_index % count( $list_items ) ] ) . "</li>\n";
+			++$list_index;
+		}
+		$html .= "</{$tag}>\n\n";
+		return $html;
 	}
 
 	/**
