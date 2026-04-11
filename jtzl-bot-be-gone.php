@@ -18,6 +18,9 @@
 
 namespace JTZL\Bot_Be_Gone;
 
+use JTZL\Bot_Be_Gone\Ajax\AjaxController;
+use JTZL\Bot_Be_Gone\Cache\PluginCache;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit();
@@ -42,7 +45,7 @@ if ( file_exists( JTZL_BBG_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
  */
 function init() {
 	// Clear DI cache if plugin version changed before building the container.
-	Bootstrap::maybe_handle_version_change();
+	PluginCache::maybe_handle_version_change();
 
 	$container = Plugin::get_container();
 	$bootstrap = new Bootstrap( $container );
@@ -86,8 +89,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 		}
 
 		$container = Plugin::get_container();
-		$bootstrap = new Bootstrap( $container );
-		$bootstrap->handle_regenerate_ajax();
+		( new AjaxController( $container ) )->handle_regenerate();
 	}
 
 	add_action(
@@ -128,8 +130,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 		}
 
 		$container = Plugin::get_container();
-		$bootstrap = new Bootstrap( $container );
-		$bootstrap->handle_refresh_analytics_ajax();
+		( new AjaxController( $container ) )->handle_refresh_analytics();
 	}
 
 	add_action(
@@ -170,8 +171,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 		}
 
 		$container = Plugin::get_container();
-		$bootstrap = new Bootstrap( $container );
-		$bootstrap->handle_geo_data_ajax();
+		( new AjaxController( $container ) )->handle_geo_data();
 	}
 
 	add_action(
@@ -310,23 +310,23 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 /**
  * Clear all plugin transient caches.
  *
- * Thin delegate to Bootstrap::clear_transients() for backward compatibility
- * with uninstall.php.
+ * Thin delegate to PluginCache::clear_transients() for the uninstall.php
+ * entry point, which must work without instantiating the DI container.
  *
  * @return void
  */
 function clear_transients() {
-	Bootstrap::clear_transients();
+	PluginCache::clear_transients();
 }
 
 /**
  * Clear compiled PHP-DI cache.
  *
- * Thin delegate to Bootstrap::clear_di_cache() for backward compatibility
- * with uninstall.php.
+ * Thin delegate to PluginCache::clear_di_cache() for the uninstall.php
+ * entry point, which must work without instantiating the DI container.
  *
  * @return void
  */
 function clear_di_cache(): void {
-	Bootstrap::clear_di_cache();
+	PluginCache::clear_di_cache();
 }

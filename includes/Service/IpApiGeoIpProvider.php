@@ -76,6 +76,29 @@ class IpApiGeoIpProvider implements GeoIpProviderInterface {
 			return (string) $cached;
 		}
 
+		$country_code = $this->fetch_country_from_api( $ip_address );
+		if ( '' === $country_code ) {
+			set_transient( $cache_key, '', self::NEGATIVE_CACHE_TTL );
+			return '';
+		}
+
+		set_transient( $cache_key, $country_code, self::CACHE_TTL );
+		return $country_code;
+	}
+
+	/**
+	 * Call the ip-api.com endpoint and return the parsed country code.
+	 *
+	 * Returns an empty string on any failure — transport, non-200,
+	 * malformed JSON, unknown status, or a country code that isn't
+	 * the expected ISO-3166 two-letter form — and leaves caching
+	 * decisions to the caller.
+	 *
+	 * @param string $ip_address Validated IP address.
+	 * @return string Two-letter country code, or empty string on failure.
+	 * @since 1.0.0
+	 */
+	private function fetch_country_from_api( string $ip_address ): string {
 		$url = self::API_URL . rawurlencode( $ip_address ) . '?fields=status,countryCode';
 
 		$response = wp_remote_get(
@@ -85,33 +108,19 @@ class IpApiGeoIpProvider implements GeoIpProviderInterface {
 			)
 		);
 
-		if ( is_wp_error( $response ) ) {
-			set_transient( $cache_key, '', self::NEGATIVE_CACHE_TTL );
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return '';
 		}
 
-		$code = wp_remote_retrieve_response_code( $response );
-		if ( 200 !== $code ) {
-			set_transient( $cache_key, '', self::NEGATIVE_CACHE_TTL );
-			return '';
-		}
-
-		$body = wp_remote_retrieve_body( $response );
-		$data = json_decode( $body, true );
-
+		$data = json_decode( wp_remote_retrieve_body( $response ), true );
 		if ( ! is_array( $data ) || 'success' !== ( $data['status'] ?? '' ) ) {
-			set_transient( $cache_key, '', self::NEGATIVE_CACHE_TTL );
 			return '';
 		}
 
-		$country_code = $data['countryCode'] ?? '';
-
+		$country_code = (string) ( $data['countryCode'] ?? '' );
 		if ( ! preg_match( '/^[A-Z]{2}$/', $country_code ) ) {
-			set_transient( $cache_key, '', self::NEGATIVE_CACHE_TTL );
 			return '';
 		}
-
-		set_transient( $cache_key, $country_code, self::CACHE_TTL );
 
 		return $country_code;
 	}
