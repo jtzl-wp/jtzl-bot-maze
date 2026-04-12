@@ -70,6 +70,16 @@ interface TrapPageRepositoryInterface {
 	public function get_all_active(): array;
 
 	/**
+	 * Get a paginated slice of active trap pages.
+	 *
+	 * @param int $limit  Maximum number of rows to return.
+	 * @param int $offset Number of rows to skip.
+	 * @return TrapPage[] Array of trap page entities.
+	 * @since 1.0.0
+	 */
+	public function get_active_paginated( int $limit, int $offset ): array;
+
+	/**
 	 * Get child trap pages for a given parent.
 	 *
 	 * @param int $parent_id Parent trap page ID.

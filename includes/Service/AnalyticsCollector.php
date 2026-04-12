@@ -289,6 +289,28 @@ class AnalyticsCollector {
 	}
 
 	/**
+	 * Get a paginated slice of active trap pages.
+	 *
+	 * @param int $limit  Number of pages per page.
+	 * @param int $offset Number of rows to skip.
+	 * @return array Array of TrapPage entities.
+	 * @since 1.0.0
+	 */
+	public function get_trap_pages_paginated( int $limit, int $offset ): array {
+		return $this->trap_page_repo->get_active_paginated( $limit, $offset );
+	}
+
+	/**
+	 * Count all active trap pages.
+	 *
+	 * @return int Total active trap pages.
+	 * @since 1.0.0
+	 */
+	public function get_trap_pages_count(): int {
+		return $this->trap_page_repo->count_active();
+	}
+
+	/**
 	 * Get trap visit counts grouped by country code.
 	 *
 	 * Returns an associative array of country_code => count for countries

@@ -81,6 +81,14 @@ class TrapPagesPage {
 	}
 
 	/**
+	 * Number of trap pages shown per admin page.
+	 *
+	 * @var int
+	 * @since 1.0.0
+	 */
+	const PER_PAGE = 50;
+
+	/**
 	 * Render the trap pages listing.
 	 *
 	 * @return void
@@ -91,14 +99,21 @@ class TrapPagesPage {
 			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'jtzl-bot-be-gone' ) );
 		}
 
-		$pages     = $this->collector->get_all_active_trap_pages();
+		$total_count = $this->collector->get_trap_pages_count();
+		$total_pages = (int) ceil( $total_count / self::PER_PAGE );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only page number, no state change.
+		$current_page = max( 1, (int) ( $_GET['paged'] ?? 1 ) );
+		$current_page = min( $current_page, max( 1, $total_pages ) );
+		$offset       = ( $current_page - 1 ) * self::PER_PAGE;
+
+		$pages     = $this->collector->get_trap_pages_paginated( self::PER_PAGE, $offset );
 		$base_path = $this->base_path;
 
 		$template_path = JTZL_BBG_PLUGIN_DIR . 'templates/admin-trap-pages.php';
 
 		if ( file_exists( $template_path ) ) {
 			// phpcs:ignore WordPress.PHP.DontExtract.extract_extract -- Template variable extraction is intentional.
-			extract( compact( 'pages', 'base_path' ) );
+			extract( compact( 'pages', 'base_path', 'total_count', 'total_pages', 'current_page' ) );
 			include $template_path; // @phpstan-ignore include.fileNotFound
 		}
 	}

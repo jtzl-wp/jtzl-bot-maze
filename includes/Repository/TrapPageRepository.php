@@ -194,6 +194,30 @@ class TrapPageRepository implements TrapPageRepositoryInterface {
 	}
 
 	/**
+	 * Get a paginated slice of active trap pages.
+	 *
+	 * @param int $limit  Maximum number of rows to return.
+	 * @param int $offset Number of rows to skip.
+	 * @return TrapPage[] Array of trap page entities.
+	 * @since 1.0.0
+	 */
+	public function get_active_paginated( int $limit, int $offset ): array {
+		$query = $this->wpdb->prepare(
+			"SELECT * FROM {$this->table_name} WHERE status = 'active' ORDER BY depth_level ASC, id ASC LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$limit,
+			$offset
+		);
+
+		$rows = $this->wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+		if ( empty( $rows ) ) {
+			return array();
+		}
+
+		return array_map( array( $this, 'hydrate' ), $rows );
+	}
+
+	/**
 	 * Get child trap pages for a given parent.
 	 *
 	 * @param int $parent_id Parent trap page ID.

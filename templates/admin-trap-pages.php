@@ -4,8 +4,11 @@
  *
  * @package JTZL\Bot_Be_Gone
  *
- * @var array  $pages     Active trap pages.
- * @var string $base_path Trap URL base path.
+ * @var array  $pages        Active trap pages for the current page.
+ * @var string $base_path    Trap URL base path.
+ * @var int    $total_count  Total number of active trap pages.
+ * @var int    $total_pages  Total number of pagination pages.
+ * @var int    $current_page Current pagination page number.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -47,13 +50,34 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</tbody>
 	</table>
 
-	<p style="margin-top: 12px;">
-		<?php
-		printf(
-			/* translators: %d: total number of active trap pages */
-			esc_html__( 'Total: %d active trap pages', 'jtzl-bot-be-gone' ),
-			count( $pages )
-		);
-		?>
-	</p>
+	<div class="tablenav bottom" style="margin-top: 8px;">
+		<div class="tablenav-pages">
+			<span class="displaying-num">
+				<?php
+				printf(
+					/* translators: %d: total number of active trap pages */
+					esc_html__( '%d items', 'jtzl-bot-be-gone' ),
+					(int) $total_count
+				);
+				?>
+			</span>
+			<?php if ( $total_pages > 1 ) : ?>
+				<span class="pagination-links">
+					<?php
+					$page_links = paginate_links(
+						array(
+							'base'      => add_query_arg( 'paged', '%#%' ),
+							'format'    => '',
+							'prev_text' => '&laquo;',
+							'next_text' => '&raquo;',
+							'total'     => $total_pages,
+							'current'   => $current_page,
+						)
+					);
+					echo wp_kses_post( $page_links );
+					?>
+				</span>
+			<?php endif; ?>
+		</div>
+	</div>
 </div>
