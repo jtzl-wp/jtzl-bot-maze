@@ -4,11 +4,11 @@
  *
  * Handles downloading and updating the GeoLite2-Country database.
  *
- * @package JTZL\Bot_Be_Gone
+ * @package JTZL\Bot_Labyrinth
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Be_Gone\Service;
+namespace JTZL\Bot_Labyrinth\Service;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -54,7 +54,7 @@ class MaxMindDatabaseManager {
 	 * @since 1.0.0
 	 */
 	public static function get_storage_dir(): string {
-		return WP_CONTENT_DIR . '/jtzl-bot-be-gone/geolite2/';
+		return WP_CONTENT_DIR . '/jtzl-bot-labyrinth/geolite2/';
 	}
 
 	/**
@@ -76,11 +76,11 @@ class MaxMindDatabaseManager {
 	 */
 	public function download_database( string $license_key ) {
 		if ( '' === $license_key ) {
-			return new \WP_Error( 'jtzl_bbg_maxmind_no_key', __( 'MaxMind license key is required.', 'jtzl-bot-be-gone' ) );
+			return new \WP_Error( 'jtzl_bl_maxmind_no_key', __( 'MaxMind license key is required.', 'jtzl-bot-labyrinth' ) );
 		}
 
 		$url      = sprintf( self::DOWNLOAD_URL, rawurlencode( $license_key ) );
-		$tmp_file = wp_tempnam( 'jtzl_bbg_maxmind_' );
+		$tmp_file = wp_tempnam( 'jtzl_bl_maxmind_' );
 
 		$response = wp_remote_get(
 			$url,
@@ -93,21 +93,21 @@ class MaxMindDatabaseManager {
 
 		if ( is_wp_error( $response ) ) {
 			wp_delete_file( $tmp_file );
-			return new \WP_Error( 'jtzl_bbg_maxmind_download_failed', $response->get_error_message() );
+			return new \WP_Error( 'jtzl_bl_maxmind_download_failed', $response->get_error_message() );
 		}
 
 		$code = wp_remote_retrieve_response_code( $response );
 		if ( 401 === $code ) {
 			wp_delete_file( $tmp_file );
-			return new \WP_Error( 'jtzl_bbg_maxmind_invalid_key', __( 'Invalid MaxMind license key.', 'jtzl-bot-be-gone' ) );
+			return new \WP_Error( 'jtzl_bl_maxmind_invalid_key', __( 'Invalid MaxMind license key.', 'jtzl-bot-labyrinth' ) );
 		}
 
 		if ( 200 !== $code ) {
 			wp_delete_file( $tmp_file );
 			return new \WP_Error(
-				'jtzl_bbg_maxmind_http_error',
+				'jtzl_bl_maxmind_http_error',
 				/* translators: %d: HTTP response code */
-				sprintf( __( 'MaxMind download returned HTTP %d.', 'jtzl-bot-be-gone' ), $code )
+				sprintf( __( 'MaxMind download returned HTTP %d.', 'jtzl-bot-labyrinth' ), $code )
 			);
 		}
 
@@ -118,7 +118,7 @@ class MaxMindDatabaseManager {
 			return $result;
 		}
 
-		update_option( 'jtzl_bbg_maxmind_last_updated', gmdate( 'c' ) );
+		update_option( 'jtzl_bl_maxmind_last_updated', gmdate( 'c' ) );
 
 		return true;
 	}
@@ -147,7 +147,7 @@ class MaxMindDatabaseManager {
 
 			$mmdb_path = $this->find_mmdb_in_archive( $phar );
 			if ( null === $mmdb_path ) {
-				return new \WP_Error( 'jtzl_bbg_maxmind_no_mmdb', __( 'No .mmdb file found in the MaxMind archive.', 'jtzl-bot-be-gone' ) );
+				return new \WP_Error( 'jtzl_bl_maxmind_no_mmdb', __( 'No .mmdb file found in the MaxMind archive.', 'jtzl-bot-labyrinth' ) );
 			}
 
 			$install_result = $this->install_mmdb( $mmdb_path, $storage );
@@ -157,7 +157,7 @@ class MaxMindDatabaseManager {
 
 			return true;
 		} catch ( \Throwable $e ) {
-			return new \WP_Error( 'jtzl_bbg_maxmind_extract_failed', $e->getMessage() );
+			return new \WP_Error( 'jtzl_bl_maxmind_extract_failed', $e->getMessage() );
 		}
 	}
 
@@ -214,12 +214,12 @@ class MaxMindDatabaseManager {
 
 		// @codeCoverageIgnoreStart — Filesystem write failures cannot be reliably triggered in tests.
 		if ( ! copy( $source_path, $tmp_dst ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-			return new \WP_Error( 'jtzl_bbg_maxmind_copy_failed', __( 'Failed to copy the database file.', 'jtzl-bot-be-gone' ) );
+			return new \WP_Error( 'jtzl_bl_maxmind_copy_failed', __( 'Failed to copy the database file.', 'jtzl-bot-labyrinth' ) );
 		}
 
 		if ( ! rename( $tmp_dst, $target ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename
 			wp_delete_file( $tmp_dst );
-			return new \WP_Error( 'jtzl_bbg_maxmind_rename_failed', __( 'Failed to install the database file.', 'jtzl-bot-be-gone' ) );
+			return new \WP_Error( 'jtzl_bl_maxmind_rename_failed', __( 'Failed to install the database file.', 'jtzl-bot-labyrinth' ) );
 		}
 		// @codeCoverageIgnoreEnd
 
@@ -233,8 +233,25 @@ class MaxMindDatabaseManager {
 	 * @since 1.0.0
 	 */
 	public static function cleanup(): void {
-		$storage = self::get_storage_dir();
+		$storage_dirs = array(
+			self::get_storage_dir(),
+			// Legacy storage directory from the prior jtzl-bot-be-gone slug.
+			WP_CONTENT_DIR . '/jtzl-bot-be-gone/geolite2/',
+		);
 
+		foreach ( $storage_dirs as $storage ) {
+			self::remove_storage_dir( $storage );
+		}
+	}
+
+	/**
+	 * Recursively delete a storage directory and its contents.
+	 *
+	 * @param string $storage Absolute storage directory path.
+	 * @return void
+	 * @since 1.0.0
+	 */
+	private static function remove_storage_dir( string $storage ): void {
 		if ( ! is_dir( $storage ) ) {
 			return;
 		}

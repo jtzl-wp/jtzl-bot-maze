@@ -2,11 +2,11 @@
 /**
  * Blocking Request Handler
  *
- * @package JTZL\Bot_Be_Gone
+ * @package JTZL\Bot_Labyrinth
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Be_Gone\Service;
+namespace JTZL\Bot_Labyrinth\Service;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -15,8 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 // @codeCoverageIgnoreEnd
 
 use DI\Container;
-use JTZL\Bot_Be_Gone\Repository\TrapPageRepositoryInterface;
-use JTZL\Bot_Be_Gone\WordPress\ContextInterface;
+use JTZL\Bot_Labyrinth\Repository\TrapPageRepositoryInterface;
+use JTZL\Bot_Labyrinth\WordPress\ContextInterface;
 
 /**
  * Responds to flagged visitors on template_redirect.
@@ -116,7 +116,7 @@ class BlockingRequestHandler {
 	 * @since 1.0.0
 	 */
 	public function handle(): void {
-		if ( ! (bool) $this->wp->get_option( 'jtzl_bbg_enabled', true ) ) {
+		if ( ! (bool) $this->wp->get_option( 'jtzl_bl_enabled', true ) ) {
 			return;
 		}
 
@@ -128,7 +128,7 @@ class BlockingRequestHandler {
 			return;
 		}
 
-		$behavior = (string) $this->wp->get_option( 'jtzl_bbg_blocking_behavior', 'block' );
+		$behavior = (string) $this->wp->get_option( 'jtzl_bl_blocking_behavior', 'block' );
 
 		if ( 'tarpit_light' === $behavior || 'tarpit' === $behavior ) {
 			if ( 'tarpit' === $behavior && $this->tarpit_delay_ms > 0 ) {
@@ -144,9 +144,9 @@ class BlockingRequestHandler {
 		// Default 'block' behavior (also the tarpit fallback when no trap pages exist).
 		$this->track_blocked_visit( 403 );
 		$this->wp->wp_die(
-			'<h1>' . esc_html__( 'Access Denied', 'jtzl-bot-be-gone' ) . '</h1>' .
-			'<p>' . esc_html__( 'Your IP address has been blocked due to suspicious activity.', 'jtzl-bot-be-gone' ) . '</p>',
-			esc_html__( 'Forbidden', 'jtzl-bot-be-gone' ),
+			'<h1>' . esc_html__( 'Access Denied', 'jtzl-bot-labyrinth' ) . '</h1>' .
+			'<p>' . esc_html__( 'Your IP address has been blocked due to suspicious activity.', 'jtzl-bot-labyrinth' ) . '</p>',
+			esc_html__( 'Forbidden', 'jtzl-bot-labyrinth' ),
 			array( 'response' => 403 )
 		);
 	}
@@ -173,9 +173,9 @@ class BlockingRequestHandler {
 		$this->track_blocked_visit( 200 );
 
 		$generator                          = $this->container->get( TrapPageGenerator::class );
-		$GLOBALS['jtzl_bbg_trap_page']      = $page;
-		$GLOBALS['jtzl_bbg_trap_children']  = $generator->get_or_generate_children( $page );
-		$GLOBALS['jtzl_bbg_trap_base_path'] = $this->base_path;
+		$GLOBALS['jtzl_bl_trap_page']      = $page;
+		$GLOBALS['jtzl_bl_trap_children']  = $generator->get_or_generate_children( $page );
+		$GLOBALS['jtzl_bl_trap_base_path'] = $this->base_path;
 
 		$this->wp->status_header( 200 );
 
@@ -184,7 +184,7 @@ class BlockingRequestHandler {
 			$this->wp->header( 'Cache-Control: no-store, no-cache, must-revalidate, max-age=0', true );
 		}
 
-		$this->wp->load_template( JTZL_BBG_PLUGIN_DIR . 'templates/trap-page.php' );
+		$this->wp->load_template( JTZL_BL_PLUGIN_DIR . 'templates/trap-page.php' );
 		// @codeCoverageIgnoreStart
 		exit;
 		// @codeCoverageIgnoreEnd
@@ -202,7 +202,7 @@ class BlockingRequestHandler {
 	 * @since 1.0.0
 	 */
 	private function track_blocked_visit( int $response_code ): void {
-		if ( ! (bool) $this->wp->get_option( 'jtzl_bbg_track_blocked_activity', false ) ) {
+		if ( ! (bool) $this->wp->get_option( 'jtzl_bl_track_blocked_activity', false ) ) {
 			return;
 		}
 

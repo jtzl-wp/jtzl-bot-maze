@@ -2,11 +2,11 @@
 /**
  * Country name resolver.
  *
- * @package JTZL\Bot_Be_Gone
+ * @package JTZL\Bot_Labyrinth
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Be_Gone\Data;
+namespace JTZL\Bot_Labyrinth\Data;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {

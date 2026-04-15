@@ -4,11 +4,11 @@
  *
  * Orchestrates geographic IP lookups by delegating to a configured provider.
  *
- * @package JTZL\Bot_Be_Gone
+ * @package JTZL\Bot_Labyrinth
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Be_Gone\Service;
+namespace JTZL\Bot_Labyrinth\Service;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {

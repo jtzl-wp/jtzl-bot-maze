@@ -2,11 +2,11 @@
 /**
  * Abstract Section Registrar
  *
- * @package JTZL\Bot_Be_Gone
+ * @package JTZL\Bot_Labyrinth
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Be_Gone\Admin\Settings;
+namespace JTZL\Bot_Labyrinth\Admin\Settings;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // @codeCoverageIgnoreEnd
 
-use JTZL\Bot_Be_Gone\Admin\SettingsPage;
+use JTZL\Bot_Labyrinth\Admin\SettingsPage;
 
 /**
  * Shared helpers for concrete section registrars.

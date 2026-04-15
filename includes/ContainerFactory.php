@@ -4,11 +4,11 @@
  *
  * Configures and builds the PHP-DI container for the plugin.
  *
- * @package JTZL\Bot_Be_Gone
+ * @package JTZL\Bot_Labyrinth
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Be_Gone;
+namespace JTZL\Bot_Labyrinth;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -18,15 +18,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use DI\Container;
 use DI\ContainerBuilder;
-use JTZL\Bot_Be_Gone\Repository\TrapPageRepositoryInterface;
-use JTZL\Bot_Be_Gone\Repository\TrapVisitRepositoryInterface;
-use JTZL\Bot_Be_Gone\Repository\BotScoreRepositoryInterface;
-use JTZL\Bot_Be_Gone\Service\IPTrackerInterface;
-use JTZL\Bot_Be_Gone\Service\DnsResolverInterface;
-use JTZL\Bot_Be_Gone\Service\CrawlerVerifierInterface;
-use JTZL\Bot_Be_Gone\Admin\SettingsSanitizer;
-use JTZL\Bot_Be_Gone\WordPress\ContextInterface;
-use JTZL\Bot_Be_Gone\WordPress\WordPressContext;
+use JTZL\Bot_Labyrinth\Repository\TrapPageRepositoryInterface;
+use JTZL\Bot_Labyrinth\Repository\TrapVisitRepositoryInterface;
+use JTZL\Bot_Labyrinth\Repository\BotScoreRepositoryInterface;
+use JTZL\Bot_Labyrinth\Service\IPTrackerInterface;
+use JTZL\Bot_Labyrinth\Service\DnsResolverInterface;
+use JTZL\Bot_Labyrinth\Service\CrawlerVerifierInterface;
+use JTZL\Bot_Labyrinth\Admin\SettingsSanitizer;
+use JTZL\Bot_Labyrinth\WordPress\ContextInterface;
+use JTZL\Bot_Labyrinth\WordPress\WordPressContext;
 use function DI\autowire;
 use function DI\get;
 
@@ -52,7 +52,7 @@ class ContainerFactory {
 		// Enable compilation for production.
 		$should_compile = $enable_compilation ?? ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG );
 		if ( $should_compile ) {
-			$cache_dir = JTZL_BBG_PLUGIN_DIR . 'var/cache';
+			$cache_dir = JTZL_BL_PLUGIN_DIR . 'var/cache';
 			if ( ! file_exists( $cache_dir ) ) {
 				wp_mkdir_p( $cache_dir );
 			}
@@ -101,17 +101,17 @@ class ContainerFactory {
 			// Service Layer
 			// ============================================================
 
-			'JTZL\Bot_Be_Gone\Service\AssetManager'          => function () {
+			'JTZL\Bot_Labyrinth\Service\AssetManager'          => function () {
 				return new Service\AssetManager(
-					JTZL_BBG_PLUGIN_DIR,
-					JTZL_BBG_PLUGIN_URL,
-					JTZL_BBG_VERSION
+					JTZL_BL_PLUGIN_DIR,
+					JTZL_BL_PLUGIN_URL,
+					JTZL_BL_VERSION
 				);
 			},
 
 			IPTrackerInterface::class                 => function () {
-				$header  = (string) get_option( 'jtzl_bbg_trusted_proxy_header', '' );
-				$raw_ips = (string) get_option( 'jtzl_bbg_trusted_proxy_ips', '' );
+				$header  = (string) get_option( 'jtzl_bl_trusted_proxy_header', '' );
+				$raw_ips = (string) get_option( 'jtzl_bl_trusted_proxy_ips', '' );
 				$proxies = array_filter( array_map( 'trim', explode( ',', $raw_ips ) ) );
 				return new Service\IPTracker( $header, $proxies );
 			},
@@ -120,8 +120,8 @@ class ContainerFactory {
 			CrawlerVerifierInterface::class           => autowire( Service\CrawlerVerifier::class )
 				->constructor( get( DnsResolverInterface::class ) ),
 
-			'JTZL\Bot_Be_Gone\Service\GeoIpService'          => function () {
-				$provider_key = (string) get_option( 'jtzl_bbg_geo_provider', 'none' );
+			'JTZL\Bot_Labyrinth\Service\GeoIpService'          => function () {
+				$provider_key = (string) get_option( 'jtzl_bl_geo_provider', 'none' );
 
 				$provider = null;
 				if ( 'ip_api' === $provider_key ) {
@@ -136,75 +136,75 @@ class ContainerFactory {
 				return new Service\GeoIpService( null !== $provider, $provider );
 			},
 
-			'JTZL\Bot_Be_Gone\Service\BotDetector'           => autowire()
+			'JTZL\Bot_Labyrinth\Service\BotDetector'           => autowire()
 				->constructor(
 					get( BotScoreRepositoryInterface::class ),
 					get( TrapVisitRepositoryInterface::class ),
 					get( IPTrackerInterface::class ),
 					get( CrawlerVerifierInterface::class ),
-					get( 'JTZL\Bot_Be_Gone\Service\GeoIpService' ),
-					get( 'config.jtzl_bbg_points_per_visit' ),
-					get( 'config.jtzl_bbg_depth_bonus' ),
-					get( 'config.jtzl_bbg_block_threshold' )
+					get( 'JTZL\Bot_Labyrinth\Service\GeoIpService' ),
+					get( 'config.jtzl_bl_points_per_visit' ),
+					get( 'config.jtzl_bl_depth_bonus' ),
+					get( 'config.jtzl_bl_block_threshold' )
 				),
 
-			'JTZL\Bot_Be_Gone\Service\DepthTracker'          => autowire()
+			'JTZL\Bot_Labyrinth\Service\DepthTracker'          => autowire()
 				->constructor(
 					get( TrapVisitRepositoryInterface::class ),
 					get( IPTrackerInterface::class )
 				),
 
-			'JTZL\Bot_Be_Gone\Service\AnalyticsCollector'    => autowire()
+			'JTZL\Bot_Labyrinth\Service\AnalyticsCollector'    => autowire()
 				->constructor(
 					get( TrapPageRepositoryInterface::class ),
 					get( TrapVisitRepositoryInterface::class ),
 					get( BotScoreRepositoryInterface::class ),
-					get( 'JTZL\Bot_Be_Gone\Service\GeoIpService' )
+					get( 'JTZL\Bot_Labyrinth\Service\GeoIpService' )
 				),
 
-			'JTZL\Bot_Be_Gone\Service\TrapLinkInjector'      => autowire()
+			'JTZL\Bot_Labyrinth\Service\TrapLinkInjector'      => autowire()
 				->constructor(
 					get( TrapPageRepositoryInterface::class ),
-					get( 'config.jtzl_bbg_links_per_page' ),
-					get( 'config.jtzl_bbg_injection_method' ),
-					get( 'config.jtzl_bbg_enabled' ),
-					get( 'config.jtzl_bbg_trap_base_path' ),
+					get( 'config.jtzl_bl_links_per_page' ),
+					get( 'config.jtzl_bl_injection_method' ),
+					get( 'config.jtzl_bl_enabled' ),
+					get( 'config.jtzl_bl_trap_base_path' ),
 					get( ContextInterface::class )
 				),
 
-			'JTZL\Bot_Be_Gone\Service\RobotsTxtManager'      => function ( Container $c ) {
+			'JTZL\Bot_Labyrinth\Service\RobotsTxtManager'      => function ( Container $c ) {
 				$home_path = (string) wp_parse_url( home_url( '/' ), PHP_URL_PATH );
 				$home_path = rtrim( $home_path, '/' );
 				return new Service\RobotsTxtManager(
-					$c->get( 'config.jtzl_bbg_robots_txt_enabled' ),
-					$c->get( 'config.jtzl_bbg_trap_base_path' ),
+					$c->get( 'config.jtzl_bl_robots_txt_enabled' ),
+					$c->get( 'config.jtzl_bl_trap_base_path' ),
 					$home_path
 				);
 			},
 
-			'JTZL\Bot_Be_Gone\Template\ContentPool'          => autowire(),
+			'JTZL\Bot_Labyrinth\Template\ContentPool'          => autowire(),
 
-			'JTZL\Bot_Be_Gone\Service\ContentTemplateEngine' => autowire()
+			'JTZL\Bot_Labyrinth\Service\ContentTemplateEngine' => autowire()
 				->constructor(
-					get( 'JTZL\Bot_Be_Gone\Template\ContentPool' )
+					get( 'JTZL\Bot_Labyrinth\Template\ContentPool' )
 				),
 
-			'JTZL\Bot_Be_Gone\Service\TrapPageGenerator'     => autowire()
+			'JTZL\Bot_Labyrinth\Service\TrapPageGenerator'     => autowire()
 				->constructor(
 					get( TrapPageRepositoryInterface::class ),
-					get( 'JTZL\Bot_Be_Gone\Service\ContentTemplateEngine' ),
-					get( 'config.jtzl_bbg_initial_page_count' ),
-					get( 'config.jtzl_bbg_max_depth' ),
-					get( 'config.jtzl_bbg_links_per_trap_page' ),
-					get( 'config.jtzl_bbg_max_trap_pages' )
+					get( 'JTZL\Bot_Labyrinth\Service\ContentTemplateEngine' ),
+					get( 'config.jtzl_bl_initial_page_count' ),
+					get( 'config.jtzl_bl_max_depth' ),
+					get( 'config.jtzl_bl_links_per_trap_page' ),
+					get( 'config.jtzl_bl_max_trap_pages' )
 				),
 
-			'JTZL\Bot_Be_Gone\Service\TrapRouter'            => autowire()
+			'JTZL\Bot_Labyrinth\Service\TrapRouter'            => autowire()
 				->constructor(
 					get( TrapPageRepositoryInterface::class ),
-					get( 'JTZL\Bot_Be_Gone\Service\BotDetector' ),
-					get( 'JTZL\Bot_Be_Gone\Service\TrapPageGenerator' ),
-					get( 'config.jtzl_bbg_trap_base_path' ),
+					get( 'JTZL\Bot_Labyrinth\Service\BotDetector' ),
+					get( 'JTZL\Bot_Labyrinth\Service\TrapPageGenerator' ),
+					get( 'config.jtzl_bl_trap_base_path' ),
 					get( ContextInterface::class )
 				),
 
@@ -212,61 +212,61 @@ class ContainerFactory {
 			// Configuration Values
 			// ============================================================
 
-			'config.jtzl_bbg_enabled'                      => function () {
-				return (bool) get_option( 'jtzl_bbg_enabled', true );
+			'config.jtzl_bl_enabled'                      => function () {
+				return (bool) get_option( 'jtzl_bl_enabled', true );
 			},
 
-			'config.jtzl_bbg_trap_base_path'               => function () {
-				$path = sanitize_title( (string) get_option( 'jtzl_bbg_trap_base_path', 'bbg' ) );
-				return ! empty( $path ) ? $path : 'bbg';
+			'config.jtzl_bl_trap_base_path'               => function () {
+				$path = sanitize_title( (string) get_option( 'jtzl_bl_trap_base_path', 'jbl' ) );
+				return ! empty( $path ) ? $path : 'jbl';
 			},
 
-			'config.jtzl_bbg_links_per_page'               => function () {
-				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'jtzl_bbg_links_per_page', 3 ), 'jtzl_bbg_links_per_page' );
+			'config.jtzl_bl_links_per_page'               => function () {
+				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'jtzl_bl_links_per_page', 3 ), 'jtzl_bl_links_per_page' );
 			},
 
-			'config.jtzl_bbg_injection_method'             => function () {
-				return SettingsSanitizer::sanitize_injection_method( get_option( 'jtzl_bbg_injection_method', 'content' ) );
+			'config.jtzl_bl_injection_method'             => function () {
+				return SettingsSanitizer::sanitize_injection_method( get_option( 'jtzl_bl_injection_method', 'content' ) );
 			},
 
-			'config.jtzl_bbg_max_depth'                    => function () {
-				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'jtzl_bbg_max_depth', 5 ), 'jtzl_bbg_max_depth' );
+			'config.jtzl_bl_max_depth'                    => function () {
+				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'jtzl_bl_max_depth', 5 ), 'jtzl_bl_max_depth' );
 			},
 
-			'config.jtzl_bbg_links_per_trap_page'          => function () {
-				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'jtzl_bbg_links_per_trap_page', 5 ), 'jtzl_bbg_links_per_trap_page' );
+			'config.jtzl_bl_links_per_trap_page'          => function () {
+				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'jtzl_bl_links_per_trap_page', 5 ), 'jtzl_bl_links_per_trap_page' );
 			},
 
-			'config.jtzl_bbg_initial_page_count'           => function () {
-				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'jtzl_bbg_initial_page_count', 20 ), 'jtzl_bbg_initial_page_count' );
+			'config.jtzl_bl_initial_page_count'           => function () {
+				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'jtzl_bl_initial_page_count', 20 ), 'jtzl_bl_initial_page_count' );
 			},
 
-			'config.jtzl_bbg_max_trap_pages'               => function () {
-				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'jtzl_bbg_max_trap_pages', 500 ), 'jtzl_bbg_max_trap_pages' );
+			'config.jtzl_bl_max_trap_pages'               => function () {
+				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'jtzl_bl_max_trap_pages', 500 ), 'jtzl_bl_max_trap_pages' );
 			},
 
-			'config.jtzl_bbg_points_per_visit'             => function () {
-				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'jtzl_bbg_points_per_visit', 25 ), 'jtzl_bbg_points_per_visit' );
+			'config.jtzl_bl_points_per_visit'             => function () {
+				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'jtzl_bl_points_per_visit', 25 ), 'jtzl_bl_points_per_visit' );
 			},
 
-			'config.jtzl_bbg_depth_bonus'                  => function () {
-				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'jtzl_bbg_depth_bonus', 15 ), 'jtzl_bbg_depth_bonus', true );
+			'config.jtzl_bl_depth_bonus'                  => function () {
+				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'jtzl_bl_depth_bonus', 15 ), 'jtzl_bl_depth_bonus', true );
 			},
 
-			'config.jtzl_bbg_tarpit_delay_ms'              => function () {
-				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'jtzl_bbg_tarpit_delay_ms', 1000 ), 'jtzl_bbg_tarpit_delay_ms' );
+			'config.jtzl_bl_tarpit_delay_ms'              => function () {
+				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'jtzl_bl_tarpit_delay_ms', 1000 ), 'jtzl_bl_tarpit_delay_ms' );
 			},
 
-			'config.jtzl_bbg_block_threshold'              => function () {
-				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'jtzl_bbg_block_threshold', 100 ), 'jtzl_bbg_block_threshold' );
+			'config.jtzl_bl_block_threshold'              => function () {
+				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'jtzl_bl_block_threshold', 100 ), 'jtzl_bl_block_threshold' );
 			},
 
-			'config.jtzl_bbg_retention_days'               => function () {
-				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'jtzl_bbg_retention_days', 30 ), 'jtzl_bbg_retention_days' );
+			'config.jtzl_bl_retention_days'               => function () {
+				return SettingsSanitizer::sanitize_option_bounded_integer( get_option( 'jtzl_bl_retention_days', 30 ), 'jtzl_bl_retention_days' );
 			},
 
-			'config.jtzl_bbg_robots_txt_enabled'           => function () {
-				return (bool) get_option( 'jtzl_bbg_robots_txt_enabled', true );
+			'config.jtzl_bl_robots_txt_enabled'           => function () {
+				return (bool) get_option( 'jtzl_bl_robots_txt_enabled', true );
 			},
 		);
 	}

@@ -1,5 +1,5 @@
 /**
- * JTZL's Bot-be-Gone Admin Analytics Dashboard
+ * JTZL's Bot Labyrinth — Bot-Be-Gone Admin Analytics Dashboard
  *
  * Renders an SVG bar chart and handles AJAX refresh for the analytics page.
  */
@@ -49,7 +49,7 @@ function renderChart(container: HTMLElement, data: ChartData): void {
 
 	if (!labels.length) {
 		const noData = document.createElement('div');
-		noData.className = 'jtzl-bbg-no-data';
+		noData.className = 'jtzl-bl-no-data';
 		noData.textContent = 'No visit data available yet.';
 		container.appendChild(noData);
 		return;
@@ -78,7 +78,7 @@ function renderChart(container: HTMLElement, data: ChartData): void {
 		line.setAttribute('y1', String(y));
 		line.setAttribute('x2', String(width - padding.right));
 		line.setAttribute('y2', String(y));
-		line.setAttribute('class', 'jtzl-bbg-chart-grid');
+		line.setAttribute('class', 'jtzl-bl-chart-grid');
 		svg.appendChild(line);
 	}
 
@@ -95,7 +95,7 @@ function renderChart(container: HTMLElement, data: ChartData): void {
 		rect.setAttribute('y', String(y));
 		rect.setAttribute('width', String(barWidth));
 		rect.setAttribute('height', String(barHeight));
-		rect.setAttribute('class', 'jtzl-bbg-chart-bar');
+		rect.setAttribute('class', 'jtzl-bl-chart-bar');
 		svg.appendChild(rect);
 
 		// Value label on top (only if value > 0 and there's space).
@@ -103,7 +103,7 @@ function renderChart(container: HTMLElement, data: ChartData): void {
 			const text = document.createElementNS(svgNS, 'text');
 			text.setAttribute('x', String(x + barWidth / 2));
 			text.setAttribute('y', String(y - 4));
-			text.setAttribute('class', 'jtzl-bbg-chart-value');
+			text.setAttribute('class', 'jtzl-bl-chart-value');
 			text.textContent = String(values[i]);
 			svg.appendChild(text);
 		}
@@ -113,7 +113,7 @@ function renderChart(container: HTMLElement, data: ChartData): void {
 			const text = document.createElementNS(svgNS, 'text');
 			text.setAttribute('x', String(x + barWidth / 2));
 			text.setAttribute('y', String(height - 5));
-			text.setAttribute('class', 'jtzl-bbg-chart-label');
+			text.setAttribute('class', 'jtzl-bl-chart-label');
 			text.textContent = label.slice(5); // MM-DD
 			svg.appendChild(text);
 		}
@@ -152,7 +152,7 @@ function createCodeCell(tag: string, text: string): HTMLElement {
  */
 async function refreshDashboard(): Promise<void> {
 	const btn = document.getElementById(
-		'jtzl-bbg-refresh-btn'
+		'jtzl-bl-refresh-btn'
 	) as HTMLButtonElement | null;
 	if (btn) {
 		btn.disabled = true;
@@ -161,7 +161,7 @@ async function refreshDashboard(): Promise<void> {
 
 	try {
 		const formData = new FormData();
-		formData.append('action', 'jtzl_bbg_refresh_analytics');
+		formData.append('action', 'jtzl_bl_refresh_analytics');
 		formData.append('nonce', jtzlBbgAdmin.nonce);
 
 		const response = await fetch(jtzlBbgAdmin.ajaxUrl, {
@@ -185,7 +185,7 @@ async function refreshDashboard(): Promise<void> {
 		updateSummary(summary);
 
 		// Update chart.
-		const chartEl = document.getElementById('jtzl-bbg-chart');
+		const chartEl = document.getElementById('jtzl-bl-chart');
 		if (chartEl && chartData) {
 			renderChart(chartEl, chartData);
 		}
@@ -204,10 +204,10 @@ async function refreshDashboard(): Promise<void> {
 
 function updateSummary(summary: SummaryStats): void {
 	const map: Record<string, keyof SummaryStats> = {
-		'jtzl-bbg-stat-trap-pages': 'total_trap_pages',
-		'jtzl-bbg-stat-recent-visits': 'all_visits_last_7_days',
-		'jtzl-bbg-stat-total-bots': 'total_bots',
-		'jtzl-bbg-stat-blocked-bots': 'blocked_bots',
+		'jtzl-bl-stat-trap-pages': 'total_trap_pages',
+		'jtzl-bl-stat-recent-visits': 'all_visits_last_7_days',
+		'jtzl-bl-stat-total-bots': 'total_bots',
+		'jtzl-bl-stat-blocked-bots': 'blocked_bots',
 	};
 
 	for (const [id, key] of Object.entries(map)) {
@@ -219,18 +219,18 @@ function updateSummary(summary: SummaryStats): void {
 
 	// Update alert styling: remove alert if no bots blocked.
 	const ratioCard = document
-		.getElementById('jtzl-bbg-stat-bot-ratio')
-		?.closest('.jtzl-bbg-card');
+		.getElementById('jtzl-bl-stat-bot-ratio')
+		?.closest('.jtzl-bl-card');
 	if (ratioCard) {
 		ratioCard.classList.toggle(
-			'jtzl-bbg-card-alert',
+			'jtzl-bl-card-alert',
 			(summary.blocked_bots ?? 0) > 0
 		);
 	}
 }
 
 function updateTopBots(bots: BotEntry[]): void {
-	const tbody = document.querySelector('#jtzl-bbg-top-bots-table tbody');
+	const tbody = document.querySelector('#jtzl-bl-top-bots-table tbody');
 	if (!tbody) return;
 
 	// Clear existing rows.
@@ -265,8 +265,8 @@ function updateTopBots(bots: BotEntry[]): void {
 		const statusTd = document.createElement('td');
 		const badge = document.createElement('span');
 		badge.className = bot.is_blocked
-			? 'jtzl-bbg-badge jtzl-bbg-badge-blocked'
-			: 'jtzl-bbg-badge jtzl-bbg-badge-tracking';
+			? 'jtzl-bl-badge jtzl-bl-badge-blocked'
+			: 'jtzl-bl-badge jtzl-bl-badge-tracking';
 		badge.textContent = bot.is_blocked ? 'Blocked' : 'Tracking';
 		statusTd.appendChild(badge);
 		tr.appendChild(statusTd);
@@ -279,11 +279,11 @@ function updateTopBots(bots: BotEntry[]): void {
  * Initialize the analytics dashboard.
  */
 function init(): void {
-	const app = document.getElementById('jtzl-bbg-analytics-app');
+	const app = document.getElementById('jtzl-bl-analytics-app');
 	if (!app) return;
 
 	// Render initial chart from embedded data.
-	const chartEl = document.getElementById('jtzl-bbg-chart');
+	const chartEl = document.getElementById('jtzl-bl-chart');
 	const chartDataAttr = app.getAttribute('data-chart');
 
 	if (chartEl && chartDataAttr) {
@@ -296,7 +296,7 @@ function init(): void {
 	}
 
 	// Bind refresh button.
-	const refreshBtn = document.getElementById('jtzl-bbg-refresh-btn');
+	const refreshBtn = document.getElementById('jtzl-bl-refresh-btn');
 	if (refreshBtn) {
 		refreshBtn.addEventListener('click', () => {
 			refreshDashboard();

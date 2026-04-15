@@ -1,11 +1,11 @@
-/* JTZL's Bot-be-Gone Geographic Map Page */
+/* JTZL's Bot Labyrinth — Bot-Be-Gone Geographic Map Page */
 
-.jtzl-bbg-geo-wrap {
+.jtzl-bl-geo-wrap {
 	max-width: 1200px;
 }
 
 /* Map Container */
-.jtzl-bbg-map-container {
+.jtzl-bl-map-container {
 	width: 100%;
 	height: 500px;
 	background: #f0f0f1;
@@ -13,18 +13,18 @@
 }
 
 @media (max-width: 782px) {
-	.jtzl-bbg-map-container {
+	.jtzl-bl-map-container {
 		height: 300px;
 	}
 }
 
-.jtzl-bbg-map-container.leaflet-container {
+.jtzl-bl-map-container.leaflet-container {
 	border-radius: 4px;
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
 
 /* Legend */
-.jtzl-bbg-map-legend {
+.jtzl-bl-map-legend {
 	display: flex;
 	align-items: center;
 	gap: 4px;
@@ -33,11 +33,11 @@
 	color: #646970;
 }
 
-.jtzl-bbg-map-legend-label {
+.jtzl-bl-map-legend-label {
 	margin: 0 6px;
 }
 
-.jtzl-bbg-map-legend-swatch {
+.jtzl-bl-map-legend-swatch {
 	display: inline-block;
 	width: 24px;
 	height: 14px;
@@ -46,19 +46,19 @@
 }
 
 /* Tooltip */
-.jtzl-bbg-map-tooltip {
+.jtzl-bl-map-tooltip {
 	font-size: 13px;
 	line-height: 1.4;
 	padding: 6px 10px;
 }
 
-.jtzl-bbg-map-tooltip strong {
+.jtzl-bl-map-tooltip strong {
 	display: block;
 	margin-bottom: 2px;
 }
 
 /* No-data overlay */
-.jtzl-bbg-map-no-data {
+.jtzl-bl-map-no-data {
 	position: absolute;
 	top: 50%;
 	left: 50%;

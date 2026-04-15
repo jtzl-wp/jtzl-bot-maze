@@ -2,11 +2,11 @@
 /**
  * Trap Visit Repository
  *
- * @package JTZL\Bot_Be_Gone
+ * @package JTZL\Bot_Labyrinth
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Be_Gone\Repository;
+namespace JTZL\Bot_Labyrinth\Repository;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // @codeCoverageIgnoreEnd
 
 use DateTime;
-use JTZL\Bot_Be_Gone\Entity\TrapVisit;
+use JTZL\Bot_Labyrinth\Entity\TrapVisit;
 
 /**
  * Trap Visit Repository
@@ -50,7 +50,7 @@ class TrapVisitRepository implements TrapVisitRepositoryInterface {
 	 */
 	public function __construct( \wpdb $wpdb ) {
 		$this->wpdb       = $wpdb;
-		$this->table_name = $wpdb->prefix . 'jtzl_bbg_trap_visits';
+		$this->table_name = $wpdb->prefix . 'jtzl_bl_trap_visits';
 	}
 
 	/**
@@ -270,7 +270,10 @@ class TrapVisitRepository implements TrapVisitRepositoryInterface {
 	 */
 	public function get_counts_by_country( int $days = 30 ): array {
 		$query = $this->wpdb->prepare(
-			"SELECT country_code, COUNT(*) as visit_count FROM {$this->table_name} WHERE request_type IN ('', 'trap_visit') AND country_code != '' AND visited_at >= %s GROUP BY country_code ORDER BY visit_count DESC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			// `blocked_visit` rows are included so the geo map keeps reflecting bot
+			// activity after a bot crosses the block threshold and stops generating
+			// new `trap_visit` rows; they only exist when track_blocked_activity is on.
+			"SELECT country_code, COUNT(*) as visit_count FROM {$this->table_name} WHERE request_type IN ('', 'trap_visit', 'blocked_visit') AND country_code != '' AND visited_at >= %s GROUP BY country_code ORDER BY visit_count DESC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			gmdate( 'Y-m-d H:i:s', strtotime( "-{$days} days", strtotime( current_time( 'mysql' ) ) ) )
 		);
 

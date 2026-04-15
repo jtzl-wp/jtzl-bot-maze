@@ -2,11 +2,11 @@
 /**
  * Bootstrap Class
  *
- * @package JTZL\Bot_Be_Gone
+ * @package JTZL\Bot_Labyrinth
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Be_Gone;
+namespace JTZL\Bot_Labyrinth;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -15,10 +15,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 // @codeCoverageIgnoreEnd
 
 use DI\Container;
-use JTZL\Bot_Be_Gone\Admin\AdminPagesBootstrap;
-use JTZL\Bot_Be_Gone\Cache\PluginCache;
-use JTZL\Bot_Be_Gone\Service\BlockingRequestHandler;
-use JTZL\Bot_Be_Gone\WordPress\ContextInterface;
+use JTZL\Bot_Labyrinth\Admin\AdminPagesBootstrap;
+use JTZL\Bot_Labyrinth\Cache\PluginCache;
+use JTZL\Bot_Labyrinth\Service\BlockingRequestHandler;
+use JTZL\Bot_Labyrinth\WordPress\ContextInterface;
 
 /**
  * Plugin lifecycle and hook composition root.
@@ -30,7 +30,7 @@ use JTZL\Bot_Be_Gone\WordPress\ContextInterface;
  * that ties those collaborators to WordPress.
  *
  * AJAX endpoints are intentionally *not* wired from here — the plugin
- * entry file (jtzl-bot-be-gone.php) hooks admin-ajax actions directly
+ * entry file (jtzl-bot-labyrinth.php) hooks admin-ajax actions directly
  * and delegates their business logic to Ajax\AjaxController, so nonce
  * and capability checks stay at the request boundary without needing
  * a Bootstrap instance.
@@ -73,7 +73,7 @@ class Bootstrap {
 		$wp->add_action( 'init', array( $this, 'maybe_flush_rewrite_rules' ), 99 );
 
 		// Trap routing and robots.txt modifications only run while the maze is enabled.
-		if ( (bool) get_option( 'jtzl_bbg_enabled', true ) ) {
+		if ( (bool) get_option( 'jtzl_bl_enabled', true ) ) {
 			$this->register_trap_routing_hooks( $wp );
 		}
 
@@ -98,13 +98,13 @@ class Bootstrap {
 	 * @since 1.0.0
 	 */
 	private function register_trap_routing_hooks( ContextInterface $wp ): void {
-		$router = $this->container->get( 'JTZL\Bot_Be_Gone\Service\TrapRouter' );
+		$router = $this->container->get( 'JTZL\Bot_Labyrinth\Service\TrapRouter' );
 		$wp->add_action( 'init', array( $router, 'register_rewrite_rules' ) );
 		$wp->add_filter( 'query_vars', array( $router, 'register_query_vars' ) );
 		$wp->add_filter( 'template_include', array( $router, 'template_loader' ) );
 		$wp->add_action( 'template_redirect', array( $router, 'handle_request' ) );
 
-		$robots = $this->container->get( 'JTZL\Bot_Be_Gone\Service\RobotsTxtManager' );
+		$robots = $this->container->get( 'JTZL\Bot_Labyrinth\Service\RobotsTxtManager' );
 		$wp->add_filter( 'robots_txt', array( $robots, 'modify_robots_txt' ), 10, 2 );
 	}
 
@@ -116,7 +116,7 @@ class Bootstrap {
 	 * @since 1.0.0
 	 */
 	private function register_trap_link_injector_hooks( ContextInterface $wp ): void {
-		$injector = $this->container->get( 'JTZL\Bot_Be_Gone\Service\TrapLinkInjector' );
+		$injector = $this->container->get( 'JTZL\Bot_Labyrinth\Service\TrapLinkInjector' );
 		$wp->add_filter( 'the_content', array( $injector, 'inject_into_content' ) );
 		$wp->add_action(
 			'wp_footer',
@@ -140,10 +140,10 @@ class Bootstrap {
 	private function build_blocking_handler(): BlockingRequestHandler {
 		return new BlockingRequestHandler(
 			$this->container->get( ContextInterface::class ),
-			$this->container->get( 'JTZL\Bot_Be_Gone\Service\BotDetector' ),
+			$this->container->get( 'JTZL\Bot_Labyrinth\Service\BotDetector' ),
 			$this->container,
-			(string) $this->container->get( 'config.jtzl_bbg_trap_base_path' ),
-			(int) $this->container->get( 'config.jtzl_bbg_tarpit_delay_ms' )
+			(string) $this->container->get( 'config.jtzl_bl_trap_base_path' ),
+			(int) $this->container->get( 'config.jtzl_bl_tarpit_delay_ms' )
 		);
 	}
 
@@ -158,26 +158,26 @@ class Bootstrap {
 		Database\Options::set_defaults();
 
 		PluginCache::clear_di_cache();
-		update_option( 'jtzl_bbg_plugin_version', JTZL_BBG_VERSION );
-		update_option( 'jtzl_bbg_flush_rewrite_rules_flag', true );
+		update_option( 'jtzl_bl_plugin_version', JTZL_BL_VERSION );
+		update_option( 'jtzl_bl_flush_rewrite_rules_flag', true );
 
-		if ( ! wp_next_scheduled( 'jtzl_bbg_maintenance_cron' ) ) {
-			wp_schedule_event( time(), 'daily', 'jtzl_bbg_maintenance_cron' );
+		if ( ! wp_next_scheduled( 'jtzl_bl_maintenance_cron' ) ) {
+			wp_schedule_event( time(), 'daily', 'jtzl_bl_maintenance_cron' );
 		}
 
 		// Register the weekly interval here too — activation fires before plugins_loaded.
 		PluginCache::register_weekly_schedule();
-		if ( ! wp_next_scheduled( 'jtzl_bbg_maxmind_update_cron' ) ) {
-			wp_schedule_event( time(), 'weekly', 'jtzl_bbg_maxmind_update_cron' );
+		if ( ! wp_next_scheduled( 'jtzl_bl_maxmind_update_cron' ) ) {
+			wp_schedule_event( time(), 'weekly', 'jtzl_bl_maxmind_update_cron' );
 		}
 
-		if ( (bool) get_option( 'jtzl_bbg_enabled', true ) ) {
+		if ( (bool) get_option( 'jtzl_bl_enabled', true ) ) {
 			try {
-				$generator = $this->container->get( 'JTZL\Bot_Be_Gone\Service\TrapPageGenerator' );
+				$generator = $this->container->get( 'JTZL\Bot_Labyrinth\Service\TrapPageGenerator' );
 				$generator->ensure_minimum_pages();
 			} catch ( \Exception $e ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Error logging is appropriate here.
-				error_log( 'JTZL Bot-be-Gone: Failed to generate initial trap pages: ' . $e->getMessage() );
+				error_log( 'JTZL Bot Labyrinth — Bot-Be-Gone: Failed to generate initial trap pages: ' . $e->getMessage() );
 			}
 		}
 	}
@@ -193,14 +193,29 @@ class Bootstrap {
 		PluginCache::clear_di_cache();
 		flush_rewrite_rules();
 
-		$timestamp = wp_next_scheduled( 'jtzl_bbg_maintenance_cron' );
-		if ( $timestamp ) {
-			wp_unschedule_event( $timestamp, 'jtzl_bbg_maintenance_cron' );
-		}
+		self::unschedule_cron_events();
+	}
 
-		$mm_timestamp = wp_next_scheduled( 'jtzl_bbg_maxmind_update_cron' );
-		if ( $mm_timestamp ) {
-			wp_unschedule_event( $mm_timestamp, 'jtzl_bbg_maxmind_update_cron' );
+	/**
+	 * Unschedule all plugin cron events, including legacy names from prior renames.
+	 *
+	 * @return void
+	 * @since 1.0.0
+	 */
+	public static function unschedule_cron_events(): void {
+		$hooks = array(
+			// Current hook names.
+			'jtzl_bl_maintenance_cron',
+			'jtzl_bl_maxmind_update_cron',
+			// Legacy hook names from the jtzl_bbg_* era.
+			'jtzl_bbg_maintenance_cron',
+			'jtzl_bbg_maxmind_update_cron',
+		);
+		foreach ( $hooks as $hook ) {
+			$timestamp = wp_next_scheduled( $hook );
+			if ( $timestamp ) {
+				wp_unschedule_event( $timestamp, $hook );
+			}
 		}
 	}
 
@@ -214,21 +229,21 @@ class Bootstrap {
 	 */
 	public function handle_maintenance_cron(): void {
 		try {
-			$retention_days = $this->container->get( 'config.jtzl_bbg_retention_days' );
+			$retention_days = $this->container->get( 'config.jtzl_bl_retention_days' );
 
-			$visit_repo = $this->container->get( 'JTZL\Bot_Be_Gone\Repository\TrapVisitRepositoryInterface' );
-			$score_repo = $this->container->get( 'JTZL\Bot_Be_Gone\Repository\BotScoreRepositoryInterface' );
+			$visit_repo = $this->container->get( 'JTZL\Bot_Labyrinth\Repository\TrapVisitRepositoryInterface' );
+			$score_repo = $this->container->get( 'JTZL\Bot_Labyrinth\Repository\BotScoreRepositoryInterface' );
 
 			$visit_repo->prune_old_entries( $retention_days );
 			$score_repo->prune_stale_entries( $retention_days );
 
-			if ( (bool) get_option( 'jtzl_bbg_enabled', true ) ) {
-				$generator = $this->container->get( 'JTZL\Bot_Be_Gone\Service\TrapPageGenerator' );
+			if ( (bool) get_option( 'jtzl_bl_enabled', true ) ) {
+				$generator = $this->container->get( 'JTZL\Bot_Labyrinth\Service\TrapPageGenerator' );
 				$generator->ensure_minimum_pages();
 			}
 		} catch ( \Exception $e ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Error logging is appropriate here.
-			error_log( 'JTZL Bot-be-Gone: Maintenance cron error: ' . $e->getMessage() );
+			error_log( 'JTZL Bot Labyrinth — Bot-Be-Gone: Maintenance cron error: ' . $e->getMessage() );
 		}
 	}
 
@@ -239,9 +254,9 @@ class Bootstrap {
 	 * @since 1.0.0
 	 */
 	public function maybe_flush_rewrite_rules(): void {
-		if ( get_option( 'jtzl_bbg_flush_rewrite_rules_flag' ) ) {
+		if ( get_option( 'jtzl_bl_flush_rewrite_rules_flag' ) ) {
 			flush_rewrite_rules();
-			delete_option( 'jtzl_bbg_flush_rewrite_rules_flag' );
+			delete_option( 'jtzl_bl_flush_rewrite_rules_flag' );
 		}
 	}
 }

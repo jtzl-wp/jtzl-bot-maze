@@ -2,11 +2,11 @@
 /**
  * Plugin Cache Utilities
  *
- * @package JTZL\Bot_Be_Gone
+ * @package JTZL\Bot_Labyrinth
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Be_Gone\Cache;
+namespace JTZL\Bot_Labyrinth\Cache;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // @codeCoverageIgnoreEnd
 
-use JTZL\Bot_Be_Gone\Database\Schema;
+use JTZL\Bot_Labyrinth\Database\Schema;
 
 /**
  * Plugin-scoped cache and schedule utilities.
@@ -37,12 +37,12 @@ class PluginCache {
 	 * @since 1.0.0
 	 */
 	public static function maybe_handle_version_change(): void {
-		$stored_version = (string) get_option( 'jtzl_bbg_plugin_version', '' );
+		$stored_version = (string) get_option( 'jtzl_bl_plugin_version', '' );
 
-		if ( JTZL_BBG_VERSION !== $stored_version ) {
+		if ( JTZL_BL_VERSION !== $stored_version ) {
 			self::clear_di_cache();
 			Schema::create_tables();
-			update_option( 'jtzl_bbg_plugin_version', JTZL_BBG_VERSION );
+			update_option( 'jtzl_bl_plugin_version', JTZL_BL_VERSION );
 		}
 	}
 
@@ -63,7 +63,7 @@ class PluginCache {
 				if ( ! isset( $schedules['weekly'] ) ) {
 					$schedules['weekly'] = array(
 						'interval' => WEEK_IN_SECONDS,
-						'display'  => __( 'Once Weekly', 'jtzl-bot-be-gone' ),
+						'display'  => __( 'Once Weekly', 'jtzl-bot-labyrinth' ),
 					);
 				}
 				return $schedules;
@@ -85,7 +85,12 @@ class PluginCache {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query(
 			$wpdb->prepare(
-				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
+				"DELETE FROM {$wpdb->options}
+				 WHERE option_name LIKE %s OR option_name LIKE %s
+				    OR option_name LIKE %s OR option_name LIKE %s",
+				$wpdb->esc_like( '_transient_jtzl_bl_' ) . '%',
+				$wpdb->esc_like( '_transient_timeout_jtzl_bl_' ) . '%',
+				// Legacy prefix from the prior jtzl_bbg_* naming.
 				$wpdb->esc_like( '_transient_jtzl_bbg_' ) . '%',
 				$wpdb->esc_like( '_transient_timeout_jtzl_bbg_' ) . '%'
 			)
@@ -97,12 +102,12 @@ class PluginCache {
 	 *
 	 * Static because uninstall.php runs without a container.
 	 *
-	 * @param string|null $base_dir Plugin base directory. Defaults to JTZL_BBG_PLUGIN_DIR.
+	 * @param string|null $base_dir Plugin base directory. Defaults to JTZL_BL_PLUGIN_DIR.
 	 * @return void
 	 * @since 1.0.0
 	 */
 	public static function clear_di_cache( ?string $base_dir = null ): void {
-		$base_dir       = $base_dir ?? JTZL_BBG_PLUGIN_DIR;
+		$base_dir       = $base_dir ?? JTZL_BL_PLUGIN_DIR;
 		$real_cache_dir = self::resolve_safe_cache_dir( $base_dir );
 		if ( null === $real_cache_dir ) {
 			return;
@@ -235,7 +240,7 @@ class PluginCache {
 	private static function log_failure( string $message ): void {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging only.
-			error_log( 'JTZL Bot-be-Gone: ' . $message );
+			error_log( 'JTZL Bot Labyrinth — Bot-Be-Gone: ' . $message );
 		}
 	}
 }

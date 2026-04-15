@@ -4,11 +4,11 @@
  *
  * Verifies legitimate search engine crawlers using forward-confirmed reverse DNS.
  *
- * @package JTZL\Bot_Be_Gone
+ * @package JTZL\Bot_Labyrinth
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Be_Gone\Service;
+namespace JTZL\Bot_Labyrinth\Service;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -101,7 +101,7 @@ class CrawlerVerifier implements CrawlerVerifierInterface {
 			return false;
 		}
 
-		$cache_key = 'jtzl_bbg_crawler_' . wp_hash( $ip . ':' . $crawler_family );
+		$cache_key = 'jtzl_bl_crawler_' . wp_hash( $ip . ':' . $crawler_family );
 		$cached    = get_transient( $cache_key );
 
 		if ( false !== $cached ) {

@@ -4,11 +4,11 @@
  *
  * Handles the plugin settings page in WordPress admin.
  *
- * @package JTZL\Bot_Be_Gone
+ * @package JTZL\Bot_Labyrinth
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Be_Gone\Admin;
+namespace JTZL\Bot_Labyrinth\Admin;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -16,8 +16,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // @codeCoverageIgnoreEnd
 
-use JTZL\Bot_Be_Gone\Admin\Settings\SectionRegistrarFactory;
-use JTZL\Bot_Be_Gone\Admin\Settings\SectionRegistrarInterface;
+use JTZL\Bot_Labyrinth\Admin\Settings\SectionRegistrarFactory;
+use JTZL\Bot_Labyrinth\Admin\Settings\SectionRegistrarInterface;
 
 /**
  * Settings Page Class
@@ -38,7 +38,7 @@ class SettingsPage {
 	 * @var string
 	 * @since 1.0.0
 	 */
-	public const PAGE_SLUG = 'jtzl-bot-be-gone-settings';
+	public const PAGE_SLUG = 'jtzl-bot-labyrinth-settings';
 
 	/**
 	 * The settings group name.
@@ -48,7 +48,7 @@ class SettingsPage {
 	 * @var string
 	 * @since 1.0.0
 	 */
-	public const SETTINGS_GROUP = 'jtzl_bbg_settings';
+	public const SETTINGS_GROUP = 'jtzl_bl_settings';
 
 	/**
 	 * Section registrars composed into this settings page.
@@ -88,9 +88,9 @@ class SettingsPage {
 	 */
 	public function register_menu(): void {
 		add_submenu_page(
-			'jtzl-bot-be-gone',
-			__( 'JTZL\'s Bot-be-Gone Settings', 'jtzl-bot-be-gone' ),
-			__( 'Settings', 'jtzl-bot-be-gone' ),
+			'jtzl-bot-labyrinth',
+			__( 'JTZL\'s Bot Labyrinth — Bot-Be-Gone Settings', 'jtzl-bot-labyrinth' ),
+			__( 'Settings', 'jtzl-bot-labyrinth' ),
 			'manage_options',
 			self::PAGE_SLUG,
 			array( $this, 'render_page' )
@@ -117,7 +117,7 @@ class SettingsPage {
 	 */
 	public function render_page(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'jtzl-bot-be-gone' ) );
+			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'jtzl-bot-labyrinth' ) );
 		}
 
 		?>

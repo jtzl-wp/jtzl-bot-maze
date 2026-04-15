@@ -4,11 +4,11 @@
  *
  * Handles plugin initialization, dependency injection, and WordPress integration.
  *
- * @package JTZL\Bot_Be_Gone
+ * @package JTZL\Bot_Labyrinth
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Be_Gone;
+namespace JTZL\Bot_Labyrinth;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {

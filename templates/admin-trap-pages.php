@@ -2,7 +2,7 @@
 /**
  * Admin Trap Pages Listing Template
  *
- * @package JTZL\Bot_Be_Gone
+ * @package JTZL\Bot_Labyrinth
  *
  * @var array  $pages        Active trap pages for the current page.
  * @var string $base_path    Trap URL base path.
@@ -16,23 +16,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 <div class="wrap">
-	<h1><?php echo esc_html__( 'Trap Pages', 'jtzl-bot-be-gone' ); ?></h1>
+	<h1><?php echo esc_html__( 'Trap Pages', 'jtzl-bot-labyrinth' ); ?></h1>
 	<p class="description">
-		<?php echo esc_html__( 'These are the active trap pages in your trap maze. Admin visits to these links are not tracked or scored.', 'jtzl-bot-be-gone' ); ?>
+		<?php echo esc_html__( 'These are the active trap pages in your trap maze. Admin visits to these links are not tracked or scored.', 'jtzl-bot-labyrinth' ); ?>
 	</p>
 
 	<table class="widefat striped" style="margin-top: 16px;">
 		<thead>
 			<tr>
-				<th><?php echo esc_html__( 'Title', 'jtzl-bot-be-gone' ); ?></th>
-				<th><?php echo esc_html__( 'URL', 'jtzl-bot-be-gone' ); ?></th>
-				<th><?php echo esc_html__( 'Depth', 'jtzl-bot-be-gone' ); ?></th>
-				<th><?php echo esc_html__( 'Created', 'jtzl-bot-be-gone' ); ?></th>
+				<th><?php echo esc_html__( 'Title', 'jtzl-bot-labyrinth' ); ?></th>
+				<th><?php echo esc_html__( 'URL', 'jtzl-bot-labyrinth' ); ?></th>
+				<th><?php echo esc_html__( 'Depth', 'jtzl-bot-labyrinth' ); ?></th>
+				<th><?php echo esc_html__( 'Created', 'jtzl-bot-labyrinth' ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
 			<?php if ( empty( $pages ) ) : ?>
-				<tr><td colspan="4"><?php echo esc_html__( 'No active trap pages. Trap pages are generated automatically when the trap maze is enabled.', 'jtzl-bot-be-gone' ); ?></td></tr>
+				<tr><td colspan="4"><?php echo esc_html__( 'No active trap pages. Trap pages are generated automatically when the trap maze is enabled.', 'jtzl-bot-labyrinth' ); ?></td></tr>
 			<?php else : ?>
 				<?php foreach ( $pages as $trap_page ) : ?>
 				<tr>
@@ -56,7 +56,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<?php
 				printf(
 					/* translators: %d: total number of active trap pages */
-					esc_html__( '%d items', 'jtzl-bot-be-gone' ),
+					esc_html__( '%d items', 'jtzl-bot-labyrinth' ),
 					(int) $total_count
 				);
 				?>

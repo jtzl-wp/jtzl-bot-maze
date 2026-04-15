@@ -4,11 +4,11 @@
  *
  * Scoring engine for bot detection based on trap page visits.
  *
- * @package JTZL\Bot_Be_Gone
+ * @package JTZL\Bot_Labyrinth
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Be_Gone\Service;
+namespace JTZL\Bot_Labyrinth\Service;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -16,9 +16,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // @codeCoverageIgnoreEnd
 
-use JTZL\Bot_Be_Gone\Entity\TrapPage;
-use JTZL\Bot_Be_Gone\Repository\BotScoreRepositoryInterface;
-use JTZL\Bot_Be_Gone\Repository\TrapVisitRepositoryInterface;
+use JTZL\Bot_Labyrinth\Entity\TrapPage;
+use JTZL\Bot_Labyrinth\Repository\BotScoreRepositoryInterface;
+use JTZL\Bot_Labyrinth\Repository\TrapVisitRepositoryInterface;
 
 /**
  * Bot Detector

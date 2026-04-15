@@ -4,11 +4,11 @@
  *
  * Production implementation that forwards to real WordPress functions.
  *
- * @package JTZL\Bot_Be_Gone
+ * @package JTZL\Bot_Labyrinth
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Be_Gone\WordPress;
+namespace JTZL\Bot_Labyrinth\WordPress;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -265,6 +265,6 @@ class WordPressContext implements ContextInterface {
 	 * @since 1.0.0
 	 */
 	public function get_plugin_dir(): string {
-		return JTZL_BBG_PLUGIN_DIR;
+		return JTZL_BL_PLUGIN_DIR;
 	}
 }

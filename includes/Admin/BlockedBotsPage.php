@@ -2,11 +2,11 @@
 /**
  * Blocked Bots Admin Page
  *
- * @package JTZL\Bot_Be_Gone
+ * @package JTZL\Bot_Labyrinth
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Be_Gone\Admin;
+namespace JTZL\Bot_Labyrinth\Admin;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // @codeCoverageIgnoreEnd
 
-use JTZL\Bot_Be_Gone\Service\AnalyticsCollector;
+use JTZL\Bot_Labyrinth\Service\AnalyticsCollector;
 
 /**
  * Blocked Bots Page
@@ -61,11 +61,11 @@ class BlockedBotsPage {
 	 */
 	public function register_menu(): void {
 		add_submenu_page(
-			'jtzl-bot-be-gone',
-			__( 'Blocked Bots', 'jtzl-bot-be-gone' ),
-			__( 'Blocked Bots', 'jtzl-bot-be-gone' ),
+			'jtzl-bot-labyrinth',
+			__( 'Blocked Bots', 'jtzl-bot-labyrinth' ),
+			__( 'Blocked Bots', 'jtzl-bot-labyrinth' ),
 			'manage_options',
-			'jtzl-bot-be-gone-blocked-bots',
+			'jtzl-bot-labyrinth-blocked-bots',
 			array( $this, 'render_page' )
 		);
 	}
@@ -78,15 +78,15 @@ class BlockedBotsPage {
 	 */
 	public function render_page(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'jtzl-bot-be-gone' ) );
+			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'jtzl-bot-labyrinth' ) );
 		}
 
 		$bots          = $this->collector->get_blocked_bots();
 		$total_blocked = $this->collector->get_summary_stats()['blocked_bots'];
 		$countries     = $this->collector->get_visits_by_country();
-		$geo_enabled   = 'none' !== (string) get_option( 'jtzl_bbg_geo_provider', 'none' );
+		$geo_enabled   = 'none' !== (string) get_option( 'jtzl_bl_geo_provider', 'none' );
 
-		$template_path = JTZL_BBG_PLUGIN_DIR . 'templates/admin-blocked-bots.php';
+		$template_path = JTZL_BL_PLUGIN_DIR . 'templates/admin-blocked-bots.php';
 
 		if ( file_exists( $template_path ) ) {
 			// phpcs:ignore WordPress.PHP.DontExtract.extract_extract -- Template variable extraction is intentional.
