@@ -2,11 +2,11 @@
 /**
  * Trap Pages Admin Page
  *
- * @package JTZL\Bot_Labyrinth
+ * @package JTZL\Bot_Maze
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Labyrinth\Admin;
+namespace JTZL\Bot_Maze\Admin;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // @codeCoverageIgnoreEnd
 
-use JTZL\Bot_Labyrinth\Service\AnalyticsCollector;
+use JTZL\Bot_Maze\Service\AnalyticsCollector;
 
 /**
  * Trap Pages Page
@@ -71,11 +71,11 @@ class TrapPagesPage {
 	 */
 	public function register_menu(): void {
 		add_submenu_page(
-			'jtzl-bot-labyrinth',
-			__( 'Trap Pages', 'jtzl-bot-labyrinth' ),
-			__( 'Trap Pages', 'jtzl-bot-labyrinth' ),
+			'jtzl-bot-maze',
+			__( 'Trap Pages', 'jtzl-bot-maze' ),
+			__( 'Trap Pages', 'jtzl-bot-maze' ),
 			'manage_options',
-			'jtzl-bot-labyrinth-trap-pages',
+			'jtzl-bot-maze-trap-pages',
 			array( $this, 'render_page' )
 		);
 	}
@@ -96,7 +96,7 @@ class TrapPagesPage {
 	 */
 	public function render_page(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'jtzl-bot-labyrinth' ) );
+			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'jtzl-bot-maze' ) );
 		}
 
 		$total_count = $this->collector->get_trap_pages_count();
@@ -109,7 +109,7 @@ class TrapPagesPage {
 		$pages     = $this->collector->get_trap_pages_paginated( self::PER_PAGE, $offset );
 		$base_path = $this->base_path;
 
-		$template_path = JTZL_BL_PLUGIN_DIR . 'templates/admin-trap-pages.php';
+		$template_path = JTZL_BM_PLUGIN_DIR . 'templates/admin-trap-pages.php';
 
 		if ( file_exists( $template_path ) ) {
 			// phpcs:ignore WordPress.PHP.DontExtract.extract_extract -- Template variable extraction is intentional.

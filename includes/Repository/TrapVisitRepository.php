@@ -2,11 +2,11 @@
 /**
  * Trap Visit Repository
  *
- * @package JTZL\Bot_Labyrinth
+ * @package JTZL\Bot_Maze
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Labyrinth\Repository;
+namespace JTZL\Bot_Maze\Repository;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // @codeCoverageIgnoreEnd
 
 use DateTime;
-use JTZL\Bot_Labyrinth\Entity\TrapVisit;
+use JTZL\Bot_Maze\Entity\TrapVisit;
 
 /**
  * Trap Visit Repository
@@ -50,7 +50,7 @@ class TrapVisitRepository implements TrapVisitRepositoryInterface {
 	 */
 	public function __construct( \wpdb $wpdb ) {
 		$this->wpdb       = $wpdb;
-		$this->table_name = $wpdb->prefix . 'jtzl_bl_trap_visits';
+		$this->table_name = $wpdb->prefix . 'jtzl_bm_trap_visits';
 	}
 
 	/**

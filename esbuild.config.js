@@ -1,7 +1,7 @@
 /**
- * ESBuild Configuration for JTZL's Bot Labyrinth — Bot-Be-Gone
+ * ESBuild Configuration for JTZL's Bot Maze
  *
- * @package JTZL\Bot_Labyrinth
+ * @package JTZL\Bot_Maze
  * @license GPL-2.0+
  */
 
@@ -180,8 +180,8 @@ const baseConfig = {
 const productionConfig = {
 	...baseConfig,
 	entryPoints: {
-		'jtzl-bl-admin-analytics': 'src/admin-analytics.ts',
-		'jtzl-bl-admin-map': 'src/admin-map.ts',
+		'jtzl-bm-admin-analytics': 'src/admin-analytics.ts',
+		'jtzl-bm-admin-map': 'src/admin-map.ts',
 	},
 	outdir: 'build',
 	format: 'esm',
@@ -203,8 +203,8 @@ const productionConfig = {
 const developmentConfig = {
 	...baseConfig,
 	entryPoints: {
-		'jtzl-bl-admin-analytics': 'src/admin-analytics.ts',
-		'jtzl-bl-admin-map': 'src/admin-map.ts',
+		'jtzl-bm-admin-analytics': 'src/admin-analytics.ts',
+		'jtzl-bm-admin-map': 'src/admin-map.ts',
 	},
 	outdir: 'build',
 	format: 'esm',
@@ -282,7 +282,7 @@ module.exports = {
  */
 async function buildAll() {
 	try {
-		console.log("Building JTZL's Bot Labyrinth — Bot-Be-Gone assets...\n");
+		console.log("Building JTZL's Bot Maze assets...\n");
 
 		let result;
 		if (isProduction) {

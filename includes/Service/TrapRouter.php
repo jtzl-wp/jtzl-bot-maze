@@ -4,11 +4,11 @@
  *
  * Handles URL routing for trap pages via WordPress rewrite rules.
  *
- * @package JTZL\Bot_Labyrinth
+ * @package JTZL\Bot_Maze
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Labyrinth\Service;
+namespace JTZL\Bot_Maze\Service;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -16,10 +16,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // @codeCoverageIgnoreEnd
 
-use JTZL\Bot_Labyrinth\Repository\TrapPageRepositoryInterface;
-use JTZL\Bot_Labyrinth\Entity\TrapPage;
-use JTZL\Bot_Labyrinth\Service\TrapPageGenerator;
-use JTZL\Bot_Labyrinth\WordPress\ContextInterface;
+use JTZL\Bot_Maze\Repository\TrapPageRepositoryInterface;
+use JTZL\Bot_Maze\Entity\TrapPage;
+use JTZL\Bot_Maze\Service\TrapPageGenerator;
+use JTZL\Bot_Maze\WordPress\ContextInterface;
 
 /**
  * Trap Router
@@ -114,7 +114,7 @@ class TrapRouter {
 	public function register_rewrite_rules(): void {
 		$this->wp->add_rewrite_rule(
 			'^' . preg_quote( $this->base_path, '#' ) . '/([a-z0-9-]+)/?$',
-			'index.php?jtzl_bl_view=trap_page&jtzl_bl_slug=$matches[1]',
+			'index.php?jtzl_bm_view=trap_page&jtzl_bm_slug=$matches[1]',
 			'top'
 		);
 	}
@@ -127,8 +127,8 @@ class TrapRouter {
 	 * @since 1.0.0
 	 */
 	public function register_query_vars( array $vars ): array {
-		$vars[] = 'jtzl_bl_view';
-		$vars[] = 'jtzl_bl_slug';
+		$vars[] = 'jtzl_bm_view';
+		$vars[] = 'jtzl_bm_slug';
 		return $vars;
 	}
 
@@ -141,7 +141,7 @@ class TrapRouter {
 	 * @since 1.0.0
 	 */
 	public function handle_request(): void {
-		$view = $this->wp->get_query_var( 'jtzl_bl_view', '' );
+		$view = $this->wp->get_query_var( 'jtzl_bm_view', '' );
 
 		if ( empty( $view ) ) {
 			return;
@@ -151,7 +151,7 @@ class TrapRouter {
 			return;
 		}
 
-		$slug = $this->wp->get_query_var( 'jtzl_bl_slug', '' );
+		$slug = $this->wp->get_query_var( 'jtzl_bm_slug', '' );
 
 		if ( empty( $slug ) ) {
 			return;
@@ -167,8 +167,8 @@ class TrapRouter {
 				$this->wp->header( 'Cache-Control: no-store, no-cache, must-revalidate, max-age=0', true );
 			}
 			$this->wp->wp_die(
-				'<h1>' . esc_html__( 'Not Found', 'jtzl-bot-labyrinth' ) . '</h1>',
-				esc_html__( 'Not Found', 'jtzl-bot-labyrinth' ),
+				'<h1>' . esc_html__( 'Not Found', 'jtzl-bot-maze' ) . '</h1>',
+				esc_html__( 'Not Found', 'jtzl-bot-maze' ),
 				array( 'response' => 404 )
 			);
 			return;
@@ -207,13 +207,13 @@ class TrapRouter {
 	 * @since 1.0.0
 	 */
 	public function template_loader( string $template ): string {
-		$view = $this->wp->get_query_var( 'jtzl_bl_view', '' );
+		$view = $this->wp->get_query_var( 'jtzl_bm_view', '' );
 
 		if ( 'trap_page' !== $view ) {
 			return $template;
 		}
 
-		$slug = $this->wp->get_query_var( 'jtzl_bl_slug', '' );
+		$slug = $this->wp->get_query_var( 'jtzl_bm_slug', '' );
 
 		if ( empty( $slug ) ) {
 			return $template;
@@ -226,13 +226,13 @@ class TrapRouter {
 		}
 
 		// Store trap page data for the template.
-		$GLOBALS['jtzl_bl_trap_page'] = $trap_page;
+		$GLOBALS['jtzl_bm_trap_page'] = $trap_page;
 
 		// Get child pages for internal links, generating lazily if needed.
 		$children = $this->generator->get_or_generate_children( $trap_page );
 
-		$GLOBALS['jtzl_bl_trap_children']  = $children;
-		$GLOBALS['jtzl_bl_trap_base_path'] = $this->base_path;
+		$GLOBALS['jtzl_bm_trap_children']  = $children;
+		$GLOBALS['jtzl_bm_trap_base_path'] = $this->base_path;
 
 		$plugin_template = $this->wp->get_plugin_dir() . 'templates/trap-page.php';
 

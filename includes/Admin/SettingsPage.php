@@ -4,11 +4,11 @@
  *
  * Handles the plugin settings page in WordPress admin.
  *
- * @package JTZL\Bot_Labyrinth
+ * @package JTZL\Bot_Maze
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Labyrinth\Admin;
+namespace JTZL\Bot_Maze\Admin;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -16,8 +16,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // @codeCoverageIgnoreEnd
 
-use JTZL\Bot_Labyrinth\Admin\Settings\SectionRegistrarFactory;
-use JTZL\Bot_Labyrinth\Admin\Settings\SectionRegistrarInterface;
+use JTZL\Bot_Maze\Admin\Settings\SectionRegistrarFactory;
+use JTZL\Bot_Maze\Admin\Settings\SectionRegistrarInterface;
 
 /**
  * Settings Page Class
@@ -38,7 +38,7 @@ class SettingsPage {
 	 * @var string
 	 * @since 1.0.0
 	 */
-	public const PAGE_SLUG = 'jtzl-bot-labyrinth-settings';
+	public const PAGE_SLUG = 'jtzl-bot-maze-settings';
 
 	/**
 	 * The settings group name.
@@ -48,7 +48,7 @@ class SettingsPage {
 	 * @var string
 	 * @since 1.0.0
 	 */
-	public const SETTINGS_GROUP = 'jtzl_bl_settings';
+	public const SETTINGS_GROUP = 'jtzl_bm_settings';
 
 	/**
 	 * Section registrars composed into this settings page.
@@ -88,9 +88,9 @@ class SettingsPage {
 	 */
 	public function register_menu(): void {
 		add_submenu_page(
-			'jtzl-bot-labyrinth',
-			__( 'JTZL\'s Bot Labyrinth — Bot-Be-Gone Settings', 'jtzl-bot-labyrinth' ),
-			__( 'Settings', 'jtzl-bot-labyrinth' ),
+			'jtzl-bot-maze',
+			__( 'JTZL\'s Bot Maze Settings', 'jtzl-bot-maze' ),
+			__( 'Settings', 'jtzl-bot-maze' ),
 			'manage_options',
 			self::PAGE_SLUG,
 			array( $this, 'render_page' )
@@ -117,7 +117,7 @@ class SettingsPage {
 	 */
 	public function render_page(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'jtzl-bot-labyrinth' ) );
+			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'jtzl-bot-maze' ) );
 		}
 
 		?>

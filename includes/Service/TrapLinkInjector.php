@@ -4,11 +4,11 @@
  *
  * Injects hidden trap links into real page content and footer.
  *
- * @package JTZL\Bot_Labyrinth
+ * @package JTZL\Bot_Maze
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Labyrinth\Service;
+namespace JTZL\Bot_Maze\Service;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -16,8 +16,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // @codeCoverageIgnoreEnd
 
-use JTZL\Bot_Labyrinth\Repository\TrapPageRepositoryInterface;
-use JTZL\Bot_Labyrinth\WordPress\ContextInterface;
+use JTZL\Bot_Maze\Repository\TrapPageRepositoryInterface;
+use JTZL\Bot_Maze\WordPress\ContextInterface;
 
 /**
  * Trap Link Injector
@@ -190,7 +190,7 @@ class TrapLinkInjector {
 		}
 
 		// Use post ID + context as seed for deterministic but unique selection per injection point.
-		$seed       = (int) crc32( 'jtzl_bl_' . $post_id . '_' . $context );
+		$seed       = (int) crc32( 'jtzl_bm_' . $post_id . '_' . $context );
 		$trap_pages = $this->repository->get_random_active( $this->links_per_page, $seed );
 
 		if ( empty( $trap_pages ) ) {

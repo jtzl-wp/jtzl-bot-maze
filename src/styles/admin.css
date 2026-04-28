@@ -1,18 +1,18 @@
-/* JTZL's Bot Labyrinth — Bot-Be-Gone Admin Analytics Dashboard */
+/* JTZL's Bot Maze Admin Analytics Dashboard */
 
-.jtzl-bl-analytics-wrap {
+.jtzl-bm-analytics-wrap {
 	max-width: 1200px;
 }
 
 /* Summary Cards */
-.jtzl-bl-summary-cards {
+.jtzl-bm-summary-cards {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 	gap: 16px;
 	margin: 20px 0;
 }
 
-.jtzl-bl-card {
+.jtzl-bm-card {
 	background: #fff;
 	border: 1px solid #c3c4c7;
 	border-radius: 4px;
@@ -20,14 +20,14 @@
 	text-align: center;
 }
 
-a.jtzl-bl-card-link {
+a.jtzl-bm-card-link {
 	display: block;
 	text-decoration: none;
 	position: relative;
 	transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease, background 0.15s ease;
 }
 
-a.jtzl-bl-card-link::after {
+a.jtzl-bm-card-link::after {
 	content: "\2192";
 	position: absolute;
 	right: 12px;
@@ -38,31 +38,31 @@ a.jtzl-bl-card-link::after {
 	transition: color 0.15s ease, right 0.15s ease;
 }
 
-a.jtzl-bl-card-link:hover {
+a.jtzl-bm-card-link:hover {
 	border-color: #2271b1;
 	background: #f6f7f7;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 	transform: translateY(-1px);
 }
 
-a.jtzl-bl-card-link:hover::after {
+a.jtzl-bm-card-link:hover::after {
 	color: #2271b1;
 	right: 10px;
 }
 
-a.jtzl-bl-card-link:focus {
+a.jtzl-bm-card-link:focus {
 	box-shadow: 0 0 0 1px #2271b1;
 	outline: none;
 }
 
-.jtzl-bl-card h3 {
+.jtzl-bm-card h3 {
 	margin: 0 0 8px;
 	font-size: 13px;
 	color: #646970;
 	font-weight: 400;
 }
 
-.jtzl-bl-card-value {
+.jtzl-bm-card-value {
 	display: block;
 	font-size: 28px;
 	font-weight: 600;
@@ -70,23 +70,23 @@ a.jtzl-bl-card-link:focus {
 	line-height: 1.2;
 }
 
-.jtzl-bl-card-alert .jtzl-bl-card-value {
+.jtzl-bm-card-alert .jtzl-bm-card-value {
 	color: #d63638;
 }
 
-.jtzl-bl-ratio-separator {
+.jtzl-bm-ratio-separator {
 	color: #646970;
 	font-weight: 400;
 }
 
-.jtzl-bl-card-alert #jtzl-bl-stat-total-bots {
+.jtzl-bm-card-alert #jtzl-bm-stat-total-bots {
 	color: #646970;
 	font-size: 20px;
 	font-weight: 400;
 }
 
 /* Sections */
-.jtzl-bl-section {
+.jtzl-bm-section {
 	background: #fff;
 	border: 1px solid #c3c4c7;
 	border-radius: 4px;
@@ -94,7 +94,7 @@ a.jtzl-bl-card-link:focus {
 	margin: 20px 0;
 }
 
-.jtzl-bl-section h2 {
+.jtzl-bm-section h2 {
 	display: flex;
 	align-items: center;
 	gap: 12px;
@@ -103,52 +103,52 @@ a.jtzl-bl-card-link:focus {
 }
 
 /* Chart */
-.jtzl-bl-chart-container {
+.jtzl-bm-chart-container {
 	width: 100%;
 	height: 250px;
 	position: relative;
 	overflow: hidden;
 }
 
-.jtzl-bl-chart-container svg {
+.jtzl-bm-chart-container svg {
 	width: 100%;
 	height: 100%;
 }
 
-.jtzl-bl-chart-bar {
+.jtzl-bm-chart-bar {
 	fill: #2271b1;
 	transition: fill 0.15s ease;
 }
 
-.jtzl-bl-chart-bar:hover {
+.jtzl-bm-chart-bar:hover {
 	fill: #135e96;
 }
 
-.jtzl-bl-chart-label {
+.jtzl-bm-chart-label {
 	font-size: 10px;
 	fill: #646970;
 	text-anchor: middle;
 }
 
-.jtzl-bl-chart-value {
+.jtzl-bm-chart-value {
 	font-size: 10px;
 	fill: #1d2327;
 	text-anchor: middle;
 	font-weight: 600;
 }
 
-.jtzl-bl-chart-grid {
+.jtzl-bm-chart-grid {
 	stroke: #e0e0e0;
 	stroke-width: 1;
 }
 
 /* Tables */
-.jtzl-bl-top-bots-table code,
-.jtzl-bl-ua-cell {
+.jtzl-bm-top-bots-table code,
+.jtzl-bm-ua-cell {
 	font-size: 12px;
 }
 
-.jtzl-bl-ua-cell {
+.jtzl-bm-ua-cell {
 	max-width: 300px;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -156,7 +156,7 @@ a.jtzl-bl-card-link:focus {
 }
 
 /* Badges */
-.jtzl-bl-badge {
+.jtzl-bm-badge {
 	display: inline-block;
 	padding: 2px 8px;
 	border-radius: 3px;
@@ -165,28 +165,28 @@ a.jtzl-bl-card-link:focus {
 	line-height: 1.4;
 }
 
-.jtzl-bl-badge-blocked {
+.jtzl-bm-badge-blocked {
 	background: #facfd2;
 	color: #8a1116;
 }
 
-.jtzl-bl-badge-tracking {
+.jtzl-bm-badge-tracking {
 	background: #d7f0d5;
 	color: #1a5e13;
 }
 
-.jtzl-bl-badge-exempted {
+.jtzl-bm-badge-exempted {
 	background: #dce5f5;
 	color: #1d4078;
 }
 
 /* Refresh button */
-.jtzl-bl-refresh-btn {
+.jtzl-bm-refresh-btn {
 	font-size: 12px !important;
 }
 
 /* No-data state */
-.jtzl-bl-no-data {
+.jtzl-bm-no-data {
 	text-align: center;
 	padding: 40px 20px;
 	color: #646970;
@@ -194,13 +194,13 @@ a.jtzl-bl-card-link:focus {
 }
 
 /* Responsive tables */
-.jtzl-bl-table-wrap {
+.jtzl-bm-table-wrap {
 	overflow-x: auto;
 	-webkit-overflow-scrolling: touch;
 }
 
 @media (max-width: 782px) {
-	.jtzl-bl-summary-cards {
+	.jtzl-bm-summary-cards {
 		grid-template-columns: 1fr;
 	}
 }

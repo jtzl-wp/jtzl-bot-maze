@@ -4,11 +4,11 @@
  *
  * Defines and creates the custom database tables for the plugin.
  *
- * @package JTZL\Bot_Labyrinth
+ * @package JTZL\Bot_Maze
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Labyrinth\Database;
+namespace JTZL\Bot_Maze\Database;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -52,13 +52,13 @@ class Schema {
 	public function get_create_table_sql(): array {
 		$charset_collate = $this->wpdb->get_charset_collate();
 
-		$trap_pages_table  = $this->wpdb->prefix . 'jtzl_bl_trap_pages';
-		$trap_visits_table = $this->wpdb->prefix . 'jtzl_bl_trap_visits';
-		$bot_scores_table  = $this->wpdb->prefix . 'jtzl_bl_bot_scores';
+		$trap_pages_table  = $this->wpdb->prefix . 'jtzl_bm_trap_pages';
+		$trap_visits_table = $this->wpdb->prefix . 'jtzl_bm_trap_visits';
+		$bot_scores_table  = $this->wpdb->prefix . 'jtzl_bm_bot_scores';
 
 		$sql = array();
 
-		// SQL for jtzl_bl_trap_pages table - Virtual trap pages (not WP posts).
+		// SQL for jtzl_bm_trap_pages table - Virtual trap pages (not WP posts).
 		$sql[] = "CREATE TABLE $trap_pages_table (
   id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   slug varchar(64) NOT NULL,
@@ -78,7 +78,7 @@ class Schema {
   KEY idx_parent_page_id (parent_page_id)
 ) $charset_collate;";
 
-		// SQL for jtzl_bl_trap_visits table - Every trap page access (evidence).
+		// SQL for jtzl_bm_trap_visits table - Every trap page access (evidence).
 		$sql[] = "CREATE TABLE $trap_visits_table (
   id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   trap_page_id bigint(20) UNSIGNED NOT NULL,
@@ -100,7 +100,7 @@ class Schema {
   KEY idx_country_code (country_code)
 ) $charset_collate;";
 
-		// SQL for jtzl_bl_bot_scores table - Accumulated risk per IP+UA.
+		// SQL for jtzl_bm_bot_scores table - Accumulated risk per IP+UA.
 		$sql[] = "CREATE TABLE $bot_scores_table (
   id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   ip_address varchar(45) NOT NULL,
@@ -142,6 +142,10 @@ class Schema {
 	public function drop(): void {
 		$tables = array(
 			// Current tables.
+			$this->wpdb->prefix . 'jtzl_bm_trap_visits',
+			$this->wpdb->prefix . 'jtzl_bm_bot_scores',
+			$this->wpdb->prefix . 'jtzl_bm_trap_pages',
+			// Legacy tables from the jtzl_bl_* era (pre-"Bot Maze" rename).
 			$this->wpdb->prefix . 'jtzl_bl_trap_visits',
 			$this->wpdb->prefix . 'jtzl_bl_bot_scores',
 			$this->wpdb->prefix . 'jtzl_bl_trap_pages',

@@ -2,7 +2,7 @@
 /**
  * Admin Trap Pages Listing Template
  *
- * @package JTZL\Bot_Labyrinth
+ * @package JTZL\Bot_Maze
  *
  * @var array  $pages        Active trap pages for the current page.
  * @var string $base_path    Trap URL base path.
@@ -16,23 +16,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 <div class="wrap">
-	<h1><?php echo esc_html__( 'Trap Pages', 'jtzl-bot-labyrinth' ); ?></h1>
+	<h1><?php echo esc_html__( 'Trap Pages', 'jtzl-bot-maze' ); ?></h1>
 	<p class="description">
-		<?php echo esc_html__( 'These are the active trap pages in your trap maze. Admin visits to these links are not tracked or scored.', 'jtzl-bot-labyrinth' ); ?>
+		<?php echo esc_html__( 'These are the active trap pages in your trap maze. Admin visits to these links are not tracked or scored.', 'jtzl-bot-maze' ); ?>
 	</p>
 
 	<table class="widefat striped" style="margin-top: 16px;">
 		<thead>
 			<tr>
-				<th><?php echo esc_html__( 'Title', 'jtzl-bot-labyrinth' ); ?></th>
-				<th><?php echo esc_html__( 'URL', 'jtzl-bot-labyrinth' ); ?></th>
-				<th><?php echo esc_html__( 'Depth', 'jtzl-bot-labyrinth' ); ?></th>
-				<th><?php echo esc_html__( 'Created', 'jtzl-bot-labyrinth' ); ?></th>
+				<th><?php echo esc_html__( 'Title', 'jtzl-bot-maze' ); ?></th>
+				<th><?php echo esc_html__( 'URL', 'jtzl-bot-maze' ); ?></th>
+				<th><?php echo esc_html__( 'Depth', 'jtzl-bot-maze' ); ?></th>
+				<th><?php echo esc_html__( 'Created', 'jtzl-bot-maze' ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
 			<?php if ( empty( $pages ) ) : ?>
-				<tr><td colspan="4"><?php echo esc_html__( 'No active trap pages. Trap pages are generated automatically when the trap maze is enabled.', 'jtzl-bot-labyrinth' ); ?></td></tr>
+				<tr><td colspan="4"><?php echo esc_html__( 'No active trap pages. Trap pages are generated automatically when the trap maze is enabled.', 'jtzl-bot-maze' ); ?></td></tr>
 			<?php else : ?>
 				<?php foreach ( $pages as $trap_page ) : ?>
 				<tr>
@@ -56,7 +56,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<?php
 				printf(
 					/* translators: %d: total number of active trap pages */
-					esc_html__( '%d items', 'jtzl-bot-labyrinth' ),
+					esc_html__( '%d items', 'jtzl-bot-maze' ),
 					(int) $total_count
 				);
 				?>

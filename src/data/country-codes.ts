@@ -2,7 +2,7 @@
  * ISO 3166-1 numeric to alpha-2 country code mapping.
  *
  * Maps the numeric IDs used by world-atlas TopoJSON to the alpha-2 codes
- * stored in the JTZL's Bot Labyrinth — Bot-Be-Gone database.
+ * stored in the JTZL's Bot Maze database.
  */
 
 export const numericToAlpha2: Record<string, string> = {

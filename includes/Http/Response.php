@@ -2,11 +2,11 @@
 /**
  * HTTP Response Value Object
  *
- * @package JTZL\Bot_Labyrinth
+ * @package JTZL\Bot_Maze
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Labyrinth\Http;
+namespace JTZL\Bot_Maze\Http;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {

@@ -5,11 +5,11 @@
  * Sanitization callbacks for WordPress Settings API.
  * Note: sanitize_base_path() has side effects (flags rewrite rules for flush).
  *
- * @package JTZL\Bot_Labyrinth
+ * @package JTZL\Bot_Maze
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Labyrinth\Admin;
+namespace JTZL\Bot_Maze\Admin;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -37,16 +37,16 @@ class SettingsSanitizer {
 	 * @since 1.0.0
 	 */
 	private const OPTION_MAX = array(
-		'jtzl_bl_links_per_page'      => 10,
-		'jtzl_bl_max_depth'           => 10,
-		'jtzl_bl_links_per_trap_page' => 10,
-		'jtzl_bl_initial_page_count'  => 100,
-		'jtzl_bl_max_trap_pages'      => 5000,
-		'jtzl_bl_points_per_visit'    => 1000,
-		'jtzl_bl_depth_bonus'         => 1000,
-		'jtzl_bl_block_threshold'     => 10000,
-		'jtzl_bl_tarpit_delay_ms'     => 5000,
-		'jtzl_bl_retention_days'      => 365,
+		'jtzl_bm_links_per_page'      => 10,
+		'jtzl_bm_max_depth'           => 10,
+		'jtzl_bm_links_per_trap_page' => 10,
+		'jtzl_bm_initial_page_count'  => 100,
+		'jtzl_bm_max_trap_pages'      => 5000,
+		'jtzl_bm_points_per_visit'    => 1000,
+		'jtzl_bm_depth_bonus'         => 1000,
+		'jtzl_bm_block_threshold'     => 10000,
+		'jtzl_bm_tarpit_delay_ms'     => 5000,
+		'jtzl_bm_retention_days'      => 365,
 	);
 
 	/**
@@ -134,10 +134,10 @@ class SettingsSanitizer {
 	 */
 	public static function sanitize_enabled( $value ): bool {
 		$new_value = (bool) $value;
-		$old_value = (bool) get_option( 'jtzl_bl_enabled', true );
+		$old_value = (bool) get_option( 'jtzl_bm_enabled', true );
 
 		if ( $new_value !== $old_value ) {
-			update_option( 'jtzl_bl_flush_rewrite_rules_flag', true );
+			update_option( 'jtzl_bm_flush_rewrite_rules_flag', true );
 		}
 
 		return $new_value;
@@ -154,13 +154,13 @@ class SettingsSanitizer {
 		$path = sanitize_title( $value );
 
 		if ( empty( $path ) ) {
-			$path = 'jbl';
+			$path = 'jbm';
 		}
 
 		// Flag rewrite rules for refresh.
-		$old_value = get_option( 'jtzl_bl_trap_base_path', 'jbl' );
+		$old_value = get_option( 'jtzl_bm_trap_base_path', 'jbm' );
 		if ( $path !== $old_value ) {
-			update_option( 'jtzl_bl_flush_rewrite_rules_flag', true );
+			update_option( 'jtzl_bm_flush_rewrite_rules_flag', true );
 		}
 
 		return $path;
@@ -265,9 +265,9 @@ class SettingsSanitizer {
 	public static function sanitize_maxmind_license_key( $value ): string {
 		// Explicit clear via checkbox — also remove the downloaded database.
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified by the Settings API.
-		if ( ! empty( $_POST['jtzl_bl_clear_maxmind_key'] ) ) {
-			\JTZL\Bot_Labyrinth\Service\MaxMindDatabaseManager::cleanup();
-			delete_option( 'jtzl_bl_maxmind_last_updated' );
+		if ( ! empty( $_POST['jtzl_bm_clear_maxmind_key'] ) ) {
+			\JTZL\Bot_Maze\Service\MaxMindDatabaseManager::cleanup();
+			delete_option( 'jtzl_bm_maxmind_last_updated' );
 			return '';
 		}
 
@@ -275,10 +275,10 @@ class SettingsSanitizer {
 
 		// Empty submission preserves the existing key (UI sends empty to avoid exposing it).
 		if ( '' === $key ) {
-			return (string) get_option( 'jtzl_bl_maxmind_license_key', '' );
+			return (string) get_option( 'jtzl_bm_maxmind_license_key', '' );
 		}
 
-		return preg_match( '/^[a-zA-Z0-9_]+$/', $key ) ? $key : (string) get_option( 'jtzl_bl_maxmind_license_key', '' );
+		return preg_match( '/^[a-zA-Z0-9_]+$/', $key ) ? $key : (string) get_option( 'jtzl_bm_maxmind_license_key', '' );
 	}
 
 	/**

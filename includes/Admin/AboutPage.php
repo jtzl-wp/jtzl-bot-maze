@@ -2,11 +2,11 @@
 /**
  * About Page
  *
- * @package JTZL\Bot_Labyrinth
+ * @package JTZL\Bot_Maze
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Labyrinth\Admin;
+namespace JTZL\Bot_Maze\Admin;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -41,10 +41,10 @@ class AboutPage {
 	 */
 	public function register_menu(): void {
 		add_menu_page(
-			__( 'JTZL\'s Bot Labyrinth — Bot-Be-Gone', 'jtzl-bot-labyrinth' ),
-			__( 'Bot Labyrinth', 'jtzl-bot-labyrinth' ),
+			__( 'JTZL\'s Bot Maze', 'jtzl-bot-maze' ),
+			__( 'Bot Maze', 'jtzl-bot-maze' ),
 			'manage_options',
-			'jtzl-bot-labyrinth',
+			'jtzl-bot-maze',
 			array( $this, 'render_page' ),
 			'dashicons-shield',
 			80
@@ -52,11 +52,11 @@ class AboutPage {
 
 		// Replace the auto-generated first submenu with "About".
 		add_submenu_page(
-			'jtzl-bot-labyrinth',
-			__( 'About JTZL\'s Bot Labyrinth — Bot-Be-Gone', 'jtzl-bot-labyrinth' ),
-			__( 'About', 'jtzl-bot-labyrinth' ),
+			'jtzl-bot-maze',
+			__( 'About JTZL\'s Bot Maze', 'jtzl-bot-maze' ),
+			__( 'About', 'jtzl-bot-maze' ),
 			'manage_options',
-			'jtzl-bot-labyrinth',
+			'jtzl-bot-maze',
 			array( $this, 'render_page' )
 		);
 	}
@@ -69,10 +69,10 @@ class AboutPage {
 	 */
 	public function render_page(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'jtzl-bot-labyrinth' ) );
+			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'jtzl-bot-maze' ) );
 		}
 
-		$template_path = JTZL_BL_PLUGIN_DIR . 'templates/admin-about.php';
+		$template_path = JTZL_BM_PLUGIN_DIR . 'templates/admin-about.php';
 
 		if ( file_exists( $template_path ) ) {
 			include $template_path; // @phpstan-ignore include.fileNotFound

@@ -4,11 +4,11 @@
  *
  * Generates trap pages from content templates.
  *
- * @package JTZL\Bot_Labyrinth
+ * @package JTZL\Bot_Maze
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Labyrinth\Service;
+namespace JTZL\Bot_Maze\Service;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // @codeCoverageIgnoreEnd
 
-use JTZL\Bot_Labyrinth\Repository\TrapPageRepositoryInterface;
+use JTZL\Bot_Maze\Repository\TrapPageRepositoryInterface;
 
 /**
  * Trap Page Generator
@@ -180,11 +180,11 @@ class TrapPageGenerator {
 	/**
 	 * Get existing children for a trap page, lazily generating them if needed.
 	 *
-	 * @param \JTZL\Bot_Labyrinth\Entity\TrapPage $page Trap page entity.
+	 * @param \JTZL\Bot_Maze\Entity\TrapPage $page Trap page entity.
 	 * @return array Child TrapPage entities.
 	 * @since 1.0.0
 	 */
-	public function get_or_generate_children( \JTZL\Bot_Labyrinth\Entity\TrapPage $page ): array {
+	public function get_or_generate_children( \JTZL\Bot_Maze\Entity\TrapPage $page ): array {
 		$children = $this->repository->get_children( $page->id );
 
 		if ( empty( $children ) && $page->depth_level < $this->max_depth ) {
@@ -306,6 +306,6 @@ class TrapPageGenerator {
 	 * @since 1.0.0
 	 */
 	private function generate_seed(): string {
-		return md5( uniqid( 'jtzl_bl_', true ) . wp_rand() );
+		return md5( uniqid( 'jtzl_bm_', true ) . wp_rand() );
 	}
 }

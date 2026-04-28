@@ -4,11 +4,11 @@
  *
  * Centralizes admin asset enqueuing logic with manifest-based content-hashed loading.
  *
- * @package JTZL\Bot_Labyrinth
+ * @package JTZL\Bot_Maze
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Labyrinth\Service;
+namespace JTZL\Bot_Maze\Service;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -106,13 +106,13 @@ class AssetManager {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local file read is appropriate here.
 		$manifest = json_decode( file_get_contents( $manifest_path ), true );
 
-		if ( ! is_array( $manifest ) || ! isset( $manifest['jtzl-bl-admin-analytics.js'] ) ) {
+		if ( ! is_array( $manifest ) || ! isset( $manifest['jtzl-bm-admin-analytics.js'] ) ) {
 			return;
 		}
 
 		wp_enqueue_script(
-			'jtzl-bl-admin-analytics',
-			$this->plugin_url . 'build/' . $manifest['jtzl-bl-admin-analytics.js'],
+			'jtzl-bm-admin-analytics',
+			$this->plugin_url . 'build/' . $manifest['jtzl-bm-admin-analytics.js'],
 			array(),
 			$this->version,
 			true
@@ -121,11 +121,11 @@ class AssetManager {
 		add_filter( 'script_loader_tag', array( $this, 'add_module_type_attribute' ), 10, 2 );
 
 		wp_localize_script(
-			'jtzl-bl-admin-analytics',
+			'jtzl-bm-admin-analytics',
 			'jtzlBbgAdmin',
 			array(
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-				'nonce'   => wp_create_nonce( 'jtzl_bl_admin_action' ),
+				'nonce'   => wp_create_nonce( 'jtzl_bm_admin_action' ),
 			)
 		);
 	}
@@ -150,7 +150,7 @@ class AssetManager {
 	 * @since 1.0.0
 	 */
 	public function add_module_type_attribute( string $tag, string $handle ): string {
-		$module_handles = array( 'jtzl-bl-admin-analytics', 'jtzl-bl-admin-map' );
+		$module_handles = array( 'jtzl-bm-admin-analytics', 'jtzl-bm-admin-map' );
 		if ( in_array( $handle, $module_handles, true ) && false === strpos( $tag, ' type=' ) ) {
 			$tag = preg_replace( '/(<script\b)(?=[^>]*\ssrc=)/', '$1 type="module"', $tag, 1 );
 		}
@@ -173,13 +173,13 @@ class AssetManager {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local file read is appropriate here.
 		$manifest = json_decode( file_get_contents( $manifest_path ), true );
 
-		if ( ! is_array( $manifest ) || ! isset( $manifest['jtzl-bl-admin-map.js'] ) ) {
+		if ( ! is_array( $manifest ) || ! isset( $manifest['jtzl-bm-admin-map.js'] ) ) {
 			return;
 		}
 
 		wp_enqueue_script(
-			'jtzl-bl-admin-map',
-			$this->plugin_url . 'build/' . $manifest['jtzl-bl-admin-map.js'],
+			'jtzl-bm-admin-map',
+			$this->plugin_url . 'build/' . $manifest['jtzl-bm-admin-map.js'],
 			array(),
 			$this->version,
 			true
@@ -188,19 +188,19 @@ class AssetManager {
 		add_filter( 'script_loader_tag', array( $this, 'add_module_type_attribute' ), 10, 2 );
 
 		wp_localize_script(
-			'jtzl-bl-admin-map',
+			'jtzl-bm-admin-map',
 			'jtzlBbgMap',
 			array(
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-				'nonce'   => wp_create_nonce( 'jtzl_bl_admin_action' ),
+				'nonce'   => wp_create_nonce( 'jtzl_bm_admin_action' ),
 			)
 		);
 
 		// Enqueue map CSS from manifest.
-		if ( isset( $manifest['jtzl-bl-admin-map.css'] ) ) {
+		if ( isset( $manifest['jtzl-bm-admin-map.css'] ) ) {
 			wp_enqueue_style(
-				'jtzl-bl-admin-map-style',
-				$this->plugin_url . 'build/' . $manifest['jtzl-bl-admin-map.css'],
+				'jtzl-bm-admin-map-style',
+				$this->plugin_url . 'build/' . $manifest['jtzl-bm-admin-map.css'],
 				array(),
 				$this->version
 			);
@@ -216,12 +216,12 @@ class AssetManager {
 	 * @since 1.0.0
 	 */
 	private function enqueue_admin_styles(): void {
-		$css_files = glob( $this->plugin_dir . 'build/jtzl-bl-admin.*.css' );
+		$css_files = glob( $this->plugin_dir . 'build/jtzl-bm-admin.*.css' );
 
 		if ( ! empty( $css_files ) ) {
 			$css_file = basename( $css_files[0] );
 			wp_enqueue_style(
-				'jtzl-bl-admin-style',
+				'jtzl-bm-admin-style',
 				$this->plugin_url . 'build/' . $css_file,
 				array(),
 				$this->version
@@ -229,10 +229,10 @@ class AssetManager {
 			return;
 		}
 
-		if ( file_exists( $this->plugin_dir . 'build/jtzl-bl-admin.css' ) ) {
+		if ( file_exists( $this->plugin_dir . 'build/jtzl-bm-admin.css' ) ) {
 			wp_enqueue_style(
-				'jtzl-bl-admin-style',
-				$this->plugin_url . 'build/jtzl-bl-admin.css',
+				'jtzl-bm-admin-style',
+				$this->plugin_url . 'build/jtzl-bm-admin.css',
 				array(),
 				$this->version
 			);

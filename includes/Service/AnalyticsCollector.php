@@ -4,11 +4,11 @@
  *
  * Aggregates data for the admin analytics dashboard.
  *
- * @package JTZL\Bot_Labyrinth
+ * @package JTZL\Bot_Maze
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Labyrinth\Service;
+namespace JTZL\Bot_Maze\Service;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -16,11 +16,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // @codeCoverageIgnoreEnd
 
-use JTZL\Bot_Labyrinth\Data\CountryNames;
-use JTZL\Bot_Labyrinth\Repository\TrapPageRepositoryInterface;
-use JTZL\Bot_Labyrinth\Repository\TrapVisitRepositoryInterface;
-use JTZL\Bot_Labyrinth\Repository\BotScoreRepositoryInterface;
-use JTZL\Bot_Labyrinth\Service\GeoIpService;
+use JTZL\Bot_Maze\Data\CountryNames;
+use JTZL\Bot_Maze\Repository\TrapPageRepositoryInterface;
+use JTZL\Bot_Maze\Repository\TrapVisitRepositoryInterface;
+use JTZL\Bot_Maze\Repository\BotScoreRepositoryInterface;
+use JTZL\Bot_Maze\Service\GeoIpService;
 
 /**
  * Analytics Collector

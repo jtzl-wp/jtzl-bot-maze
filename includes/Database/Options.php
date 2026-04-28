@@ -4,11 +4,11 @@
  *
  * Handles default plugin options and settings.
  *
- * @package JTZL\Bot_Labyrinth
+ * @package JTZL\Bot_Maze
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Labyrinth\Database;
+namespace JTZL\Bot_Maze\Database;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -52,14 +52,15 @@ class Options {
 	public function remove_all(): void {
 		$options = array_keys( self::get_default_options() );
 
-		$options[] = 'jtzl_bl_plugin_version';
-		$options[] = 'jtzl_bl_flush_rewrite_rules_flag';
+		$options[] = 'jtzl_bm_plugin_version';
+		$options[] = 'jtzl_bm_flush_rewrite_rules_flag';
 
 		foreach ( $options as $option_name ) {
 			delete_option( $option_name );
-			// Also remove the legacy jtzl_bbg_* counterpart so upgraders
-			// from the previous rename don't leave orphaned wp_options rows.
-			delete_option( str_replace( 'jtzl_bl_', 'jtzl_bbg_', $option_name ) );
+			// Also remove legacy counterparts from prior renames so upgraders
+			// don't leave orphaned wp_options rows.
+			delete_option( str_replace( 'jtzl_bm_', 'jtzl_bl_', $option_name ) );
+			delete_option( str_replace( 'jtzl_bm_', 'jtzl_bbg_', $option_name ) );
 		}
 	}
 
@@ -83,39 +84,39 @@ class Options {
 	public static function get_default_options(): array {
 		return array(
 			// General.
-			'jtzl_bl_enabled'                => true,
-			'jtzl_bl_trap_base_path'         => 'jbl',
-			'jtzl_bl_trusted_proxy_header'   => '',
-			'jtzl_bl_trusted_proxy_ips'      => '',
+			'jtzl_bm_enabled'                => true,
+			'jtzl_bm_trap_base_path'         => 'jbm',
+			'jtzl_bm_trusted_proxy_header'   => '',
+			'jtzl_bm_trusted_proxy_ips'      => '',
 
 			// Trap Links.
-			'jtzl_bl_links_per_page'         => 3,
-			'jtzl_bl_injection_method'       => 'content', // content, footer, both.
+			'jtzl_bm_links_per_page'         => 3,
+			'jtzl_bm_injection_method'       => 'content', // content, footer, both.
 
 			// Trap Maze.
-			'jtzl_bl_max_depth'              => 5,
-			'jtzl_bl_links_per_trap_page'    => 5,
-			'jtzl_bl_initial_page_count'     => 20,
-			'jtzl_bl_max_trap_pages'         => 500,
+			'jtzl_bm_max_depth'              => 5,
+			'jtzl_bm_links_per_trap_page'    => 5,
+			'jtzl_bm_initial_page_count'     => 20,
+			'jtzl_bm_max_trap_pages'         => 500,
 
 			// Bot Scoring.
-			'jtzl_bl_points_per_visit'       => 25,
-			'jtzl_bl_depth_bonus'            => 15,
-			'jtzl_bl_block_threshold'        => 100,
-			'jtzl_bl_blocking_behavior'      => 'block', // block, tarpit_light, tarpit.
-			'jtzl_bl_tarpit_delay_ms'        => 1000,
-			'jtzl_bl_track_blocked_activity' => false,
+			'jtzl_bm_points_per_visit'       => 25,
+			'jtzl_bm_depth_bonus'            => 15,
+			'jtzl_bm_block_threshold'        => 100,
+			'jtzl_bm_blocking_behavior'      => 'block', // block, tarpit_light, tarpit.
+			'jtzl_bm_tarpit_delay_ms'        => 1000,
+			'jtzl_bm_track_blocked_activity' => false,
 
 			// Geographic Tracking.
-			'jtzl_bl_geo_provider'           => 'none', // none, ip_api, maxmind.
-			'jtzl_bl_maxmind_license_key'    => '',
-			'jtzl_bl_maxmind_last_updated'   => '',
+			'jtzl_bm_geo_provider'           => 'none', // none, ip_api, maxmind.
+			'jtzl_bm_maxmind_license_key'    => '',
+			'jtzl_bm_maxmind_last_updated'   => '',
 
 			// Maintenance.
-			'jtzl_bl_retention_days'         => 30,
+			'jtzl_bm_retention_days'         => 30,
 
 			// robots.txt.
-			'jtzl_bl_robots_txt_enabled'     => true,
+			'jtzl_bm_robots_txt_enabled'     => true,
 		);
 	}
 

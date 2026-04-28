@@ -1,13 +1,13 @@
 {
-	"name": "jtzl-bot-labyrinth-assets",
+	"name": "jtzl-bot-maze-assets",
 	"version": "1.0.0",
-	"description": "JTZL's Bot Labyrinth — Bot-Be-Gone plugin assets - JavaScript build system for admin analytics",
+	"description": "JTZL's Bot Maze plugin assets - JavaScript build system for admin analytics",
 	"private": true,
 	"type": "module",
 	"scripts": {
 		"build": "bun run typecheck && bun run build:js && bun run build:css && bun run verify:build",
 		"build:js": "NODE_ENV=production bun run esbuild.config.js",
-		"build:css": "postcss src/styles/admin.css -o build/jtzl-bl-admin.css && bun run scripts/hash-assets.js",
+		"build:css": "postcss src/styles/admin.css -o build/jtzl-bm-admin.css && bun run scripts/hash-assets.js",
 		"build:prod": "bun run build",
 		"verify:build": "bun run scripts/verify-build.js",
 		"typecheck": "tsc --noEmit",

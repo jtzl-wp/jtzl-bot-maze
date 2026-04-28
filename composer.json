@@ -1,6 +1,6 @@
 {
-	"name": "jtzl/bot-labyrinth",
-	"description": "JTZL's Bot Labyrinth — Bot-Be-Gone - AI bot protection through invisible trap link mazes for WordPress",
+	"name": "jtzl/bot-maze",
+	"description": "JTZL's Bot Maze - AI bot protection through invisible trap link mazes for WordPress",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
@@ -24,12 +24,12 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"JTZL\\Bot_Labyrinth\\": "includes/"
+			"JTZL\\Bot_Maze\\": "includes/"
 		}
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"JTZL\\Bot_Labyrinth\\Tests\\": "tests/"
+			"JTZL\\Bot_Maze\\Tests\\": "tests/"
 		}
 	},
 	"config": {
@@ -51,7 +51,7 @@
 			"@php -d error_reporting=E_ERROR ./vendor/bin/phpmetrics --exclude=tests,vendor,node_modules,build,.github,bin,scripts,stubs,languages,var,templates --report-json=build/reports/phpmetrics.json --report-summary-json=build/reports/phpmetrics-summary.json --report-html=build/reports/phpmetrics ."
 		],
 		"metrics:phpmd": [
-			"@php ./vendor/bin/phpmd includes,jtzl-bot-labyrinth.php,uninstall.php text phpmd.xml --exclude tests,vendor",
+			"@php ./vendor/bin/phpmd includes,jtzl-bot-maze.php,uninstall.php text phpmd.xml --exclude tests,vendor",
 			"@php -r \"echo 'PHPMD: no size/complexity anomalies found.' . PHP_EOL;\""
 		],
 		"metrics:size": [

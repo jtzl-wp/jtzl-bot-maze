@@ -2,11 +2,11 @@
 /**
  * General Settings Section Registrar
  *
- * @package JTZL\Bot_Labyrinth
+ * @package JTZL\Bot_Maze
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Labyrinth\Admin\Settings;
+namespace JTZL\Bot_Maze\Admin\Settings;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -14,8 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // @codeCoverageIgnoreEnd
 
-use JTZL\Bot_Labyrinth\Admin\SettingsPage;
-use JTZL\Bot_Labyrinth\Admin\SettingsSanitizer;
+use JTZL\Bot_Maze\Admin\SettingsPage;
+use JTZL\Bot_Maze\Admin\SettingsSanitizer;
 
 /**
  * Registers the General settings section.
@@ -27,7 +27,7 @@ use JTZL\Bot_Labyrinth\Admin\SettingsSanitizer;
  */
 class GeneralSectionRegistrar extends AbstractSectionRegistrar {
 
-	private const SECTION_ID = 'jtzl_bl_general_settings';
+	private const SECTION_ID = 'jtzl_bm_general_settings';
 
 	/**
 	 * Register the General section and its fields.
@@ -37,7 +37,7 @@ class GeneralSectionRegistrar extends AbstractSectionRegistrar {
 	 * @since 1.0.0
 	 */
 	public function register( SettingsPage $page ): void {
-		$this->add_section( self::SECTION_ID, __( 'General', 'jtzl-bot-labyrinth' ) );
+		$this->add_section( self::SECTION_ID, __( 'General', 'jtzl-bot-maze' ) );
 		$this->register_core_fields( $page );
 		$this->register_base_path_field( $page );
 	}
@@ -51,57 +51,57 @@ class GeneralSectionRegistrar extends AbstractSectionRegistrar {
 	 */
 	private function register_core_fields( SettingsPage $page ): void {
 		$this->register_field(
-			'jtzl_bl_enabled',
+			'jtzl_bm_enabled',
 			array(
 				'type'              => 'boolean',
 				'sanitize_callback' => array( SettingsSanitizer::class, 'sanitize_enabled' ),
 				'default'           => true,
 			),
-			__( 'Enable Bot Labyrinth — Bot-Be-Gone', 'jtzl-bot-labyrinth' ),
+			__( 'Enable Bot Maze', 'jtzl-bot-maze' ),
 			array( $page, 'render_checkbox_field' ),
 			self::SECTION_ID,
 			array(
-				'label_for'   => 'jtzl_bl_enabled',
-				'description' => __( 'Enable or disable the bot protection trap maze.', 'jtzl-bot-labyrinth' ),
+				'label_for'   => 'jtzl_bm_enabled',
+				'description' => __( 'Enable or disable the bot protection trap maze.', 'jtzl-bot-maze' ),
 			)
 		);
 
 		$this->register_field(
-			'jtzl_bl_trusted_proxy_header',
+			'jtzl_bm_trusted_proxy_header',
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => array( SettingsSanitizer::class, 'sanitize_trusted_proxy_header' ),
 				'default'           => '',
 			),
-			__( 'Trusted Client IP Header', 'jtzl-bot-labyrinth' ),
+			__( 'Trusted Client IP Header', 'jtzl-bot-maze' ),
 			array( $page, 'render_select_field' ),
 			self::SECTION_ID,
 			array(
-				'label_for'   => 'jtzl_bl_trusted_proxy_header',
-				'description' => __( 'Trust this header as the real client IP only if your site is behind a reverse proxy or CDN that sets it. If you are unsure, leave this on None. Incorrect configuration can allow IP spoofing and affect blocking and analytics.', 'jtzl-bot-labyrinth' ),
+				'label_for'   => 'jtzl_bm_trusted_proxy_header',
+				'description' => __( 'Trust this header as the real client IP only if your site is behind a reverse proxy or CDN that sets it. If you are unsure, leave this on None. Incorrect configuration can allow IP spoofing and affect blocking and analytics.', 'jtzl-bot-maze' ),
 				'options'     => array(
-					''                 => __( 'None (safe default)', 'jtzl-bot-labyrinth' ),
-					'CF-Connecting-IP' => __( 'Cloudflare (CF-Connecting-IP)', 'jtzl-bot-labyrinth' ),
-					'X-Real-IP'        => __( 'Nginx / Reverse proxy (X-Real-IP)', 'jtzl-bot-labyrinth' ),
-					'True-Client-IP'   => __( 'Enterprise CDN (True-Client-IP)', 'jtzl-bot-labyrinth' ),
-					'X-Forwarded-For'  => __( 'Advanced: X-Forwarded-For (rightmost untrusted IP)', 'jtzl-bot-labyrinth' ),
+					''                 => __( 'None (safe default)', 'jtzl-bot-maze' ),
+					'CF-Connecting-IP' => __( 'Cloudflare (CF-Connecting-IP)', 'jtzl-bot-maze' ),
+					'X-Real-IP'        => __( 'Nginx / Reverse proxy (X-Real-IP)', 'jtzl-bot-maze' ),
+					'True-Client-IP'   => __( 'Enterprise CDN (True-Client-IP)', 'jtzl-bot-maze' ),
+					'X-Forwarded-For'  => __( 'Advanced: X-Forwarded-For (rightmost untrusted IP)', 'jtzl-bot-maze' ),
 				),
 			)
 		);
 
 		$this->register_field(
-			'jtzl_bl_trusted_proxy_ips',
+			'jtzl_bm_trusted_proxy_ips',
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => array( SettingsSanitizer::class, 'sanitize_trusted_proxy_ips' ),
 				'default'           => '',
 			),
-			__( 'Trusted Proxy IPs / CIDRs', 'jtzl-bot-labyrinth' ),
+			__( 'Trusted Proxy IPs / CIDRs', 'jtzl-bot-maze' ),
 			array( $page, 'render_text_field' ),
 			self::SECTION_ID,
 			array(
-				'label_for'   => 'jtzl_bl_trusted_proxy_ips',
-				'description' => __( 'Comma-separated IP addresses or CIDR ranges allowed to set the trusted header above. Required when a trusted header is configured — the header is ignored until at least one proxy is listed. Example: <code>172.64.0.0/13, 173.245.48.0/20</code>', 'jtzl-bot-labyrinth' ),
+				'label_for'   => 'jtzl_bm_trusted_proxy_ips',
+				'description' => __( 'Comma-separated IP addresses or CIDR ranges allowed to set the trusted header above. Required when a trusted header is configured — the header is ignored until at least one proxy is listed. Example: <code>172.64.0.0/13, 173.245.48.0/20</code>', 'jtzl-bot-maze' ),
 			)
 		);
 	}
@@ -115,18 +115,18 @@ class GeneralSectionRegistrar extends AbstractSectionRegistrar {
 	 */
 	private function register_base_path_field( SettingsPage $page ): void {
 		$this->register_field(
-			'jtzl_bl_trap_base_path',
+			'jtzl_bm_trap_base_path',
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => array( SettingsSanitizer::class, 'sanitize_base_path' ),
-				'default'           => 'jbl',
+				'default'           => 'jbm',
 			),
-			__( 'Trap Base Path', 'jtzl-bot-labyrinth' ),
+			__( 'Trap Base Path', 'jtzl-bot-maze' ),
 			array( $page, 'render_text_field' ),
 			self::SECTION_ID,
 			array(
-				'label_for'   => 'jtzl_bl_trap_base_path',
-				'description' => __( 'URL path prefix for trap pages (e.g., "jbl" makes URLs like /jbl/page-slug). Changing this requires a permalink refresh.', 'jtzl-bot-labyrinth' ),
+				'label_for'   => 'jtzl_bm_trap_base_path',
+				'description' => __( 'URL path prefix for trap pages (e.g., "jbm" makes URLs like /jbm/page-slug). Changing this requires a permalink refresh.', 'jtzl-bot-maze' ),
 			)
 		);
 	}
@@ -138,6 +138,6 @@ class GeneralSectionRegistrar extends AbstractSectionRegistrar {
 	 * @since 1.0.0
 	 */
 	public function render_section_description(): void {
-		echo '<p>' . esc_html__( 'Enable or disable the plugin and configure the base URL path for trap pages.', 'jtzl-bot-labyrinth' ) . '</p>';
+		echo '<p>' . esc_html__( 'Enable or disable the plugin and configure the base URL path for trap pages.', 'jtzl-bot-maze' ) . '</p>';
 	}
 }

@@ -1,4 +1,4 @@
-=== JTZL's Bot Labyrinth — Bot-Be-Gone ===
+=== JTZL's Bot Maze ===
 Contributors: jtzl
 Tags: security, bot-protection, anti-scraping, honeypot, ai-bot
 Requires at least: 6.9
@@ -12,7 +12,7 @@ AI bot protection through invisible trap link mazes — hidden links lure bots i
 
 == Description ==
 
-JTZL's Bot Labyrinth — Bot-Be-Gone protects your WordPress site from unwanted AI crawlers and scrapers by planting invisible trap links that only bots will follow. When a bot enters the trap maze, it gets lost in an ever-expanding maze of realistic-looking fake pages while it quietly builds a suspicion score based on its behavior.
+JTZL's Bot Maze protects your WordPress site from unwanted AI crawlers and scrapers by planting invisible trap links that only bots will follow. When a bot enters the trap maze, it gets lost in an ever-expanding maze of realistic-looking fake pages while it quietly builds a suspicion score based on its behavior.
 
 **How it works:**
 
@@ -40,9 +40,9 @@ JTZL's Bot Labyrinth — Bot-Be-Gone protects your WordPress site from unwanted 
 
 == Installation ==
 
-1. Upload the `jtzl-bot-labyrinth` folder to `/wp-content/plugins/`.
+1. Upload the `jtzl-bot-maze` folder to `/wp-content/plugins/`.
 2. Activate the plugin through the **Plugins** menu in WordPress.
-3. Go to **Settings > Bot Labyrinth — Bot-Be-Gone** to configure trap link injection, scoring thresholds, and blocking behavior.
+3. Go to **Settings > Bot Maze** to configure trap link injection, scoring thresholds, and blocking behavior.
 
 The plugin works out of the box with sensible defaults. Trap pages are generated automatically on first visit.
 
@@ -72,7 +72,7 @@ Trap pages are generated from a built-in content template engine that produces r
 
 = How do I know it's working? =
 
-Check the **Bot Labyrinth — Bot-Be-Gone** analytics dashboard in the WordPress admin. It shows total trap visits, unique bot IPs, score distribution, and top offenders.
+Check the **Bot Maze** analytics dashboard in the WordPress admin. It shows total trap visits, unique bot IPs, score distribution, and top offenders.
 
 == Third-Party Services ==
 
@@ -80,7 +80,7 @@ This plugin offers optional geographic tracking with two provider options. No da
 
 = MaxMind GeoLite2 (Recommended) =
 
-When **MaxMind GeoLite2** is selected as the GeoIP provider (Settings > Bot Labyrinth — Bot-Be-Gone > Geographic Tracking), the plugin downloads the GeoLite2-Country database from MaxMind and performs all IP-to-country lookups locally. **No visitor data leaves your server.**
+When **MaxMind GeoLite2** is selected as the GeoIP provider (Settings > Bot Maze > Geographic Tracking), the plugin downloads the GeoLite2-Country database from MaxMind and performs all IP-to-country lookups locally. **No visitor data leaves your server.**
 
 * **What is downloaded:** The GeoLite2-Country database (~60 MB), updated weekly via WP-Cron.
 * **What is sent to MaxMind:** Only your license key during database downloads. No visitor IP addresses are shared.

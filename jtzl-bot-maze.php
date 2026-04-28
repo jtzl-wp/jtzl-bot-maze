@@ -1,7 +1,7 @@
 <?php
 /**
- * Plugin Name: JTZL's Bot Labyrinth — Bot-Be-Gone
- * Plugin URI: https://github.com/jtzl/bot-labyrinth
+ * Plugin Name: JTZL's Bot Maze
+ * Plugin URI: https://github.com/jtzl/bot-maze
  * Description: AI bot protection through invisible trap link mazes — hidden links lure bots into a maze of fake content for detection and blocking
  * Version: 1.0.0
  * Requires at least: 6.9
@@ -10,16 +10,16 @@
  * Author URI: https://github.com/jtzl
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: jtzl-bot-labyrinth
+ * Text Domain: jtzl-bot-maze
  * Domain Path: /languages
  *
- * @package JTZL\Bot_Labyrinth
+ * @package JTZL\Bot_Maze
  */
 
-namespace JTZL\Bot_Labyrinth;
+namespace JTZL\Bot_Maze;
 
-use JTZL\Bot_Labyrinth\Ajax\AjaxController;
-use JTZL\Bot_Labyrinth\Cache\PluginCache;
+use JTZL\Bot_Maze\Ajax\AjaxController;
+use JTZL\Bot_Maze\Cache\PluginCache;
 
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -27,15 +27,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define plugin constants.
-define( 'JTZL_BL_VERSION', '1.0.0' );
-define( 'JTZL_BL_PLUGIN_FILE', __FILE__ );
-define( 'JTZL_BL_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define( 'JTZL_BL_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'JTZL_BL_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
+define( 'JTZL_BM_VERSION', '1.0.0' );
+define( 'JTZL_BM_PLUGIN_FILE', __FILE__ );
+define( 'JTZL_BM_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+define( 'JTZL_BM_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'JTZL_BM_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
 // Require Composer autoloader.
-if ( file_exists( JTZL_BL_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
-	require_once JTZL_BL_PLUGIN_DIR . 'vendor/autoload.php';
+if ( file_exists( JTZL_BM_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
+	require_once JTZL_BM_PLUGIN_DIR . 'vendor/autoload.php';
 }
 
 /**
@@ -63,12 +63,12 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	 */
 	function handle_regenerate_ajax() {
 		// Verify nonce.
-		if ( ! check_ajax_referer( 'jtzl_bl_admin_action', 'nonce', false ) ) {
+		if ( ! check_ajax_referer( 'jtzl_bm_admin_action', 'nonce', false ) ) {
 			wp_send_json_error(
 				array(
 					'message' => __(
 						'Invalid security token. Please refresh the page and try again.',
-						'jtzl-bot-labyrinth',
+						'jtzl-bot-maze',
 					),
 				),
 				403,
@@ -81,7 +81,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 				array(
 					'message' => __(
 						'You do not have permission to perform this action.',
-						'jtzl-bot-labyrinth',
+						'jtzl-bot-maze',
 					),
 				),
 				403,
@@ -93,7 +93,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	}
 
 	add_action(
-		'wp_ajax_jtzl_bl_regenerate',
+		'wp_ajax_jtzl_bm_regenerate',
 		__NAMESPACE__ . '\\handle_regenerate_ajax',
 	);
 
@@ -104,12 +104,12 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	 */
 	function handle_refresh_analytics_ajax() {
 		// Verify nonce.
-		if ( ! check_ajax_referer( 'jtzl_bl_admin_action', 'nonce', false ) ) {
+		if ( ! check_ajax_referer( 'jtzl_bm_admin_action', 'nonce', false ) ) {
 			wp_send_json_error(
 				array(
 					'message' => __(
 						'Invalid security token. Please refresh the page and try again.',
-						'jtzl-bot-labyrinth',
+						'jtzl-bot-maze',
 					),
 				),
 				403,
@@ -122,7 +122,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 				array(
 					'message' => __(
 						'You do not have permission to perform this action.',
-						'jtzl-bot-labyrinth',
+						'jtzl-bot-maze',
 					),
 				),
 				403,
@@ -134,7 +134,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	}
 
 	add_action(
-		'wp_ajax_jtzl_bl_refresh_analytics',
+		'wp_ajax_jtzl_bm_refresh_analytics',
 		__NAMESPACE__ . '\\handle_refresh_analytics_ajax',
 	);
 
@@ -145,12 +145,12 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	 */
 	function handle_geo_data_ajax() {
 		// Verify nonce.
-		if ( ! check_ajax_referer( 'jtzl_bl_admin_action', 'nonce', false ) ) {
+		if ( ! check_ajax_referer( 'jtzl_bm_admin_action', 'nonce', false ) ) {
 			wp_send_json_error(
 				array(
 					'message' => __(
 						'Invalid security token. Please refresh the page and try again.',
-						'jtzl-bot-labyrinth',
+						'jtzl-bot-maze',
 					),
 				),
 				403,
@@ -163,7 +163,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 				array(
 					'message' => __(
 						'You do not have permission to perform this action.',
-						'jtzl-bot-labyrinth',
+						'jtzl-bot-maze',
 					),
 				),
 				403,
@@ -175,7 +175,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	}
 
 	add_action(
-		'wp_ajax_jtzl_bl_geo_data',
+		'wp_ajax_jtzl_bm_geo_data',
 		__NAMESPACE__ . '\\handle_geo_data_ajax',
 	);
 
@@ -186,12 +186,12 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	 */
 	function handle_maxmind_download_ajax() {
 		// Verify nonce.
-		if ( ! check_ajax_referer( 'jtzl_bl_admin_action', 'nonce', false ) ) {
+		if ( ! check_ajax_referer( 'jtzl_bm_admin_action', 'nonce', false ) ) {
 			wp_send_json_error(
 				array(
 					'message' => __(
 						'Invalid security token. Please refresh the page and try again.',
-						'jtzl-bot-labyrinth',
+						'jtzl-bot-maze',
 					),
 				),
 				403,
@@ -204,7 +204,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 				array(
 					'message' => __(
 						'You do not have permission to perform this action.',
-						'jtzl-bot-labyrinth',
+						'jtzl-bot-maze',
 					),
 				),
 				403,
@@ -212,7 +212,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 		}
 
 		$manager     = new Service\MaxMindDatabaseManager();
-		$license_key = (string) get_option( 'jtzl_bl_maxmind_license_key', '' );
+		$license_key = (string) get_option( 'jtzl_bm_maxmind_license_key', '' );
 
 		try {
 			$result = $manager->download_database( $license_key );
@@ -225,11 +225,11 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
 		}
 
-		wp_send_json_success( array( 'message' => __( 'Database downloaded successfully.', 'jtzl-bot-labyrinth' ) ) );
+		wp_send_json_success( array( 'message' => __( 'Database downloaded successfully.', 'jtzl-bot-maze' ) ) );
 	}
 
 	add_action(
-		'wp_ajax_jtzl_bl_maxmind_download',
+		'wp_ajax_jtzl_bm_maxmind_download',
 		__NAMESPACE__ . '\\handle_maxmind_download_ajax',
 	);
 
@@ -239,8 +239,8 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	 * @return void
 	 */
 	function handle_maxmind_update_cron() {
-		$provider    = (string) get_option( 'jtzl_bl_geo_provider', 'none' );
-		$license_key = (string) get_option( 'jtzl_bl_maxmind_license_key', '' );
+		$provider    = (string) get_option( 'jtzl_bm_geo_provider', 'none' );
+		$license_key = (string) get_option( 'jtzl_bm_maxmind_license_key', '' );
 
 		if ( 'maxmind' !== $provider || '' === $license_key ) {
 			return;
@@ -251,12 +251,12 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 
 		if ( is_wp_error( $result ) ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Cron error logging is appropriate.
-			error_log( 'JTZL Bot Labyrinth — Bot-Be-Gone: MaxMind database update failed: ' . $result->get_error_message() );
+			error_log( 'JTZL Bot Maze: MaxMind database update failed: ' . $result->get_error_message() );
 		}
 	}
 
 	add_action(
-		'jtzl_bl_maxmind_update_cron',
+		'jtzl_bm_maxmind_update_cron',
 		__NAMESPACE__ . '\\handle_maxmind_update_cron',
 	);
 
@@ -302,7 +302,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	}
 
 	add_action(
-		'jtzl_bl_maintenance_cron',
+		'jtzl_bm_maintenance_cron',
 		__NAMESPACE__ . '\\handle_maintenance_cron',
 	);
 }

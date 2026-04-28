@@ -2,11 +2,11 @@
 /**
  * Geographic Tracking Settings Section Registrar
  *
- * @package JTZL\Bot_Labyrinth
+ * @package JTZL\Bot_Maze
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Labyrinth\Admin\Settings;
+namespace JTZL\Bot_Maze\Admin\Settings;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -14,9 +14,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // @codeCoverageIgnoreEnd
 
-use JTZL\Bot_Labyrinth\Admin\SettingsPage;
-use JTZL\Bot_Labyrinth\Admin\SettingsSanitizer;
-use JTZL\Bot_Labyrinth\Service\MaxMindDatabaseManager;
+use JTZL\Bot_Maze\Admin\SettingsPage;
+use JTZL\Bot_Maze\Admin\SettingsSanitizer;
+use JTZL\Bot_Maze\Service\MaxMindDatabaseManager;
 
 /**
  * Registers the Geographic Tracking settings section.
@@ -27,7 +27,7 @@ use JTZL\Bot_Labyrinth\Service\MaxMindDatabaseManager;
  */
 class GeoSectionRegistrar extends AbstractSectionRegistrar {
 
-	private const SECTION_ID = 'jtzl_bl_geo_settings';
+	private const SECTION_ID = 'jtzl_bm_geo_settings';
 
 	/**
 	 * Register the Geographic Tracking section and its fields.
@@ -37,28 +37,28 @@ class GeoSectionRegistrar extends AbstractSectionRegistrar {
 	 * @since 1.0.0
 	 */
 	public function register( SettingsPage $page ): void {
-		$this->add_section( self::SECTION_ID, __( 'Geographic Tracking', 'jtzl-bot-labyrinth' ) );
+		$this->add_section( self::SECTION_ID, __( 'Geographic Tracking', 'jtzl-bot-maze' ) );
 
 		$this->register_field(
-			'jtzl_bl_geo_provider',
+			'jtzl_bm_geo_provider',
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => array( SettingsSanitizer::class, 'sanitize_geo_provider' ),
 				'default'           => 'none',
 			),
-			__( 'GeoIP Provider', 'jtzl-bot-labyrinth' ),
+			__( 'GeoIP Provider', 'jtzl-bot-maze' ),
 			array( $this, 'render_geo_provider_field' ),
 			self::SECTION_ID
 		);
 
 		$this->register_field(
-			'jtzl_bl_maxmind_license_key',
+			'jtzl_bm_maxmind_license_key',
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => array( SettingsSanitizer::class, 'sanitize_maxmind_license_key' ),
 				'default'           => '',
 			),
-			__( 'MaxMind License Key', 'jtzl-bot-labyrinth' ),
+			__( 'MaxMind License Key', 'jtzl-bot-maze' ),
 			array( $this, 'render_maxmind_fields' ),
 			self::SECTION_ID
 		);
@@ -71,7 +71,7 @@ class GeoSectionRegistrar extends AbstractSectionRegistrar {
 	 * @since 1.0.0
 	 */
 	public function render_section_description(): void {
-		echo '<p>' . esc_html__( 'Optional geographic tracking resolves visitor IP addresses to country codes for the bot activity heat map. Choose a provider below. The local database option keeps all data on your server; the external API option is simpler to set up but sends IP data to a third party.', 'jtzl-bot-labyrinth' ) . '</p>';
+		echo '<p>' . esc_html__( 'Optional geographic tracking resolves visitor IP addresses to country codes for the bot activity heat map. Choose a provider below. The local database option keeps all data on your server; the external API option is simpler to set up but sends IP data to a third party.', 'jtzl-bot-maze' ) . '</p>';
 	}
 
 	/**
@@ -81,27 +81,27 @@ class GeoSectionRegistrar extends AbstractSectionRegistrar {
 	 * @since 1.0.0
 	 */
 	public function render_geo_provider_field(): void {
-		$current = get_option( 'jtzl_bl_geo_provider', 'none' );
+		$current = get_option( 'jtzl_bm_geo_provider', 'none' );
 
 		$providers = array(
 			'none'    => array(
-				'label' => __( 'Disabled', 'jtzl-bot-labyrinth' ),
-				'desc'  => __( 'No geographic tracking. No visitor data is sent to any external service.', 'jtzl-bot-labyrinth' ),
+				'label' => __( 'Disabled', 'jtzl-bot-maze' ),
+				'desc'  => __( 'No geographic tracking. No visitor data is sent to any external service.', 'jtzl-bot-maze' ),
 			),
 			'maxmind' => array(
-				'label' => __( 'MaxMind GeoLite2 (Local Database) — Recommended', 'jtzl-bot-labyrinth' ),
-				'desc'  => __( 'Performs lookups locally using a downloaded database file. No visitor data leaves your server. Requires a free MaxMind license key. Database updates weekly (~60 MB download).', 'jtzl-bot-labyrinth' ),
+				'label' => __( 'MaxMind GeoLite2 (Local Database) — Recommended', 'jtzl-bot-maze' ),
+				'desc'  => __( 'Performs lookups locally using a downloaded database file. No visitor data leaves your server. Requires a free MaxMind license key. Database updates weekly (~60 MB download).', 'jtzl-bot-maze' ),
 			),
 			'ip_api'  => array(
-				'label' => __( 'ip-api.com (External API)', 'jtzl-bot-labyrinth' ),
-				'desc'  => __( 'Sends each visitor\'s IP address to ip-api.com over unencrypted HTTP. Simple to set up, but transmits IP data to a third-party server without TLS. Free tier limited to 45 requests/minute (cached locally).', 'jtzl-bot-labyrinth' ),
+				'label' => __( 'ip-api.com (External API)', 'jtzl-bot-maze' ),
+				'desc'  => __( 'Sends each visitor\'s IP address to ip-api.com over unencrypted HTTP. Simple to set up, but transmits IP data to a third-party server without TLS. Free tier limited to 45 requests/minute (cached locally).', 'jtzl-bot-maze' ),
 			),
 		);
 
 		echo '<fieldset>';
 		foreach ( $providers as $value => $provider ) {
 			printf(
-				'<label style="display: block; margin-bottom: 12px;"><input type="radio" name="jtzl_bl_geo_provider" value="%s" %s /> <strong>%s</strong><br /><span class="description" style="margin-left: 24px; display: inline-block;">%s</span></label>',
+				'<label style="display: block; margin-bottom: 12px;"><input type="radio" name="jtzl_bm_geo_provider" value="%s" %s /> <strong>%s</strong><br /><span class="description" style="margin-left: 24px; display: inline-block;">%s</span></label>',
 				esc_attr( $value ),
 				checked( $current, $value, false ),
 				esc_html( $provider['label'] ),
@@ -111,29 +111,29 @@ class GeoSectionRegistrar extends AbstractSectionRegistrar {
 		echo '</fieldset>';
 
 		// Privacy warnings.
-		$ip_api_warning = __( 'Privacy notice: Visitor IP addresses will be sent to ip-api.com over unencrypted HTTP. This means visitor IPs are transmitted to a third-party server without encryption. If your site must comply with GDPR or similar privacy regulations, use the MaxMind local database option instead.', 'jtzl-bot-labyrinth' );
-		$maxmind_notice = __( 'All lookups are performed locally on your server. No visitor IP data is shared with any external service. This is the recommended option for GDPR compliance.', 'jtzl-bot-labyrinth' );
+		$ip_api_warning = __( 'Privacy notice: Visitor IP addresses will be sent to ip-api.com over unencrypted HTTP. This means visitor IPs are transmitted to a third-party server without encryption. If your site must comply with GDPR or similar privacy regulations, use the MaxMind local database option instead.', 'jtzl-bot-maze' );
+		$maxmind_notice = __( 'All lookups are performed locally on your server. No visitor IP data is shared with any external service. This is the recommended option for GDPR compliance.', 'jtzl-bot-maze' );
 
 		printf(
-			'<div id="jtzl-bl-geo-warning-ip_api" class="notice notice-warning inline" style="display: none; margin-top: 10px; padding: 8px 12px;"><p>%s</p></div>',
+			'<div id="jtzl-bm-geo-warning-ip_api" class="notice notice-warning inline" style="display: none; margin-top: 10px; padding: 8px 12px;"><p>%s</p></div>',
 			esc_html( $ip_api_warning )
 		);
 		printf(
-			'<div id="jtzl-bl-geo-notice-maxmind" class="notice notice-success inline" style="display: none; margin-top: 10px; padding: 8px 12px;"><p>%s</p></div>',
+			'<div id="jtzl-bm-geo-notice-maxmind" class="notice notice-success inline" style="display: none; margin-top: 10px; padding: 8px 12px;"><p>%s</p></div>',
 			esc_html( $maxmind_notice )
 		);
 
 		?>
 		<script>
 		document.addEventListener('DOMContentLoaded', function() {
-			var radios = document.querySelectorAll('input[name="jtzl_bl_geo_provider"]');
-			var maxmindRow = document.getElementById('jtzl_bl_maxmind_license_key');
+			var radios = document.querySelectorAll('input[name="jtzl_bm_geo_provider"]');
+			var maxmindRow = document.getElementById('jtzl_bm_maxmind_license_key');
 			if (maxmindRow) maxmindRow = maxmindRow.closest('tr');
-			var warningIpApi = document.getElementById('jtzl-bl-geo-warning-ip_api');
-			var noticeMaxmind = document.getElementById('jtzl-bl-geo-notice-maxmind');
+			var warningIpApi = document.getElementById('jtzl-bm-geo-warning-ip_api');
+			var noticeMaxmind = document.getElementById('jtzl-bm-geo-notice-maxmind');
 
 			function toggleFields() {
-				var selected = document.querySelector('input[name="jtzl_bl_geo_provider"]:checked');
+				var selected = document.querySelector('input[name="jtzl_bm_geo_provider"]:checked');
 				if (!selected) return;
 				var val = selected.value;
 
@@ -156,8 +156,8 @@ class GeoSectionRegistrar extends AbstractSectionRegistrar {
 	 * @since 1.0.0
 	 */
 	public function render_maxmind_fields(): void {
-		$license_key  = get_option( 'jtzl_bl_maxmind_license_key', '' );
-		$last_updated = get_option( 'jtzl_bl_maxmind_last_updated', '' );
+		$license_key  = get_option( 'jtzl_bm_maxmind_license_key', '' );
+		$last_updated = get_option( 'jtzl_bm_maxmind_last_updated', '' );
 		$db_path      = MaxMindDatabaseManager::get_database_path();
 		$db_exists    = file_exists( $db_path );
 
@@ -180,24 +180,24 @@ class GeoSectionRegistrar extends AbstractSectionRegistrar {
 
 		$placeholder = '' !== $license_key
 			? $display_key
-			: __( 'Enter your MaxMind license key', 'jtzl-bot-labyrinth' );
+			: __( 'Enter your MaxMind license key', 'jtzl-bot-maze' );
 
 		printf(
-			'<input type="text" id="jtzl_bl_maxmind_license_key" name="jtzl_bl_maxmind_license_key" value="" class="regular-text" placeholder="%s" autocomplete="off" />',
+			'<input type="text" id="jtzl_bm_maxmind_license_key" name="jtzl_bm_maxmind_license_key" value="" class="regular-text" placeholder="%s" autocomplete="off" />',
 			esc_attr( $placeholder )
 		);
 
 		if ( '' !== $license_key ) {
 			printf(
-				' <label><input type="checkbox" name="jtzl_bl_clear_maxmind_key" value="1" /> %s</label>',
-				esc_html__( 'Clear stored key', 'jtzl-bot-labyrinth' )
+				' <label><input type="checkbox" name="jtzl_bm_clear_maxmind_key" value="1" /> %s</label>',
+				esc_html__( 'Clear stored key', 'jtzl-bot-maze' )
 			);
 		}
 
 		printf(
 			'<p class="description">%s <a href="https://www.maxmind.com/en/geolite2/signup" target="_blank" rel="noopener noreferrer">%s</a></p>',
-			esc_html__( 'Get a free license key from', 'jtzl-bot-labyrinth' ),
-			esc_html__( 'maxmind.com', 'jtzl-bot-labyrinth' )
+			esc_html__( 'Get a free license key from', 'jtzl-bot-maze' ),
+			esc_html__( 'maxmind.com', 'jtzl-bot-maze' )
 		);
 	}
 
@@ -214,18 +214,18 @@ class GeoSectionRegistrar extends AbstractSectionRegistrar {
 		if ( $db_exists && '' !== $last_updated ) {
 			printf(
 				'<span style="color: #00a32a;">&#10003;</span> %s <strong>%s</strong>',
-				esc_html__( 'GeoLite2-Country database installed. Last updated:', 'jtzl-bot-labyrinth' ),
+				esc_html__( 'GeoLite2-Country database installed. Last updated:', 'jtzl-bot-maze' ),
 				esc_html( wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $last_updated ) ) )
 			);
 		} elseif ( $db_exists ) {
 			printf(
 				'<span style="color: #00a32a;">&#10003;</span> %s',
-				esc_html__( 'GeoLite2-Country database installed.', 'jtzl-bot-labyrinth' )
+				esc_html__( 'GeoLite2-Country database installed.', 'jtzl-bot-maze' )
 			);
 		} else {
 			printf(
 				'<span style="color: #dba617;">&#9888;</span> %s',
-				esc_html__( 'Database not yet downloaded. Save your license key, then click "Download Database" below.', 'jtzl-bot-labyrinth' )
+				esc_html__( 'Database not yet downloaded. Save your license key, then click "Download Database" below.', 'jtzl-bot-maze' )
 			);
 		}
 		echo '</div>';
@@ -239,26 +239,26 @@ class GeoSectionRegistrar extends AbstractSectionRegistrar {
 	 */
 	private function render_download_button(): void {
 		printf(
-			'<div style="margin-top: 10px;"><button type="button" id="jtzl-bl-maxmind-download-btn" class="button button-secondary">%s</button>',
-			esc_html__( 'Download Database', 'jtzl-bot-labyrinth' )
+			'<div style="margin-top: 10px;"><button type="button" id="jtzl-bm-maxmind-download-btn" class="button button-secondary">%s</button>',
+			esc_html__( 'Download Database', 'jtzl-bot-maze' )
 		);
-		echo '<span id="jtzl-bl-maxmind-download-status" style="margin-left: 10px;"></span></div>';
+		echo '<span id="jtzl-bm-maxmind-download-status" style="margin-left: 10px;"></span></div>';
 
 		?>
 		<script>
 		document.addEventListener('DOMContentLoaded', function() {
-			var btn = document.getElementById('jtzl-bl-maxmind-download-btn');
-			var status = document.getElementById('jtzl-bl-maxmind-download-status');
+			var btn = document.getElementById('jtzl-bm-maxmind-download-btn');
+			var status = document.getElementById('jtzl-bm-maxmind-download-status');
 			if (!btn) return;
 
 			btn.addEventListener('click', function() {
 				btn.disabled = true;
-				status.textContent = <?php echo wp_json_encode( __( 'Downloading...', 'jtzl-bot-labyrinth' ) ); ?>;
+				status.textContent = <?php echo wp_json_encode( __( 'Downloading...', 'jtzl-bot-maze' ) ); ?>;
 				status.style.color = '';
 
 				var data = new FormData();
-				data.append('action', 'jtzl_bl_maxmind_download');
-				data.append('nonce', <?php echo wp_json_encode( wp_create_nonce( 'jtzl_bl_admin_action' ) ); ?>);
+				data.append('action', 'jtzl_bm_maxmind_download');
+				data.append('nonce', <?php echo wp_json_encode( wp_create_nonce( 'jtzl_bm_admin_action' ) ); ?>);
 
 				fetch(ajaxurl, { method: 'POST', body: data })
 					.then(function(r) { return r.json(); })
@@ -267,13 +267,13 @@ class GeoSectionRegistrar extends AbstractSectionRegistrar {
 							status.textContent = response.data.message;
 							status.style.color = '#00a32a';
 						} else {
-							status.textContent = response.data.message || <?php echo wp_json_encode( __( 'Download failed.', 'jtzl-bot-labyrinth' ) ); ?>;
+							status.textContent = response.data.message || <?php echo wp_json_encode( __( 'Download failed.', 'jtzl-bot-maze' ) ); ?>;
 							status.style.color = '#d63638';
 						}
 						btn.disabled = false;
 					})
 					.catch(function() {
-						status.textContent = <?php echo wp_json_encode( __( 'Request failed.', 'jtzl-bot-labyrinth' ) ); ?>;
+						status.textContent = <?php echo wp_json_encode( __( 'Request failed.', 'jtzl-bot-maze' ) ); ?>;
 						status.style.color = '#d63638';
 						btn.disabled = false;
 					});

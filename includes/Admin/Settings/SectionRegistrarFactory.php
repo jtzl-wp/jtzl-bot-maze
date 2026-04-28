@@ -2,11 +2,11 @@
 /**
  * Section Registrar Factory
  *
- * @package JTZL\Bot_Labyrinth
+ * @package JTZL\Bot_Maze
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Labyrinth\Admin\Settings;
+namespace JTZL\Bot_Maze\Admin\Settings;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {

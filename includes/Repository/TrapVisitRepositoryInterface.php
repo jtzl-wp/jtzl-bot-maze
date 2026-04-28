@@ -2,11 +2,11 @@
 /**
  * Trap Visit Repository Interface
  *
- * @package JTZL\Bot_Labyrinth
+ * @package JTZL\Bot_Maze
  * @since 1.0.0
  */
 
-namespace JTZL\Bot_Labyrinth\Repository;
+namespace JTZL\Bot_Maze\Repository;
 
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // @codeCoverageIgnoreEnd
 
-use JTZL\Bot_Labyrinth\Entity\TrapVisit;
+use JTZL\Bot_Maze\Entity\TrapVisit;
 
 /**
  * Interface for trap visit repository implementations.
