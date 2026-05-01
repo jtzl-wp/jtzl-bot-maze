@@ -94,12 +94,20 @@ class AdminPagesBootstrap {
 	 * @since 1.0.0
 	 */
 	public function enqueue_admin_assets( string $hook_suffix ): void {
-		$allowed = array(
+		$analytics_pages = array(
 			'bot-maze_page_jtzl-bot-maze-analytics',
 			'bot-maze_page_jtzl-bot-maze-blocked-bots',
 			'bot-maze_page_jtzl-bot-maze-recent-activity',
 		);
-		if ( ! in_array( $hook_suffix, $allowed, true ) ) {
+		$settings_page   = 'bot-maze_page_jtzl-bot-maze-settings';
+
+		if ( $settings_page === $hook_suffix ) {
+			$asset_manager = $this->container->get( 'JTZL\Bot_Maze\Service\AssetManager' );
+			$asset_manager->enqueue_settings_assets();
+			return;
+		}
+
+		if ( ! in_array( $hook_suffix, $analytics_pages, true ) ) {
 			return;
 		}
 

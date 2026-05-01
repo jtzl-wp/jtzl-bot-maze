@@ -122,31 +122,6 @@ class GeoSectionRegistrar extends AbstractSectionRegistrar {
 			'<div id="jtzl-bm-geo-notice-maxmind" class="notice notice-success inline" style="display: none; margin-top: 10px; padding: 8px 12px;"><p>%s</p></div>',
 			esc_html( $maxmind_notice )
 		);
-
-		?>
-		<script>
-		document.addEventListener('DOMContentLoaded', function() {
-			var radios = document.querySelectorAll('input[name="jtzl_bm_geo_provider"]');
-			var maxmindRow = document.getElementById('jtzl_bm_maxmind_license_key');
-			if (maxmindRow) maxmindRow = maxmindRow.closest('tr');
-			var warningIpApi = document.getElementById('jtzl-bm-geo-warning-ip_api');
-			var noticeMaxmind = document.getElementById('jtzl-bm-geo-notice-maxmind');
-
-			function toggleFields() {
-				var selected = document.querySelector('input[name="jtzl_bm_geo_provider"]:checked');
-				if (!selected) return;
-				var val = selected.value;
-
-				if (maxmindRow) maxmindRow.style.display = val === 'maxmind' ? '' : 'none';
-				if (warningIpApi) warningIpApi.style.display = val === 'ip_api' ? '' : 'none';
-				if (noticeMaxmind) noticeMaxmind.style.display = val === 'maxmind' ? '' : 'none';
-			}
-
-			radios.forEach(function(r) { r.addEventListener('change', toggleFields); });
-			toggleFields();
-		});
-		</script>
-		<?php
 	}
 
 	/**
@@ -232,7 +207,10 @@ class GeoSectionRegistrar extends AbstractSectionRegistrar {
 	}
 
 	/**
-	 * Render the "Download Database" button and its inline AJAX handler.
+	 * Render the "Download Database" button.
+	 *
+	 * The companion AJAX handler is enqueued as a static script via
+	 * AssetManager::enqueue_settings_assets().
 	 *
 	 * @return void
 	 * @since 1.0.0
@@ -243,43 +221,5 @@ class GeoSectionRegistrar extends AbstractSectionRegistrar {
 			esc_html__( 'Download Database', 'jtzl-bot-maze' )
 		);
 		echo '<span id="jtzl-bm-maxmind-download-status" style="margin-left: 10px;"></span></div>';
-
-		?>
-		<script>
-		document.addEventListener('DOMContentLoaded', function() {
-			var btn = document.getElementById('jtzl-bm-maxmind-download-btn');
-			var status = document.getElementById('jtzl-bm-maxmind-download-status');
-			if (!btn) return;
-
-			btn.addEventListener('click', function() {
-				btn.disabled = true;
-				status.textContent = <?php echo wp_json_encode( __( 'Downloading...', 'jtzl-bot-maze' ) ); ?>;
-				status.style.color = '';
-
-				var data = new FormData();
-				data.append('action', 'jtzl_bm_maxmind_download');
-				data.append('nonce', <?php echo wp_json_encode( wp_create_nonce( 'jtzl_bm_admin_action' ) ); ?>);
-
-				fetch(ajaxurl, { method: 'POST', body: data })
-					.then(function(r) { return r.json(); })
-					.then(function(response) {
-						if (response.success) {
-							status.textContent = response.data.message;
-							status.style.color = '#00a32a';
-						} else {
-							status.textContent = response.data.message || <?php echo wp_json_encode( __( 'Download failed.', 'jtzl-bot-maze' ) ); ?>;
-							status.style.color = '#d63638';
-						}
-						btn.disabled = false;
-					})
-					.catch(function() {
-						status.textContent = <?php echo wp_json_encode( __( 'Request failed.', 'jtzl-bot-maze' ) ); ?>;
-						status.style.color = '#d63638';
-						btn.disabled = false;
-					});
-			});
-		});
-		</script>
-		<?php
 	}
 }

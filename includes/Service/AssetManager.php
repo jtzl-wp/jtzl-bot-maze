@@ -208,6 +208,72 @@ class AssetManager {
 	}
 
 	/**
+	 * Enqueue static settings page scripts.
+	 *
+	 * Replaces the previously inline `<script>` blocks rendered by the
+	 * Geographic Tracking and Maintenance section registrars. Each script is
+	 * served from `assets/admin/js/` and receives runtime data (AJAX URL,
+	 * nonce, translatable strings) via `wp_localize_script()`.
+	 *
+	 * @return void
+	 * @since 1.0.0
+	 */
+	public function enqueue_settings_assets(): void {
+		wp_enqueue_script(
+			'jtzl-bm-settings-geo-toggle',
+			$this->plugin_url . 'assets/admin/js/settings-geo-toggle.js',
+			array(),
+			$this->version,
+			true
+		);
+
+		wp_enqueue_script(
+			'jtzl-bm-settings-maxmind-download',
+			$this->plugin_url . 'assets/admin/js/settings-maxmind-download.js',
+			array(),
+			$this->version,
+			true
+		);
+		wp_localize_script(
+			'jtzl-bm-settings-maxmind-download',
+			'jtzlBmMaxmind',
+			array(
+				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+				'action'  => 'jtzl_bm_maxmind_download',
+				'nonce'   => wp_create_nonce( 'jtzl_bm_admin_action' ),
+				'i18n'    => array(
+					'downloading'   => __( 'Downloading...', 'jtzl-bot-maze' ),
+					'failed'        => __( 'Download failed.', 'jtzl-bot-maze' ),
+					'requestFailed' => __( 'Request failed.', 'jtzl-bot-maze' ),
+				),
+			)
+		);
+
+		wp_enqueue_script(
+			'jtzl-bm-settings-regenerate',
+			$this->plugin_url . 'assets/admin/js/settings-regenerate.js',
+			array(),
+			$this->version,
+			true
+		);
+		wp_localize_script(
+			'jtzl-bm-settings-regenerate',
+			'jtzlBmRegenerate',
+			array(
+				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+				'action'  => 'jtzl_bm_regenerate',
+				'nonce'   => wp_create_nonce( 'jtzl_bm_admin_action' ),
+				'i18n'    => array(
+					'confirm'       => __( 'Are you sure you want to regenerate all trap pages?', 'jtzl-bot-maze' ),
+					'regenerating'  => __( 'Regenerating...', 'jtzl-bot-maze' ),
+					'error'         => __( 'An error occurred.', 'jtzl-bot-maze' ),
+					'requestFailed' => __( 'Request failed.', 'jtzl-bot-maze' ),
+				),
+			)
+		);
+	}
+
+	/**
 	 * Enqueue admin CSS styles.
 	 *
 	 * Tries hashed version first, then falls back to non-hashed version.

@@ -77,7 +77,10 @@ class MaintenanceSectionRegistrar extends AbstractSectionRegistrar {
 	}
 
 	/**
-	 * Render the "Regenerate Trap Maze" action button and its inline AJAX handler.
+	 * Render the "Regenerate Trap Maze" action button.
+	 *
+	 * The companion AJAX handler is enqueued as a static script via
+	 * AssetManager::enqueue_settings_assets().
 	 *
 	 * @return void
 	 * @since 1.0.0
@@ -92,46 +95,5 @@ class MaintenanceSectionRegistrar extends AbstractSectionRegistrar {
 			'<p class="description">%s</p>',
 			esc_html__( 'Delete all existing trap pages and generate a fresh set. This does not affect bot scores or visit logs.', 'jtzl-bot-maze' )
 		);
-
-		?>
-		<script>
-		document.addEventListener('DOMContentLoaded', function() {
-			var btn = document.getElementById('jtzl-bm-regenerate-btn');
-			var status = document.getElementById('jtzl-bm-regenerate-status');
-			if (!btn) return;
-
-			btn.addEventListener('click', function() {
-				if (!confirm(<?php echo wp_json_encode( __( 'Are you sure you want to regenerate all trap pages?', 'jtzl-bot-maze' ) ); ?>)) {
-					return;
-				}
-
-				btn.disabled = true;
-				status.textContent = <?php echo wp_json_encode( __( 'Regenerating...', 'jtzl-bot-maze' ) ); ?>;
-
-				var data = new FormData();
-				data.append('action', 'jtzl_bm_regenerate');
-				data.append('nonce', <?php echo wp_json_encode( wp_create_nonce( 'jtzl_bm_admin_action' ) ); ?>);
-
-				fetch(ajaxurl, { method: 'POST', body: data })
-					.then(function(r) { return r.json(); })
-					.then(function(response) {
-						if (response.success) {
-							status.textContent = response.data.message;
-							status.style.color = '#00a32a';
-						} else {
-							status.textContent = response.data.message || <?php echo wp_json_encode( __( 'An error occurred.', 'jtzl-bot-maze' ) ); ?>;
-							status.style.color = '#d63638';
-						}
-						btn.disabled = false;
-					})
-					.catch(function() {
-						status.textContent = <?php echo wp_json_encode( __( 'Request failed.', 'jtzl-bot-maze' ) ); ?>;
-						status.style.color = '#d63638';
-						btn.disabled = false;
-					});
-			});
-		});
-		</script>
-		<?php
 	}
 }
