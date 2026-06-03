@@ -121,7 +121,8 @@ class Bootstrap {
 		$wp->add_action(
 			'wp_footer',
 			function () use ( $injector ) {
-				echo $injector->inject_into_footer(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static plugin-authored markup; the only dynamic values (URL, link text) are escaped with esc_url()/esc_html() in TrapLinkInjector::generate_hidden_links(). wp_kses() cannot wrap this because safecss_filter_attr() would strip the position/clip CSS that hides the trap links from human visitors.
+				echo $injector->inject_into_footer();
 			}
 		);
 	}

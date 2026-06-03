@@ -36,15 +36,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 				?>
 			</span>
 			<?php
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- paginate_links returns safe HTML.
-			echo paginate_links(
-				array(
-					'base'      => add_query_arg( 'paged', '%#%' ),
-					'format'    => '',
-					'prev_text' => '&laquo;',
-					'next_text' => '&raquo;',
-					'total'     => $total_pages,
-					'current'   => $current_page,
+			echo wp_kses_post(
+				paginate_links(
+					array(
+						'base'      => add_query_arg( 'paged', '%#%' ),
+						'format'    => '',
+						'prev_text' => '&laquo;',
+						'next_text' => '&raquo;',
+						'total'     => $total_pages,
+						'current'   => $current_page,
+					)
 				)
 			);
 			?>
@@ -97,15 +98,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<div class="tablenav bottom">
 		<div class="tablenav-pages">
 			<?php
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- paginate_links returns safe HTML.
-			echo paginate_links(
-				array(
-					'base'      => add_query_arg( 'paged', '%#%' ),
-					'format'    => '',
-					'prev_text' => '&laquo;',
-					'next_text' => '&raquo;',
-					'total'     => $total_pages,
-					'current'   => $current_page,
+			echo wp_kses_post(
+				paginate_links(
+					array(
+						'base'      => add_query_arg( 'paged', '%#%' ),
+						'format'    => '',
+						'prev_text' => '&laquo;',
+						'next_text' => '&raquo;',
+						'total'     => $total_pages,
+						'current'   => $current_page,
+					)
 				)
 			);
 			?>
