@@ -1,5 +1,5 @@
 === JTZL's Bot Maze ===
-Contributors: jtzl
+Contributors: jtzl, yoren
 Tags: security, bot-protection, anti-scraping, honeypot, ai-bot
 Requires at least: 6.9
 Tested up to: 7.0
