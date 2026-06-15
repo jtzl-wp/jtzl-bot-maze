@@ -3,7 +3,7 @@
  * Plugin Name: JTZL's Bot Maze
  * Plugin URI: https://wordpress.org/plugins/jtzl-bot-maze
  * Description: AI bot protection through invisible trap link mazes — hidden links lure bots into a maze of fake content for detection and blocking
- * Version: 1.0.1
+ * Version: 1.1.0
  * Requires at least: 6.9
  * Requires PHP: 8.2
  * Author: JTZL
@@ -27,7 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define plugin constants.
-define( 'JTZL_BM_VERSION', '1.0.1' );
+define( 'JTZL_BM_VERSION', '1.1.0' );
 define( 'JTZL_BM_PLUGIN_FILE', __FILE__ );
 define( 'JTZL_BM_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'JTZL_BM_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -258,6 +258,28 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	add_action(
 		'jtzl_bm_maxmind_update_cron',
 		__NAMESPACE__ . '\\handle_maxmind_update_cron',
+	);
+
+	/**
+	 * Handle weekly Cloudflare IP range refresh cron.
+	 *
+	 * Only refreshes when the Cloudflare trusted-header preset is active —
+	 * the ranges are irrelevant otherwise.
+	 *
+	 * @return void
+	 */
+	function handle_cloudflare_ranges_update_cron() {
+		if ( 'CF-Connecting-IP' !== (string) get_option( 'jtzl_bm_trusted_proxy_header', '' ) ) {
+			return;
+		}
+
+		$updater = new Service\CloudflareRangeUpdater();
+		$updater->refresh();
+	}
+
+	add_action(
+		'jtzl_bm_cloudflare_update_cron',
+		__NAMESPACE__ . '\\handle_cloudflare_ranges_update_cron',
 	);
 
 	/**

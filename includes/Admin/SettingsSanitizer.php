@@ -11,6 +11,8 @@
 
 namespace JTZL\Bot_Maze\Admin;
 
+use JTZL\Bot_Maze\Service\Cidr;
+
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -203,44 +205,14 @@ class SettingsSanitizer {
 		}
 
 		$valid = array();
-		foreach ( array_map( 'trim', explode( ',', $value ) ) as $token ) {
-			$normalized = self::normalize_proxy_token( $token );
+		foreach ( explode( ',', $value ) as $token ) {
+			$normalized = Cidr::normalize( $token );
 			if ( null !== $normalized ) {
 				$valid[] = $normalized;
 			}
 		}
 
 		return implode( ', ', $valid );
-	}
-
-	/**
-	 * Normalize a single proxy token (IP or IP/CIDR) or return null if invalid.
-	 *
-	 * @param string $token Raw token.
-	 * @return string|null Canonical token or null if invalid.
-	 * @since 1.0.0
-	 */
-	private static function normalize_proxy_token( string $token ): ?string {
-		if ( '' === $token ) {
-			return null;
-		}
-
-		if ( ! str_contains( $token, '/' ) ) {
-			return filter_var( $token, FILTER_VALIDATE_IP ) ? $token : null;
-		}
-
-		list( $ip, $bits ) = explode( '/', $token, 2 );
-		if ( ! ctype_digit( $bits ) || ! filter_var( $ip, FILTER_VALIDATE_IP ) ) {
-			return null;
-		}
-
-		$bits_int = (int) $bits;
-		$max_bits = str_contains( $ip, ':' ) ? 128 : 32;
-		if ( $bits_int < 0 || $bits_int > $max_bits ) {
-			return null;
-		}
-
-		return $ip . '/' . $bits_int;
 	}
 
 	/**

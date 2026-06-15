@@ -1,6 +1,6 @@
 {
 	"name": "jtzl-bot-maze-assets",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"description": "JTZL's Bot Maze plugin assets - JavaScript build system for admin analytics",
 	"private": true,
 	"type": "module",

@@ -78,7 +78,7 @@ class GeneralSectionRegistrar extends AbstractSectionRegistrar {
 			self::SECTION_ID,
 			array(
 				'label_for'   => 'jtzl_bm_trusted_proxy_header',
-				'description' => __( 'Trust this header as the real client IP only if your site is behind a reverse proxy or CDN that sets it. If you are unsure, leave this on None. Incorrect configuration can allow IP spoofing and affect blocking and analytics.', 'jtzl-bot-maze' ),
+				'description' => __( 'Trust this header as the real client IP only if your site is behind a reverse proxy or CDN that sets it. If you are unsure, leave this on None. Incorrect configuration can allow IP spoofing and affect blocking and analytics. Choosing Cloudflare auto-loads and weekly-refreshes Cloudflare\'s official IP ranges, so no manual entry is needed. Note: Cloudflare\'s IP ranges are shared by all Cloudflare sites, so only use the Cloudflare preset if your server can\'t be reached directly by its own IP address (only through Cloudflare) — otherwise visitor IPs can be faked.', 'jtzl-bot-maze' ),
 				'options'     => array(
 					''                 => __( 'None (safe default)', 'jtzl-bot-maze' ),
 					'CF-Connecting-IP' => __( 'Cloudflare (CF-Connecting-IP)', 'jtzl-bot-maze' ),
@@ -101,9 +101,54 @@ class GeneralSectionRegistrar extends AbstractSectionRegistrar {
 			self::SECTION_ID,
 			array(
 				'label_for'   => 'jtzl_bm_trusted_proxy_ips',
-				'description' => __( 'Comma-separated IP addresses or CIDR ranges allowed to set the trusted header above. Required when a trusted header is configured — the header is ignored until at least one proxy is listed. Example: <code>172.64.0.0/13, 173.245.48.0/20</code>', 'jtzl-bot-maze' ),
+				'description' => $this->trusted_proxy_ips_description(),
 			)
 		);
+	}
+
+	/**
+	 * Build the trusted-proxy-IPs field description.
+	 *
+	 * The field is an optional override: when a CDN preset with built-in
+	 * ranges (currently Cloudflare) is selected, it can be left blank. When
+	 * Cloudflare is active, append a status line confirming the ranges are
+	 * managed automatically, with the last-refresh date when available.
+	 *
+	 * @return string Field description (may contain inline HTML).
+	 * @since 1.1.0
+	 */
+	private function trusted_proxy_ips_description(): string {
+		$description = __( 'Cloudflare\'s official IP ranges are built in, so you can leave this blank when Cloudflare is selected. Leaving it blank trusts Cloudflare\'s shared edge ranges, which is only safe if your server can\'t be reached directly by its own IP address (only through Cloudflare). Every other header (X-Real-IP, True-Client-IP, X-Forwarded-For) has no built-in list — you must enter at least one proxy IP or CIDR range here, or the header is ignored. You can also list values to whitelist an extra proxy or override the Cloudflare defaults. Example: <code>172.64.0.0/13, 173.245.48.0/20</code>', 'jtzl-bot-maze' );
+
+		if ( 'CF-Connecting-IP' !== (string) get_option( 'jtzl_bm_trusted_proxy_header', '' ) ) {
+			return $description;
+		}
+
+		// Surface only the scalar refresh timestamp written by
+		// Service\CloudflareRangeUpdater. Reading the raw option (rather than
+		// CloudflareIpRanges::all()) mirrors GeoSectionRegistrar's MaxMind
+		// status line and keeps the admin layer off the Data layer per the
+		// project's dependency rules. The active range count is deliberately
+		// not shown here: it is resolved (and plausibility-checked) in
+		// CloudflareIpRanges::all(), so echoing a raw cache count could both
+		// crash on a malformed option and disagree with what is actually
+		// trusted.
+		$cache      = get_option( 'jtzl_bm_cloudflare_ranges', array() );
+		$fetched_at = ( is_array( $cache ) && ! empty( $cache['fetched_at'] ) && is_string( $cache['fetched_at'] ) )
+			? $cache['fetched_at']
+			: '';
+
+		if ( '' !== $fetched_at ) {
+			$status = sprintf(
+				/* translators: %s: date the ranges were last refreshed */
+				__( 'Cloudflare\'s official IP ranges are loaded automatically and refreshed weekly. Last refreshed %s.', 'jtzl-bot-maze' ),
+				esc_html( wp_date( (string) get_option( 'date_format' ), strtotime( $fetched_at ) ) )
+			);
+		} else {
+			$status = __( 'Cloudflare\'s official IP ranges are loaded automatically and refreshed weekly.', 'jtzl-bot-maze' );
+		}
+
+		return $description . '<br><em>' . $status . '</em>';
 	}
 
 	/**

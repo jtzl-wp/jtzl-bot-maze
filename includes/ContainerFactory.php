@@ -112,9 +112,19 @@ class ContainerFactory {
 			IPTrackerInterface::class                     => function () {
 				$header  = (string) get_option( 'jtzl_bm_trusted_proxy_header', '' );
 				$raw_ips = (string) get_option( 'jtzl_bm_trusted_proxy_ips', '' );
-				$proxies = array_filter( array_map( 'trim', explode( ',', $raw_ips ) ) );
+				$proxies = array_values( array_filter( array_map( 'trim', explode( ',', $raw_ips ) ) ) );
+
+				// Selecting the Cloudflare preset without a manual override
+				// auto-loads Cloudflare's published edge ranges, so admins
+				// never have to paste CIDRs to use the most common CDN.
+				if ( empty( $proxies ) && 'CF-Connecting-IP' === $header ) {
+					$proxies = Data\CloudflareIpRanges::all();
+				}
+
 				return new Service\IPTracker( $header, $proxies );
 			},
+
+			'JTZL\Bot_Maze\Service\CloudflareDetector'    => autowire(),
 
 			DnsResolverInterface::class                   => autowire( Service\DnsResolver::class ),
 			CrawlerVerifierInterface::class               => autowire( Service\CrawlerVerifier::class )

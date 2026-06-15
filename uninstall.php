@@ -32,6 +32,9 @@ JTZL\Bot_Maze\clear_di_cache();
 delete_option( 'jtzl_bm_plugin_version' );
 delete_option( 'jtzl_bm_flush_rewrite_rules_flag' );
 
+// Remove per-user Cloudflare-notice dismissals (see Admin\CloudflareSetupNotice).
+delete_metadata( 'user', 0, 'jtzl_bm_cf_notice_dismissed', '', true );
+
 // Clean up MaxMind database directory.
 JTZL\Bot_Maze\Service\MaxMindDatabaseManager::cleanup();
 

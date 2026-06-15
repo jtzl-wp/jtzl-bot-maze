@@ -4,7 +4,7 @@ Tags: security, bot-protection, anti-scraping, honeypot, ai-bot
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 8.2
-Stable tag: 1.0.1
+Stable tag: 1.1.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -74,6 +74,14 @@ Trap pages are generated from a built-in content template engine that produces r
 
 Check the **Bot Maze** analytics dashboard in the WordPress admin. It shows total trap visits, unique bot IPs, score distribution, and top offenders.
 
+= Is the Cloudflare trusted client IP setting safe to enable? =
+
+Cloudflare mode trusts the `CF-Connecting-IP` header only when the request comes from Cloudflare's published edge IP ranges. Because those edge IPs are **shared by every Cloudflare customer**, this proves a request came from some Cloudflare edge, not specifically from your zone.
+
+In plain terms: your server must not be reachable directly by its own IP address — only through Cloudflare. Putting your site behind Cloudflare's proxy (the orange cloud) hides your server's IP but does not block direct connections to it; if someone discovers the IP, they can still reach the server and bypass Cloudflare. A quick check: if your site still loads when you request it by its raw server IP, the origin is exposed.
+
+To lock the origin down, use any one of: Cloudflare Tunnel (your server has no public inbound port at all), Authenticated Origin Pulls (the origin requires Cloudflare's client certificate), or a firewall that allows inbound web traffic only from Cloudflare's IP ranges. If your origin stays reachable directly, visitor IP attribution can be influenced by requests outside your zone, and bots can bypass Cloudflare's own protections by hitting the origin directly.
+
 == Third-Party Services ==
 
 This plugin offers optional geographic tracking with two provider options. No data is sent to any external service unless a site administrator explicitly enables one of these providers.
@@ -103,6 +111,17 @@ When **ip-api.com** is selected as the GeoIP provider, the plugin sends visitor 
 Geographic tracking is **off by default** and requires explicit opt-in by a site administrator.
 
 == Changelog ==
+
+= 1.1.0 =
+* Cloudflare support: selecting the Cloudflare trusted client IP header now loads Cloudflare's official IP ranges automatically — no manual entry required. Sites behind Cloudflare record the real visitor IP (and country) instead of Cloudflare's edge servers.
+* Cloudflare's IP ranges refresh automatically each week via WP-Cron, falling back to a bundled, validated list if a refresh fails.
+* Added an admin notice that detects when your site is served through Cloudflare and offers one-click setup of the correct trusted client IP header.
+* Clarified the Trusted Proxy IPs field as an optional override and made clear that only the Cloudflare preset ships built-in ranges (other headers still require manual entry).
+* Improved IPv6 handling when matching manually entered trusted-proxy addresses.
+
+= 1.0.1 =
+* WordPress.org review compliance: removed non-distributable files from the plugin package and removed an unused class.
+* Bumped "Tested up to" to WordPress 7.0.
 
 = 1.0.0-rc.6 =
 * Added MaxMind GeoLite2 as a GDPR-friendly local GeoIP provider option.

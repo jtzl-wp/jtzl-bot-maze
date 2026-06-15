@@ -172,6 +172,10 @@ class Bootstrap {
 			wp_schedule_event( time(), 'weekly', 'jtzl_bm_maxmind_update_cron' );
 		}
 
+		if ( ! wp_next_scheduled( 'jtzl_bm_cloudflare_update_cron' ) ) {
+			wp_schedule_event( time(), 'weekly', 'jtzl_bm_cloudflare_update_cron' );
+		}
+
 		if ( (bool) get_option( 'jtzl_bm_enabled', true ) ) {
 			try {
 				$generator = $this->container->get( 'JTZL\Bot_Maze\Service\TrapPageGenerator' );
@@ -208,6 +212,7 @@ class Bootstrap {
 			// Current hook names.
 			'jtzl_bm_maintenance_cron',
 			'jtzl_bm_maxmind_update_cron',
+			'jtzl_bm_cloudflare_update_cron',
 			// Legacy hook names from the jtzl_bl_* era.
 			'jtzl_bl_maintenance_cron',
 			'jtzl_bl_maxmind_update_cron',

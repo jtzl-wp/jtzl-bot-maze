@@ -81,6 +81,12 @@ class AdminPagesBootstrap {
 		);
 		$recent_activity_page->init();
 
+		// Suggest the Cloudflare preset when the site is detected behind Cloudflare.
+		$cloudflare_notice = new CloudflareSetupNotice(
+			$this->container->get( 'JTZL\Bot_Maze\Service\CloudflareDetector' )
+		);
+		$cloudflare_notice->init();
+
 		// Enqueue admin assets and privacy policy suggestion.
 		$wp->add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
 		$wp->add_action( 'admin_init', array( $this, 'add_privacy_policy_content' ) );

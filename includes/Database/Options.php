@@ -54,6 +54,7 @@ class Options {
 
 		$options[] = 'jtzl_bm_plugin_version';
 		$options[] = 'jtzl_bm_flush_rewrite_rules_flag';
+		$options[] = 'jtzl_bm_cloudflare_ranges';
 
 		foreach ( $options as $option_name ) {
 			delete_option( $option_name );
