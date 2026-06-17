@@ -105,7 +105,10 @@ class Bootstrap {
 		$wp->add_action( 'template_redirect', array( $router, 'handle_request' ) );
 
 		$robots = $this->container->get( 'JTZL\Bot_Maze\Service\RobotsTxtManager' );
-		$wp->add_filter( 'robots_txt', array( $robots, 'modify_robots_txt' ), 10, 2 );
+		// Late priority so our appended rule survives plugins that *replace* the
+		// robots.txt output (e.g. Rank Math's editor at priority 10). See
+		// RobotsTxtManager::FILTER_PRIORITY.
+		$wp->add_filter( 'robots_txt', array( $robots, 'modify_robots_txt' ), \JTZL\Bot_Maze\Service\RobotsTxtManager::FILTER_PRIORITY, 2 );
 	}
 
 	/**
@@ -250,6 +253,11 @@ class Bootstrap {
 				$generator = $this->container->get( 'JTZL\Bot_Maze\Service\TrapPageGenerator' );
 				$generator->ensure_minimum_pages();
 			}
+
+			// Refresh the cached robots.txt verdict in the background so the
+			// admin notice has fresh data without ever blocking a page render.
+			// This is the periodic robots.txt health-check the bug report asked for.
+			$this->container->get( 'JTZL\Bot_Maze\Service\RobotsTxtVerifier' )->verify( true );
 		} catch ( \Exception $e ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Error logging is appropriate here.
 			error_log( 'JTZL Bot Maze: Maintenance cron error: ' . $e->getMessage() );

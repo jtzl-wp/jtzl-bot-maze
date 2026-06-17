@@ -4,7 +4,7 @@ Tags: security, bot-protection, anti-scraping, honeypot, ai-bot
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 8.2
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,23 @@ The plugin works out of the box with sensible defaults. Trap pages are generated
 = Will this affect my SEO? =
 
 No. Trap links are hidden from humans using CSS and include `rel="nofollow"`. Trap pages send `X-Robots-Tag: noindex, nofollow` headers. The plugin also adds `Disallow` rules to robots.txt for the trap path.
+
+= How does the robots.txt rule work in this plugin? =
+
+The plugin adds a `Disallow` rule for the trap base path so well-behaved crawlers (Googlebot, Bingbot, and similar) stay out of the trap maze instead of wasting crawl budget on it.
+
+It does this through the robots.txt that **WordPress generates** — the "virtual" robots.txt — using the standard `robots_txt` filter. It does **not** write a file to your server. What this means in practice:
+
+* **No physical robots.txt file:** the rule is added automatically, alongside whatever WordPress and other plugins (e.g. your SEO plugin's sitemap line) already output.
+* **A static `robots.txt` file exists at your site root:** your web server serves that file directly and WordPress never runs, so neither this plugin nor any other can modify it. The rule will not appear until you add it to that file.
+* **An SEO plugin manages robots.txt:** the rule is added at a late priority so it survives plugins that *replace* the generated file (such as Rank Math's editor). Yoast appends without removing other rules, so it is unaffected. If the rule still doesn't appear, add it through that plugin's robots.txt editor.
+
+The Settings page verifies whether the rule is actually being served and, if it isn't, shows you the exact lines to add:
+
+`User-agent: *`
+`Disallow: /your-trap-base-path/`
+
+(replace `your-trap-base-path` with your configured Trap Base Path). For safety, the plugin never creates or overwrites a physical robots.txt on its own — creating one would shadow WordPress's virtual file and drop other plugins' directives. Where a writable robots.txt already exists, it offers an optional one-click button to append the rule for you; otherwise it shows the lines to paste.
 
 = Does it work with caching plugins? =
 
@@ -111,6 +128,13 @@ When **ip-api.com** is selected as the GeoIP provider, the plugin sends visitor 
 Geographic tracking is **off by default** and requires explicit opt-in by a site administrator.
 
 == Changelog ==
+
+= 1.2.0 =
+* robots.txt: the settings page now verifies whether the trap Disallow rule is actually live in the robots.txt your site serves, and reports the result right under the checkbox. Previously the rule could silently have no effect when a static robots.txt file at your site root overrode the one WordPress generates.
+* Added an admin notice when the Disallow rule is enabled but missing from the served robots.txt, with the exact lines to add and a one-click option to append them to an existing writable robots.txt file.
+* SEO-plugin compatibility: the Disallow rule is now added at a late filter priority so it survives plugins that replace the generated robots.txt (such as Rank Math's editor). When a static file or another plugin manages your robots.txt, the settings page and admin notice point you to add the rule there.
+* The verification re-checks daily in the background and never runs a blocking request on every admin page; a failed check retries within minutes instead of staying stale, and the rule is recognized regardless of spacing or inline comments.
+* Clarified that the robots.txt modification applies to WordPress's generated robots.txt and cannot take effect alongside a static robots.txt file or when search-engine visibility is switched off.
 
 = 1.1.0 =
 * Cloudflare support: selecting the Cloudflare trusted client IP header now loads Cloudflare's official IP ranges automatically — no manual entry required. Sites behind Cloudflare record the real visitor IP (and country) instead of Cloudflare's edge servers.

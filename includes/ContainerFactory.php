@@ -192,6 +192,23 @@ class ContainerFactory {
 				);
 			},
 
+			'JTZL\Bot_Maze\Service\RobotsTxtVerifier'     => function ( Container $c ) {
+				return new Service\RobotsTxtVerifier(
+					$c->get( 'JTZL\Bot_Maze\Service\RobotsTxtManager' )
+				);
+			},
+
+			'JTZL\Bot_Maze\Service\RobotsTxtFileWriter'   => function () {
+				return new Service\RobotsTxtFileWriter();
+			},
+
+			'JTZL\Bot_Maze\Admin\RobotsTxtSetupNotice'    => function ( Container $c ) {
+				return new Admin\RobotsTxtSetupNotice(
+					$c->get( 'JTZL\Bot_Maze\Service\RobotsTxtVerifier' ),
+					$c->get( 'JTZL\Bot_Maze\Service\RobotsTxtFileWriter' )
+				);
+			},
+
 			'JTZL\Bot_Maze\Template\ContentPool'          => autowire(),
 
 			'JTZL\Bot_Maze\Service\ContentTemplateEngine' => autowire()

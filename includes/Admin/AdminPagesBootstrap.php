@@ -87,6 +87,16 @@ class AdminPagesBootstrap {
 		);
 		$cloudflare_notice->init();
 
+		// Warn when the robots.txt Disallow rule is enabled but not actually live.
+		// Built through the container (a Root→Admin dependency) to keep this
+		// composition root's object coupling in check.
+		$this->container->get( 'JTZL\Bot_Maze\Admin\RobotsTxtSetupNotice' )->init();
+
+		// Re-check robots.txt after the trap path or the toggle changes on save.
+		$robots_verifier = $this->container->get( 'JTZL\Bot_Maze\Service\RobotsTxtVerifier' );
+		$wp->add_action( 'update_option_jtzl_bm_robots_txt_enabled', array( $robots_verifier, 'invalidate' ) );
+		$wp->add_action( 'update_option_jtzl_bm_trap_base_path', array( $robots_verifier, 'invalidate' ) );
+
 		// Enqueue admin assets and privacy policy suggestion.
 		$wp->add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
 		$wp->add_action( 'admin_init', array( $this, 'add_privacy_policy_content' ) );

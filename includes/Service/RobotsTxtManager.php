@@ -27,6 +27,32 @@ if ( ! defined( 'ABSPATH' ) ) {
 class RobotsTxtManager {
 
 	/**
+	 * Comment line marking the plugin-managed robots.txt block.
+	 *
+	 * Shared so the front-end filter, the verifier, and the physical-file
+	 * writer all emit and recognise the same marker.
+	 *
+	 * @var string
+	 * @since 1.2.0
+	 */
+	public const MANAGED_COMMENT = "# JTZL's Bot Maze";
+
+	/**
+	 * Hook priority for the `robots_txt` filter.
+	 *
+	 * Deliberately late. Rank Math's robots.txt editor hooks `robots_txt` at the
+	 * default priority 10 and *replaces* the output with the site owner's saved
+	 * content, discarding anything contributed earlier. Running after it (and
+	 * appending, never replacing) keeps our Disallow rule intact instead of
+	 * having it silently dropped. Yoast hooks at 99999 but appends-preserving, so
+	 * our line survives it regardless of order.
+	 *
+	 * @var int
+	 * @since 1.2.0
+	 */
+	public const FILTER_PRIORITY = 999;
+
+	/**
 	 * Whether robots.txt modifications are enabled.
 	 *
 	 * @var bool
@@ -65,6 +91,50 @@ class RobotsTxtManager {
 	}
 
 	/**
+	 * Build a manager configured from the current site's options.
+	 *
+	 * Mirrors the wiring in ContainerFactory (same option names, same
+	 * sanitisation, same home-path derivation) so non-DI callers such as the
+	 * settings page can obtain a manager whose Disallow line is byte-for-byte
+	 * identical to the one the front-end `robots_txt` filter emits.
+	 *
+	 * @return self
+	 * @since 1.2.0
+	 */
+	public static function for_current_site(): self {
+		$home_path = (string) wp_parse_url( home_url( '/' ), PHP_URL_PATH );
+
+		return new self(
+			(bool) get_option( 'jtzl_bm_robots_txt_enabled', true ),
+			sanitize_title( (string) get_option( 'jtzl_bm_trap_base_path', 'jbm' ) ),
+			rtrim( $home_path, '/' )
+		);
+	}
+
+	/**
+	 * Whether robots.txt modifications are enabled.
+	 *
+	 * @return bool
+	 * @since 1.2.0
+	 */
+	public function is_enabled(): bool {
+		return $this->enabled;
+	}
+
+	/**
+	 * The Disallow directive this manager adds for the trap base path.
+	 *
+	 * Single source of truth for the line: the front-end filter appends it,
+	 * the verifier searches for it, and the file writer writes it.
+	 *
+	 * @return string
+	 * @since 1.2.0
+	 */
+	public function get_disallow_directive(): string {
+		return 'Disallow: ' . $this->home_path . '/' . $this->base_path . '/';
+	}
+
+	/**
 	 * Modify robots.txt output.
 	 *
 	 * Hooked to `robots_txt` filter. Adds Disallow directives for trap paths
@@ -84,8 +154,8 @@ class RobotsTxtManager {
 		// Trim trailing whitespace first — WordPress may end with a blank
 		// line which per RFC 9309 would terminate the User-agent: * group.
 		$output  = rtrim( $output ) . "\n";
-		$output .= "# JTZL's Bot Maze\n";
-		$output .= 'Disallow: ' . $this->home_path . '/' . $this->base_path . "/\n";
+		$output .= self::MANAGED_COMMENT . "\n";
+		$output .= $this->get_disallow_directive() . "\n";
 
 		return $output;
 	}
