@@ -150,7 +150,7 @@ class AnalyticsCollector {
 				return array(
 					'id'                => $bot->id,
 					'ip_address'        => $bot->ip_address,
-					'user_agent'        => mb_substr( $ua, 0, 80 ) . ( mb_strlen( $ua ) > 80 ? '...' : '' ),
+					'user_agent'        => $ua,
 					'score'             => $bot->score,
 					'trap_visits_count' => $bot->trap_visits_count,
 					'max_depth_reached' => $bot->max_depth_reached,
@@ -353,7 +353,7 @@ class AnalyticsCollector {
 					'id'            => $visit->id,
 					'trap_page_id'  => $visit->trap_page_id,
 					'ip_address'    => $visit->ip_address,
-					'user_agent'    => mb_substr( $visit->user_agent, 0, 80 ) . ( mb_strlen( $visit->user_agent ) > 80 ? '...' : '' ),
+					'user_agent'    => $visit->user_agent,
 					'depth_reached' => $visit->depth_reached,
 					'request_type'  => $visit->request_type,
 					'visited_at'    => $visit->visited_at->format( 'Y-m-d H:i:s' ),

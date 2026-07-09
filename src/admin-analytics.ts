@@ -5,11 +5,28 @@
  */
 
 import './styles/admin.css';
+import { initUaCells, type UaCellMessages } from './ua-cell';
 
 declare const jtzlBbgAdmin: {
 	ajaxUrl: string;
 	nonce: string;
+	i18n?: {
+		copied?: string;
+		copyFailed?: string;
+		copyLabel?: string;
+	};
 };
+
+/**
+ * Resolve localised UA-cell feedback strings, with English fallbacks.
+ */
+function getUaCellMessages(): UaCellMessages {
+	const i18n = (typeof jtzlBbgAdmin !== 'undefined' && jtzlBbgAdmin.i18n) || {};
+	return {
+		copied: i18n.copied ?? 'Copied!',
+		copyFailed: i18n.copyFailed ?? 'Copy failed',
+	};
+}
 
 interface ChartData {
 	labels: string[];
@@ -148,6 +165,45 @@ function createCodeCell(tag: string, text: string): HTMLElement {
 }
 
 /**
+ * Build a User-Agent cell matching the server-rendered partial, so AJAX-refreshed
+ * rows keep the copy button and click-to-expand behaviour.
+ * @param ua Full user-agent string.
+ */
+function createUaCell(ua: string): HTMLElement {
+	const td = document.createElement('td');
+	td.className = 'jtzl-bm-ua-cell';
+
+	const text = document.createElement('span');
+	text.className = 'jtzl-bm-ua-text';
+	text.setAttribute('role', 'button');
+	text.setAttribute('tabindex', '0');
+	text.setAttribute('aria-expanded', 'false');
+	text.setAttribute('title', ua);
+	text.textContent = ua;
+	td.appendChild(text);
+
+	const button = document.createElement('button');
+	button.type = 'button';
+	button.className = 'jtzl-bm-ua-copy';
+	button.setAttribute('data-clipboard-text', ua);
+
+	const icon = document.createElement('span');
+	icon.className = 'dashicons dashicons-clipboard';
+	icon.setAttribute('aria-hidden', 'true');
+	button.appendChild(icon);
+
+	const label = document.createElement('span');
+	label.className = 'screen-reader-text';
+	label.textContent =
+		(typeof jtzlBbgAdmin !== 'undefined' && jtzlBbgAdmin.i18n?.copyLabel) ||
+		'Copy user agent to clipboard';
+	button.appendChild(label);
+
+	td.appendChild(button);
+	return td;
+}
+
+/**
  * Update the dashboard with fresh AJAX data.
  */
 async function refreshDashboard(): Promise<void> {
@@ -250,7 +306,7 @@ function updateTopBots(bots: BotEntry[]): void {
 
 		tr.appendChild(createCodeCell('td', bot.ip_address));
 		tr.appendChild(createCell('td', bot.country_name || ''));
-		tr.appendChild(createCell('td', bot.user_agent));
+		tr.appendChild(createUaCell(bot.user_agent));
 
 		const scoreTd = document.createElement('td');
 		const strong = document.createElement('strong');
@@ -279,6 +335,9 @@ function updateTopBots(bots: BotEntry[]): void {
  * Initialize the analytics dashboard.
  */
 function init(): void {
+	// UA cells appear on all admin listing pages, not just the dashboard.
+	initUaCells(document, getUaCellMessages());
+
 	const app = document.getElementById('jtzl-bm-analytics-app');
 	if (!app) return;
 

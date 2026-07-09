@@ -149,10 +149,58 @@ a.jtzl-bm-card-link:focus {
 }
 
 .jtzl-bm-ua-cell {
+	white-space: nowrap;
+}
+
+.jtzl-bm-ua-text {
+	display: inline-block;
 	max-width: 300px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+	vertical-align: middle;
+	cursor: pointer;
+}
+
+.jtzl-bm-ua-text.is-expanded {
+	max-width: none;
+	overflow: visible;
+	white-space: normal;
+	word-break: break-all;
+}
+
+.jtzl-bm-ua-copy {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	height: 20px;
+	padding: 0;
+	margin-left: 4px;
+	border: 0;
+	background: none;
+	color: #787c82;
+	vertical-align: middle;
+	cursor: pointer;
+	opacity: 0.55;
+}
+
+.jtzl-bm-ua-copy:hover,
+.jtzl-bm-ua-copy:focus {
+	color: #2271b1;
+	opacity: 1;
+}
+
+.jtzl-bm-ua-copy.is-copied {
+	color: #1a5e13;
+	opacity: 1;
+}
+
+.jtzl-bm-ua-copy .dashicons {
+	width: 16px;
+	height: 16px;
+	font-size: 16px;
+	line-height: 1;
 }
 
 /* Badges */

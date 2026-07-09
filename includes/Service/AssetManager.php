@@ -126,6 +126,11 @@ class AssetManager {
 			array(
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 				'nonce'   => wp_create_nonce( 'jtzl_bm_admin_action' ),
+				'i18n'    => array(
+					'copied'     => __( 'Copied!', 'jtzl-bot-maze' ),
+					'copyFailed' => __( 'Copy failed', 'jtzl-bot-maze' ),
+					'copyLabel'  => __( 'Copy user agent to clipboard', 'jtzl-bot-maze' ),
+				),
 			)
 		);
 	}
@@ -289,7 +294,7 @@ class AssetManager {
 			wp_enqueue_style(
 				'jtzl-bm-admin-style',
 				$this->plugin_url . 'build/' . $css_file,
-				array(),
+				array( 'dashicons' ),
 				$this->version
 			);
 			return;
@@ -299,7 +304,7 @@ class AssetManager {
 			wp_enqueue_style(
 				'jtzl-bm-admin-style',
 				$this->plugin_url . 'build/jtzl-bm-admin.css',
-				array(),
+				array( 'dashicons' ),
 				$this->version
 			);
 		}

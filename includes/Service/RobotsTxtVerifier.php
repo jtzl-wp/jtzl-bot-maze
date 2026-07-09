@@ -260,9 +260,12 @@ class RobotsTxtVerifier {
 		}
 
 		$lines = preg_split( '/\r\n|\r|\n/', $body );
+		// @codeCoverageIgnoreStart -- preg_split only returns non-array on regex
+		// compile error, impossible with this constant pattern; defensive guard.
 		if ( ! is_array( $lines ) ) {
 			return false;
 		}
+		// @codeCoverageIgnoreEnd
 
 		foreach ( $lines as $line ) {
 			if ( self::normalize_directive( $line ) === $needle ) {

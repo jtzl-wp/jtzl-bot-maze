@@ -74,7 +74,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<td><?php echo esc_html( $visit['visited_at'] ); ?></td>
 					<td><code><?php echo esc_html( $visit['ip_address'] ); ?></code></td>
 					<td><?php echo esc_html( $visit['country_name'] ); ?></td>
-					<td class="jtzl-bm-ua-cell"><?php echo esc_html( $visit['user_agent'] ); ?></td>
+					<td class="jtzl-bm-ua-cell">
+						<?php
+						$jtzl_bm_ua = $visit['user_agent'];
+						require JTZL_BM_PLUGIN_DIR . 'templates/partials/ua-cell.php';
+						?>
+					</td>
 					<td><?php echo esc_html( $visit['depth_reached'] ); ?></td>
 					<td>
 						<?php if ( 'blocked_visit' === $visit['request_type'] ) : ?>

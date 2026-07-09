@@ -42,7 +42,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<tr>
 					<td><code><?php echo esc_html( $bot['ip_address'] ); ?></code></td>
 					<td><?php echo esc_html( $bot['country_name'] ); ?></td>
-					<td class="jtzl-bm-ua-cell"><?php echo esc_html( $bot['user_agent'] ); ?></td>
+					<td class="jtzl-bm-ua-cell">
+						<?php
+						$jtzl_bm_ua = $bot['user_agent'];
+						require JTZL_BM_PLUGIN_DIR . 'templates/partials/ua-cell.php';
+						?>
+					</td>
 					<td><strong><?php echo esc_html( number_format( $bot['score'], 1 ) ); ?></strong></td>
 					<td><?php echo esc_html( $bot['trap_visits_count'] ); ?></td>
 					<td><?php echo esc_html( $bot['max_depth_reached'] ); ?></td>
