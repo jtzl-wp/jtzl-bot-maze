@@ -78,24 +78,28 @@ interface TrapVisitRepositoryInterface {
 	public function prune_old_entries( int $days ): int;
 
 	/**
-	 * Get visits within the last N days with pagination.
+	 * Get visits within the last N days with pagination, sorting and search.
 	 *
-	 * @param int $days   Number of days.
-	 * @param int $limit  Number of visits.
-	 * @param int $offset Offset for pagination.
+	 * @param int    $days    Number of days.
+	 * @param int    $limit   Number of visits.
+	 * @param int    $offset  Offset for pagination.
+	 * @param string $orderby Column to sort by (validated against an allowlist).
+	 * @param string $order   Sort direction, 'ASC' or 'DESC'.
+	 * @param string $search  Optional term matched against IP, user agent and country code.
 	 * @return TrapVisit[] Array of visit entities.
 	 * @since 1.0.0
 	 */
-	public function get_recent_days( int $days, int $limit = 50, int $offset = 0 ): array;
+	public function get_recent_days( int $days, int $limit = 50, int $offset = 0, string $orderby = 'visited_at', string $order = 'DESC', string $search = '' ): array;
 
 	/**
-	 * Count all visits in the last N days (all request types).
+	 * Count all visits in the last N days (all request types), optionally filtered.
 	 *
-	 * @param int $days Number of days.
+	 * @param int    $days   Number of days.
+	 * @param string $search Optional term matched against IP, user agent and country code.
 	 * @return int Visit count.
 	 * @since 1.0.0
 	 */
-	public function count_all_recent_days( int $days ): int;
+	public function count_all_recent_days( int $days, string $search = '' ): int;
 
 	/**
 	 * Count visits in the last N days.

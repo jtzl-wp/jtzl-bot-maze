@@ -325,27 +325,31 @@ class AnalyticsCollector {
 	}
 
 	/**
-	 * Count all visits in the last N days (all request types).
+	 * Count all visits in the last N days (all request types), optionally filtered.
 	 *
-	 * @param int $days Number of days.
+	 * @param int    $days   Number of days.
+	 * @param string $search Optional term matched against IP, user agent and country code.
 	 * @return int Visit count.
 	 * @since 1.0.0
 	 */
-	public function count_all_recent_activity( int $days = 7 ): int {
-		return $this->visit_repo->count_all_recent_days( $days );
+	public function count_all_recent_activity( int $days = 7, string $search = '' ): int {
+		return $this->visit_repo->count_all_recent_days( $days, $search );
 	}
 
 	/**
-	 * Get recent activity within the last N days with pagination.
+	 * Get recent activity within the last N days with pagination, sorting and search.
 	 *
-	 * @param int $days   Number of days.
-	 * @param int $limit  Number of entries.
-	 * @param int $offset Offset for pagination.
+	 * @param int    $days    Number of days.
+	 * @param int    $limit   Number of entries.
+	 * @param int    $offset  Offset for pagination.
+	 * @param string $orderby Column to sort by (validated by the repository).
+	 * @param string $order   Sort direction, 'ASC' or 'DESC'.
+	 * @param string $search  Optional term matched against IP, user agent and country code.
 	 * @return array Array of visit data arrays.
 	 * @since 1.0.0
 	 */
-	public function get_recent_activity_days( int $days = 7, int $limit = 50, int $offset = 0 ): array {
-		$visits = $this->visit_repo->get_recent_days( $days, $limit, $offset );
+	public function get_recent_activity_days( int $days = 7, int $limit = 50, int $offset = 0, string $orderby = 'visited_at', string $order = 'DESC', string $search = '' ): array {
+		$visits = $this->visit_repo->get_recent_days( $days, $limit, $offset, $orderby, $order, $search );
 
 		return array_map(
 			function ( $visit ) {

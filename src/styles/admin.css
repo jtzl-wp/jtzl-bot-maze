@@ -203,6 +203,33 @@ a.jtzl-bm-card-link:focus {
 	line-height: 1;
 }
 
+/* Click-to-filter link (Recent Activity list table) */
+.jtzl-bm-ua-filter {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	height: 20px;
+	margin-left: 2px;
+	color: #787c82;
+	text-decoration: none;
+	vertical-align: middle;
+	opacity: 0.55;
+}
+
+.jtzl-bm-ua-filter:hover,
+.jtzl-bm-ua-filter:focus {
+	color: #2271b1;
+	opacity: 1;
+}
+
+.jtzl-bm-ua-filter .dashicons {
+	width: 16px;
+	height: 16px;
+	font-size: 16px;
+	line-height: 1;
+}
+
 /* Badges */
 .jtzl-bm-badge {
 	display: inline-block;

@@ -175,22 +175,38 @@ class TrapVisitRepository implements TrapVisitRepositoryInterface {
 	}
 
 	/**
-	 * Get visits within the last N days with pagination.
+	 * Get visits within the last N days with pagination, sorting and search.
 	 *
-	 * @param int $days   Number of days.
-	 * @param int $limit  Number of visits.
-	 * @param int $offset Offset for pagination.
+	 * @param int    $days    Number of days.
+	 * @param int    $limit   Number of visits.
+	 * @param int    $offset  Offset for pagination.
+	 * @param string $orderby Column to sort by (validated against an allowlist).
+	 * @param string $order   Sort direction, 'ASC' or 'DESC'.
+	 * @param string $search  Optional term matched against IP, user agent and country code.
 	 * @return TrapVisit[] Array of visit entities.
 	 * @since 1.0.0
 	 */
-	public function get_recent_days( int $days, int $limit = 50, int $offset = 0 ): array {
+	public function get_recent_days( int $days, int $limit = 50, int $offset = 0, string $orderby = 'visited_at', string $order = 'DESC', string $search = '' ): array {
+		// Allowlist the sort column; anything else falls back to visited_at.
+		$allowed = array( 'visited_at', 'ip_address', 'country_code', 'user_agent', 'depth_reached', 'request_type' );
+		$orderby = in_array( $orderby, $allowed, true ) ? $orderby : 'visited_at';
+		$order   = 'ASC' === strtoupper( $order ) ? 'ASC' : 'DESC';
+
+		$params = array();
+		$where  = $this->recent_where_clause( $days, $search, $params );
+
+		$params[] = $limit;
+		$params[] = $offset;
+
+		// $orderby and $order are drawn from fixed allowlists above, so they are
+		// safe to interpolate; every value is bound through $wpdb->prepare(). The
+		// placeholder sniffs cannot see the placeholders inside {$where}.
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders
 		$query = $this->wpdb->prepare(
-			"SELECT * FROM {$this->table_name} WHERE visited_at >= DATE_SUB(%s, INTERVAL %d DAY) ORDER BY visited_at DESC LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			current_time( 'mysql' ),
-			$days,
-			$limit,
-			$offset
+			"SELECT * FROM {$this->table_name} WHERE {$where} ORDER BY {$orderby} {$order} LIMIT %d OFFSET %d",
+			$params
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders
 
 		$rows = $this->wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
@@ -202,20 +218,55 @@ class TrapVisitRepository implements TrapVisitRepositoryInterface {
 	}
 
 	/**
-	 * Count all visits in the last N days (all request types).
+	 * Count all visits in the last N days (all request types), optionally filtered.
 	 *
-	 * @param int $days Number of days.
+	 * @param int    $days   Number of days.
+	 * @param string $search Optional term matched against IP, user agent and country code.
 	 * @return int Visit count.
 	 * @since 1.0.0
 	 */
-	public function count_all_recent_days( int $days ): int {
+	public function count_all_recent_days( int $days, string $search = '' ): int {
+		$params = array();
+		$where  = $this->recent_where_clause( $days, $search, $params );
+
+		// The bound placeholders live inside {$where}, which the placeholder sniffs
+		// cannot see; every value is passed through $wpdb->prepare().
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders
 		$query = $this->wpdb->prepare(
-			"SELECT COUNT(*) FROM {$this->table_name} WHERE visited_at >= DATE_SUB(%s, INTERVAL %d DAY)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			current_time( 'mysql' ),
-			$days
+			"SELECT COUNT(*) FROM {$this->table_name} WHERE {$where}",
+			$params
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders
 
 		return (int) $this->wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+	}
+
+	/**
+	 * Build the shared WHERE clause for recent-activity queries.
+	 *
+	 * Populates $params (by reference) with the bound values in order. The search
+	 * term, when present, is matched against the IP address, user agent and
+	 * country code with an escaped LIKE.
+	 *
+	 * @param int    $days   Day window.
+	 * @param string $search Optional search term.
+	 * @param array  $params Bound-parameter accumulator, populated by reference.
+	 * @return string SQL WHERE body (without the leading "WHERE").
+	 * @since 1.3.0
+	 */
+	private function recent_where_clause( int $days, string $search, array &$params ): string {
+		$where  = 'visited_at >= DATE_SUB(%s, INTERVAL %d DAY)';
+		$params = array( current_time( 'mysql' ), $days );
+
+		if ( '' !== $search ) {
+			$like     = '%' . $this->wpdb->esc_like( $search ) . '%';
+			$where   .= ' AND ( ip_address LIKE %s OR user_agent LIKE %s OR country_code LIKE %s )';
+			$params[] = $like;
+			$params[] = $like;
+			$params[] = $like;
+		}
+
+		return $where;
 	}
 
 	/**
