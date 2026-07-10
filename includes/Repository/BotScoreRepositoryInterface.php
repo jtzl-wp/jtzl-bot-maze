@@ -92,12 +92,13 @@ interface BotScoreRepositoryInterface {
 	public function count_total(): int;
 
 	/**
-	 * Count blocked bots.
+	 * Count blocked bots, optionally filtered by a search term.
 	 *
+	 * @param string $search Optional term matched against IP and user agent.
 	 * @return int Blocked count.
 	 * @since 1.0.0
 	 */
-	public function count_blocked(): int;
+	public function count_blocked( string $search = '' ): int;
 
 	/**
 	 * Update last_seen_at and increment visit count for a blocked bot.
@@ -110,14 +111,17 @@ interface BotScoreRepositoryInterface {
 	public function touch_blocked_visit( string $ip_address, string $user_agent_hash ): bool;
 
 	/**
-	 * Get blocked bots ordered by last seen.
+	 * Get blocked bots with pagination, sorting and search.
 	 *
-	 * @param int $limit  Number of results.
-	 * @param int $offset Offset for pagination.
+	 * @param int    $limit   Number of results.
+	 * @param int    $offset  Offset for pagination.
+	 * @param string $orderby Column to sort by (validated against an allowlist).
+	 * @param string $order   Sort direction, 'ASC' or 'DESC'.
+	 * @param string $search  Optional term matched against IP and user agent.
 	 * @return BotScore[] Array of blocked bot score entities.
 	 * @since 1.0.0
 	 */
-	public function get_blocked( int $limit = 50, int $offset = 0 ): array;
+	public function get_blocked( int $limit = 50, int $offset = 0, string $orderby = 'last_seen_at', string $order = 'DESC', string $search = '' ): array;
 
 	/**
 	 * Prune bot scores that have been inactive longer than the specified number of days.

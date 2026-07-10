@@ -230,6 +230,65 @@ a.jtzl-bm-card-link:focus {
 	line-height: 1;
 }
 
+/*
+ * Inside a WP_List_Table column the cell must not force a fixed width, or the
+ * User Agent text overflows and overlaps the next column. Lay it out as a
+ * capped flex row so the text truncates to the available space and the copy /
+ * filter controls stay put. (The dashboard's Top Bots table renders the cell
+ * on the <td> itself, which this selector does not target.)
+ */
+.column-user_agent .jtzl-bm-ua-cell {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.column-user_agent .jtzl-bm-ua-text {
+	flex: 0 1 auto;
+	min-width: 0;
+	max-width: none;
+}
+
+.column-user_agent .jtzl-bm-ua-copy,
+.column-user_agent .jtzl-bm-ua-filter {
+	flex: 0 0 auto;
+	margin-left: 0;
+}
+
+/*
+ * User Agent is the one column that genuinely needs room, so pin a compact
+ * fixed width on every other column and let User Agent (no width) absorb all
+ * the remaining table space. Without this, the short IP / Country / date
+ * columns soak up the slack and User Agent stays needlessly truncated.
+ */
+.wp-list-table .column-ip_address {
+	width: 150px;
+}
+
+.wp-list-table .column-country {
+	width: 130px;
+	white-space: nowrap;
+}
+
+.wp-list-table .column-score,
+.wp-list-table .column-visits,
+.wp-list-table .column-depth {
+	width: 80px;
+	white-space: nowrap;
+}
+
+.wp-list-table .column-max_depth {
+	width: 104px;
+	white-space: nowrap;
+}
+
+.wp-list-table .column-first_seen,
+.wp-list-table .column-last_seen,
+.wp-list-table .column-visited_at {
+	width: 148px;
+	white-space: nowrap;
+}
+
 /* Badges */
 .jtzl-bm-badge {
 	display: inline-block;

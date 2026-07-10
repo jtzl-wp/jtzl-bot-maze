@@ -4,7 +4,7 @@ Tags: security, bot-protection, anti-scraping, honeypot, ai-bot
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 8.2
-Stable tag: 1.2.0
+Stable tag: 1.3.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -128,6 +128,12 @@ When **ip-api.com** is selected as the GeoIP provider, the plugin sends visitor 
 Geographic tracking is **off by default** and requires explicit opt-in by a site administrator.
 
 == Changelog ==
+
+= 1.3.0 =
+* Recent Activity and Blocked Bots are now fully sortable and searchable. Click any column heading to sort your entire history — not just the page you're looking at — search by IP address or user agent, and page through the results, all handled server-side over the complete dataset.
+* User agents are no longer shortened. Both tables show the complete user-agent string: click it to expand the full value in place, or use the one-click copy button to grab it. Click an IP address or user agent to filter the table down to just that value.
+* On the Blocked Bots page, the Score, Visits, Max Depth, First Seen, and Last Seen columns are each individually sortable, so you can rank blocked bots by suspicion score, visit count, or when they were last seen.
+* Refined the table column layout so the user-agent column gets the room it needs while the numeric and date columns stay compact.
 
 = 1.2.0 =
 * robots.txt: the settings page now verifies whether the trap Disallow rule is actually live in the robots.txt your site serves, and reports the result right under the checkbox. Previously the rule could silently have no effect when a static robots.txt file at your site root overrode the one WordPress generates.

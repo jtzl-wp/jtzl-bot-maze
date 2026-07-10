@@ -226,13 +226,25 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 	}
 
 	/**
-	 * Count blocked bots.
+	 * Count blocked bots, optionally filtered by a search term.
 	 *
+	 * @param string $search Optional term matched against IP and user agent.
 	 * @return int Blocked count.
 	 * @since 1.0.0
 	 */
-	public function count_blocked(): int {
-		$query = "SELECT COUNT(*) FROM {$this->table_name} WHERE is_blocked = 1"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+	public function count_blocked( string $search = '' ): int {
+		$params = array();
+		$where  = $this->blocked_where( $search, $params );
+		if ( empty( $params ) ) {
+			return (int) $this->wpdb->get_var( "SELECT COUNT(*) FROM {$this->table_name} WHERE {$where}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
+		}
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders
+		$query = $this->wpdb->prepare(
+			"SELECT COUNT(*) FROM {$this->table_name} WHERE {$where}",
+			$params
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders
 
 		return (int) $this->wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 	}
@@ -259,27 +271,64 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 	}
 
 	/**
-	 * Get blocked bots ordered by last seen.
+	 * Get blocked bots with pagination, sorting and search.
 	 *
-	 * @param int $limit  Number of results.
-	 * @param int $offset Offset for pagination.
+	 * @param int    $limit   Number of results.
+	 * @param int    $offset  Offset for pagination.
+	 * @param string $orderby Column to sort by (validated against an allowlist).
+	 * @param string $order   Sort direction, 'ASC' or 'DESC'.
+	 * @param string $search  Optional term matched against IP and user agent.
 	 * @return BotScore[] Array of blocked bot score entities.
 	 * @since 1.0.0
 	 */
-	public function get_blocked( int $limit = 50, int $offset = 0 ): array {
+	public function get_blocked( int $limit = 50, int $offset = 0, string $orderby = 'last_seen_at', string $order = 'DESC', string $search = '' ): array {
+		$allowed = array( 'ip_address', 'score', 'trap_visits_count', 'max_depth_reached', 'first_seen_at', 'last_seen_at' );
+		$orderby = in_array( $orderby, $allowed, true ) ? $orderby : 'last_seen_at';
+		$order   = 'ASC' === strtoupper( $order ) ? 'ASC' : 'DESC';
+
+		$params = array();
+		$where  = $this->blocked_where( $search, $params );
+		$params[] = $limit;
+		$params[] = $offset;
+
+		// $orderby and $order come from fixed allowlists; every value is bound.
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders
 		$query = $this->wpdb->prepare(
-			"SELECT * FROM {$this->table_name} WHERE is_blocked = 1 ORDER BY last_seen_at DESC LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			$limit,
-			$offset
+			"SELECT * FROM {$this->table_name} WHERE {$where} ORDER BY {$orderby} {$order} LIMIT %d OFFSET %d",
+			$params
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders
 
 		$rows = $this->wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
-		if ( empty( $rows ) ) {
-			return array();
+		return empty( $rows ) ? array() : array_map( array( $this, 'hydrate' ), $rows );
+	}
+
+	/**
+	 * Build the WHERE body for blocked-bot queries, populating $params by reference.
+	 *
+	 * The UA search matches SHA2(user_agent,256) of trap-visit user agents, which
+	 * mirrors the stored PHP sha256() hash (an integration test guards it); bots
+	 * whose trap visits were pruned are not UA-searchable.
+	 *
+	 * @param string $search Search term for IP and user agent.
+	 * @param array  $params Bound-parameter accumulator, populated by reference.
+	 * @return string SQL WHERE body (without the leading "WHERE").
+	 * @since 1.3.0
+	 */
+	private function blocked_where( string $search, array &$params ): string {
+		$params = array();
+
+		if ( '' === $search ) {
+			return 'is_blocked = 1';
 		}
 
-		return array_map( array( $this, 'hydrate' ), $rows );
+		$like     = '%' . $this->wpdb->esc_like( $search ) . '%';
+		$visits   = $this->wpdb->prefix . 'jtzl_bm_trap_visits';
+		$params[] = $like;
+		$params[] = $like;
+
+		return "is_blocked = 1 AND ( ip_address LIKE %s OR user_agent_hash IN ( SELECT SHA2( user_agent, 256 ) FROM {$visits} WHERE user_agent LIKE %s ) )";
 	}
 
 	/**

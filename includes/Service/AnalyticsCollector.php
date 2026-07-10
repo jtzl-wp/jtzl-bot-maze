@@ -136,12 +136,10 @@ class AnalyticsCollector {
 	 * @since 1.0.0
 	 */
 	public function get_top_bots( int $limit = 10 ): array {
-		$bots = $this->score_repo->get_top_by_score( $limit );
-
+		$bots        = $this->score_repo->get_top_by_score( $limit );
 		$lookups     = $this->build_bot_lookups( $bots );
 		$ua_map      = $lookups['ua'];
 		$country_map = $lookups['country'];
-
 		return array_map(
 			function ( $bot ) use ( $ua_map, $country_map ) {
 				$key          = $bot->ip_address . '|' . $bot->user_agent_hash;
@@ -241,20 +239,32 @@ class AnalyticsCollector {
 	}
 
 	/**
-	 * Get blocked bots with resolved user agents.
+	 * Count blocked bots, optionally filtered by a search term.
 	 *
-	 * @param int $limit  Number of results.
-	 * @param int $offset Offset for pagination.
+	 * @param string $search Optional term matched against IP and user agent.
+	 * @return int Blocked count.
+	 * @since 1.3.0
+	 */
+	public function count_blocked_bots( string $search = '' ): int {
+		return $this->score_repo->count_blocked( $search );
+	}
+
+	/**
+	 * Get blocked bots with resolved user agents, sorting and search.
+	 *
+	 * @param int    $limit   Number of results.
+	 * @param int    $offset  Offset for pagination.
+	 * @param string $orderby Column to sort by (validated by the repository).
+	 * @param string $order   Sort direction, 'ASC' or 'DESC'.
+	 * @param string $search  Optional term matched against IP and user agent.
 	 * @return array Array of bot data arrays.
 	 * @since 1.0.0
 	 */
-	public function get_blocked_bots( int $limit = 50, int $offset = 0 ): array {
-		$bots = $this->score_repo->get_blocked( $limit, $offset );
-
+	public function get_blocked_bots( int $limit = 50, int $offset = 0, string $orderby = 'last_seen_at', string $order = 'DESC', string $search = '' ): array {
+		$bots        = $this->score_repo->get_blocked( $limit, $offset, $orderby, $order, $search );
 		$lookups     = $this->build_bot_lookups( $bots );
 		$ua_map      = $lookups['ua'];
 		$country_map = $lookups['country'];
-
 		return array_map(
 			function ( $bot ) use ( $ua_map, $country_map ) {
 				$key          = $bot->ip_address . '|' . $bot->user_agent_hash;
