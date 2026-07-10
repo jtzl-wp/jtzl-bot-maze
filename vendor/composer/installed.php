@@ -3,7 +3,7 @@
         'name' => 'jtzl/bot-maze',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '689bdc2a12a200e196cec4f862327a12c24161a8',
+        'reference' => '16443143210c5ea2e8846a2e4863be6685c5782d',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'jtzl/bot-maze' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '689bdc2a12a200e196cec4f862327a12c24161a8',
+            'reference' => '16443143210c5ea2e8846a2e4863be6685c5782d',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
