@@ -25,10 +25,11 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
 /**
  * Server-side sortable, searchable table of blocked bots.
  *
- * The score table stores the User Agent only as a hash and derives Country from
- * the IP, so those two columns are display-only for sorting. Search and the
- * click-to-filter links still cover the IP and the User Agent (resolved to
- * hashes via the trap-visit lookup). The pagination header reports the count.
+ * Every column sorts server-side over the full dataset — the score table
+ * stores the readable User Agent and Country alongside the hash, so both
+ * are real sortable columns (parity with Recent Activity). Search and the
+ * click-to-filter links cover the IP and the User Agent directly. The
+ * pagination header reports the count.
  *
  * @since 1.3.0
  */
@@ -93,14 +94,16 @@ class BlockedBotsListTable extends \WP_List_Table {
 	/**
 	 * Columns that support sorting, mapped to their database column.
 	 *
-	 * Country and User Agent are omitted: they are derived (IP lookup / hash),
-	 * not real score-table columns.
+	 * Country sorts by ISO code rather than localized display name —
+	 * intentional, matching the Recent Activity table.
 	 *
 	 * @return array<string, array{0: string, 1: bool}>
 	 */
 	public function get_sortable_columns(): array {
 		return array(
 			'ip_address' => array( 'ip_address', false ),
+			'country'    => array( 'country_code', false ),
+			'user_agent' => array( 'user_agent', false ),
 			'score'      => array( 'score', false ),
 			'visits'     => array( 'trap_visits_count', false ),
 			'max_depth'  => array( 'max_depth_reached', false ),

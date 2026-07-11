@@ -200,10 +200,11 @@ class TrapVisitRepository implements TrapVisitRepositoryInterface {
 
 		// $orderby and $order are drawn from fixed allowlists above, so they are
 		// safe to interpolate; every value is bound through $wpdb->prepare(). The
-		// placeholder sniffs cannot see the placeholders inside {$where}.
+		// placeholder sniffs cannot see the placeholders inside {$where}. The id
+		// tiebreaker keeps pagination deterministic on duplicate sort values.
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders
 		$query = $this->wpdb->prepare(
-			"SELECT * FROM {$this->table_name} WHERE {$where} ORDER BY {$orderby} {$order} LIMIT %d OFFSET %d",
+			"SELECT * FROM {$this->table_name} WHERE {$where} ORDER BY {$orderby} {$order}, id {$order} LIMIT %d OFFSET %d",
 			$params
 		);
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders

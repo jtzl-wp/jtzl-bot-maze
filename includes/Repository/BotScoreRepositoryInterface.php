@@ -26,12 +26,18 @@ interface BotScoreRepositoryInterface {
 	/**
 	 * Find or create a bot score record for an IP+UA pair.
 	 *
+	 * The readable user agent and country are required (no defaults) so
+	 * every caller keeps the denormalized columns populated; existing rows
+	 * self-heal a blank user_agent and refresh a non-empty country_code.
+	 *
 	 * @param string $ip_address      Visitor IP.
 	 * @param string $user_agent_hash SHA256-truncated UA hash.
+	 * @param string $user_agent      Readable user agent (the exact string that produced the hash).
+	 * @param string $country_code    Resolved country code ('' when unresolved).
 	 * @return BotScore|null The bot score entity.
 	 * @since 1.0.0
 	 */
-	public function find_or_create( string $ip_address, string $user_agent_hash ): ?BotScore;
+	public function find_or_create( string $ip_address, string $user_agent_hash, string $user_agent, string $country_code ): ?BotScore;
 
 	/**
 	 * Find a bot score by IP+UA identity.
@@ -103,12 +109,18 @@ interface BotScoreRepositoryInterface {
 	/**
 	 * Update last_seen_at and increment visit count for a blocked bot.
 	 *
+	 * Also self-heals the readable user agent and refreshes the country
+	 * from a non-empty code, mirroring find_or_create() for the blocked
+	 * path that bypasses it.
+	 *
 	 * @param string $ip_address      Visitor IP.
 	 * @param string $user_agent_hash UA hash.
+	 * @param string $user_agent      Readable user agent (the exact string that produced the hash).
+	 * @param string $country_code    Resolved country code ('' when unresolved).
 	 * @return bool True on success.
 	 * @since 1.0.0
 	 */
-	public function touch_blocked_visit( string $ip_address, string $user_agent_hash ): bool;
+	public function touch_blocked_visit( string $ip_address, string $user_agent_hash, string $user_agent, string $country_code ): bool;
 
 	/**
 	 * Get blocked bots with pagination, sorting and search.

@@ -43,26 +43,39 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 	private string $table_name;
 
 	/**
+	 * Blocked-bots list query builder.
+	 *
+	 * @var BlockedBotQuery
+	 * @since 1.4.0
+	 */
+	private BlockedBotQuery $blocked_query;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param \wpdb $wpdb WordPress database object.
 	 * @since 1.0.0
 	 */
 	public function __construct( \wpdb $wpdb ) {
-		$this->wpdb       = $wpdb;
-		$this->table_name = $wpdb->prefix . 'jtzl_bm_bot_scores';
+		$this->wpdb          = $wpdb;
+		$this->table_name    = $wpdb->prefix . 'jtzl_bm_bot_scores';
+		$this->blocked_query = new BlockedBotQuery( $wpdb );
 	}
 
 	/**
 	 * Find or create a bot score record for an IP+UA pair.
 	 *
+	 * UA and country are required so every write path self-heals the row.
+	 *
 	 * @param string $ip_address      Visitor IP.
 	 * @param string $user_agent_hash SHA256-truncated UA hash.
+	 * @param string $user_agent      Readable user agent (the exact string that produced the hash).
+	 * @param string $country_code    Resolved country code ('' when unresolved).
 	 * @return BotScore|null The bot score entity.
 	 * @since 1.0.0
 	 */
-	public function find_or_create( string $ip_address, string $user_agent_hash ): ?BotScore {
-		$existing = $this->find_by_identity( $ip_address, $user_agent_hash );
+	public function find_or_create( string $ip_address, string $user_agent_hash, string $user_agent, string $country_code ): ?BotScore {
+		$existing = $this->refresh_denormalized_fields( $this->find_by_identity( $ip_address, $user_agent_hash ), $user_agent, $country_code );
 
 		if ( null !== $existing ) {
 			return $existing;
@@ -75,6 +88,8 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 			array(
 				'ip_address'        => $ip_address,
 				'user_agent_hash'   => $user_agent_hash,
+				'user_agent'        => $user_agent,
+				'country_code'      => $country_code,
 				'score'             => 0.00,
 				'trap_visits_count' => 0,
 				'max_depth_reached' => 0,
@@ -82,15 +97,50 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 				'last_seen_at'      => $now,
 				'is_blocked'        => 0,
 			),
-			array( '%s', '%s', '%f', '%d', '%d', '%s', '%s', '%d' )
+			array( '%s', '%s', '%s', '%s', '%f', '%d', '%d', '%s', '%s', '%d' )
 		);
 
 		if ( false === $result ) {
-			// Possible race: another request may have inserted between our check and insert.
-			return $this->find_by_identity( $ip_address, $user_agent_hash );
+			// Lost a race: another request inserted first. Heal its row too.
+			return $this->refresh_denormalized_fields( $this->find_by_identity( $ip_address, $user_agent_hash ), $user_agent, $country_code );
 		}
 
 		return $this->find_by_id( (int) $this->wpdb->insert_id );
+	}
+
+	/**
+	 * Self-heal an existing row's user agent and refresh a non-empty country
+	 * (an empty code never erases a known country), returning the updated
+	 * entity; a null entity passes through so callers can pipe find_by_identity() in.
+	 *
+	 * @param BotScore|null $existing     Existing entity, or null when absent.
+	 * @param string        $user_agent   Readable user agent.
+	 * @param string        $country_code Resolved country code ('' when unresolved).
+	 * @return BotScore|null The same entity (refreshed), or null.
+	 * @since 1.4.0
+	 */
+	private function refresh_denormalized_fields( ?BotScore $existing, string $user_agent, string $country_code ): ?BotScore {
+		if ( null === $existing ) {
+			return null;
+		}
+
+		$data = array();
+
+		if ( $existing->user_agent !== $user_agent ) {
+			$data['user_agent']   = $user_agent;
+			$existing->user_agent = $user_agent;
+		}
+
+		if ( '' !== $country_code && $existing->country_code !== $country_code ) {
+			$data['country_code']   = $country_code;
+			$existing->country_code = $country_code;
+		}
+
+		if ( ! empty( $data ) ) {
+			$this->wpdb->update( $this->table_name, $data, array( 'id' => $existing->id ), '%s', array( '%d' ) );
+		}
+
+		return $existing;
 	}
 
 	/**
@@ -206,11 +256,7 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 
 		$rows = $this->wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
-		if ( empty( $rows ) ) {
-			return array();
-		}
-
-		return array_map( array( $this, 'hydrate' ), $rows );
+		return empty( $rows ) ? array() : array_map( array( $this, 'hydrate' ), $rows );
 	}
 
 	/**
@@ -233,34 +279,29 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 	 * @since 1.0.0
 	 */
 	public function count_blocked( string $search = '' ): int {
-		$params = array();
-		$where  = $this->blocked_where( $search, $params );
-		if ( empty( $params ) ) {
-			return (int) $this->wpdb->get_var( "SELECT COUNT(*) FROM {$this->table_name} WHERE {$where}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
-		}
-
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders
-		$query = $this->wpdb->prepare(
-			"SELECT COUNT(*) FROM {$this->table_name} WHERE {$where}",
-			$params
-		);
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders
-
-		return (int) $this->wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		return $this->blocked_query->count( $search );
 	}
 
 	/**
 	 * Update last_seen_at and increment visit count for a blocked bot.
 	 *
+	 * Also self-heals the UA and refreshes a non-empty country, mirroring
+	 * find_or_create() for the blocked path that bypasses it.
+	 *
 	 * @param string $ip_address      Visitor IP.
 	 * @param string $user_agent_hash UA hash.
+	 * @param string $user_agent      Readable user agent (the exact string that produced the hash).
+	 * @param string $country_code    Resolved country code ('' when unresolved).
 	 * @return bool True on success.
 	 * @since 1.0.0
 	 */
-	public function touch_blocked_visit( string $ip_address, string $user_agent_hash ): bool {
+	public function touch_blocked_visit( string $ip_address, string $user_agent_hash, string $user_agent, string $country_code ): bool {
 		$sql = $this->wpdb->prepare(
-			"UPDATE {$this->table_name} SET trap_visits_count = trap_visits_count + 1, last_seen_at = %s WHERE ip_address = %s AND user_agent_hash = %s AND is_blocked = 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			"UPDATE {$this->table_name} SET trap_visits_count = trap_visits_count + 1, last_seen_at = %s, user_agent = %s, country_code = CASE WHEN %s = '' THEN country_code ELSE %s END WHERE ip_address = %s AND user_agent_hash = %s AND is_blocked = 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			current_time( 'mysql' ),
+			$user_agent,
+			$country_code,
+			$country_code,
 			$ip_address,
 			$user_agent_hash
 		);
@@ -282,53 +323,10 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 	 * @since 1.0.0
 	 */
 	public function get_blocked( int $limit = 50, int $offset = 0, string $orderby = 'last_seen_at', string $order = 'DESC', string $search = '' ): array {
-		$allowed = array( 'ip_address', 'score', 'trap_visits_count', 'max_depth_reached', 'first_seen_at', 'last_seen_at' );
-		$orderby = in_array( $orderby, $allowed, true ) ? $orderby : 'last_seen_at';
-		$order   = 'ASC' === strtoupper( $order ) ? 'ASC' : 'DESC';
-
-		$params = array();
-		$where  = $this->blocked_where( $search, $params );
-		$params[] = $limit;
-		$params[] = $offset;
-
-		// $orderby and $order come from fixed allowlists; every value is bound.
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders
-		$query = $this->wpdb->prepare(
-			"SELECT * FROM {$this->table_name} WHERE {$where} ORDER BY {$orderby} {$order} LIMIT %d OFFSET %d",
-			$params
+		return array_map(
+			array( $this, 'hydrate' ),
+			$this->blocked_query->rows( $limit, $offset, $orderby, $order, $search )
 		);
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders
-
-		$rows = $this->wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-
-		return empty( $rows ) ? array() : array_map( array( $this, 'hydrate' ), $rows );
-	}
-
-	/**
-	 * Build the WHERE body for blocked-bot queries, populating $params by reference.
-	 *
-	 * The UA search matches SHA2(user_agent,256) of trap-visit user agents, which
-	 * mirrors the stored PHP sha256() hash (an integration test guards it); bots
-	 * whose trap visits were pruned are not UA-searchable.
-	 *
-	 * @param string $search Search term for IP and user agent.
-	 * @param array  $params Bound-parameter accumulator, populated by reference.
-	 * @return string SQL WHERE body (without the leading "WHERE").
-	 * @since 1.3.0
-	 */
-	private function blocked_where( string $search, array &$params ): string {
-		$params = array();
-
-		if ( '' === $search ) {
-			return 'is_blocked = 1';
-		}
-
-		$like     = '%' . $this->wpdb->esc_like( $search ) . '%';
-		$visits   = $this->wpdb->prefix . 'jtzl_bm_trap_visits';
-		$params[] = $like;
-		$params[] = $like;
-
-		return "is_blocked = 1 AND ( ip_address LIKE %s OR user_agent_hash IN ( SELECT SHA2( user_agent, 256 ) FROM {$visits} WHERE user_agent LIKE %s ) )";
 	}
 
 	/**
@@ -369,7 +367,9 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 			(int) $row['max_depth_reached'],
 			new DateTime( $row['first_seen_at'] ),
 			new DateTime( $row['last_seen_at'] ),
-			(bool) $row['is_blocked']
+			(bool) $row['is_blocked'],
+			(string) $row['user_agent'],
+			(string) $row['country_code']
 		);
 	}
 }

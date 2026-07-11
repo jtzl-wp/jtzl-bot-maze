@@ -17,6 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // @codeCoverageIgnoreEnd
 
 use JTZL\Bot_Maze\Data\CountryNames;
+use JTZL\Bot_Maze\Entity\BotScore;
 use JTZL\Bot_Maze\Repository\TrapPageRepositoryInterface;
 use JTZL\Bot_Maze\Repository\TrapVisitRepositoryInterface;
 use JTZL\Bot_Maze\Repository\BotScoreRepositoryInterface;
@@ -136,73 +137,37 @@ class AnalyticsCollector {
 	 * @since 1.0.0
 	 */
 	public function get_top_bots( int $limit = 10 ): array {
-		$bots        = $this->score_repo->get_top_by_score( $limit );
-		$lookups     = $this->build_bot_lookups( $bots );
-		$ua_map      = $lookups['ua'];
-		$country_map = $lookups['country'];
 		return array_map(
-			function ( $bot ) use ( $ua_map, $country_map ) {
-				$key          = $bot->ip_address . '|' . $bot->user_agent_hash;
-				$ua           = $ua_map[ $key ] ?? $bot->user_agent_hash;
-				$country_code = $country_map[ $bot->ip_address ] ?? '';
-				return array(
-					'id'                => $bot->id,
-					'ip_address'        => $bot->ip_address,
-					'user_agent'        => $ua,
-					'score'             => $bot->score,
-					'trap_visits_count' => $bot->trap_visits_count,
-					'max_depth_reached' => $bot->max_depth_reached,
-					'first_seen_at'     => $bot->first_seen_at->format( 'Y-m-d H:i:s' ),
-					'last_seen_at'      => $bot->last_seen_at->format( 'Y-m-d H:i:s' ),
-					'is_blocked'        => $bot->is_blocked,
-					'country_code'      => $country_code,
-					'country_name'      => CountryNames::get( $country_code ),
-				);
-			},
-			$bots
+			array( $this, 'format_bot' ),
+			$this->score_repo->get_top_by_score( $limit )
 		);
 	}
 
 	/**
-	 * Build user-agent and country lookups from recent visits for a set of bots.
+	 * Format a bot score entity for the admin tables.
 	 *
-	 * @param array $bots Bot score entities to resolve data for.
-	 * @return array{ua: array<string, string>, country: array<string, string>}
-	 * @since 1.0.0
+	 * The user agent and country are read straight from the denormalized
+	 * score row. A blank user agent (unrecoverable orphan) falls back to
+	 * the hash, which the blocked-bots search also matches so the value
+	 * stays click-filterable.
+	 *
+	 * @param BotScore $bot Bot score entity.
+	 * @return array Bot data array.
+	 * @since 1.4.0
 	 */
-	private function build_bot_lookups( array $bots ): array {
-		if ( empty( $bots ) ) {
-			return array(
-				'ua'      => array(),
-				'country' => array(),
-			);
-		}
-
-		$needed = array();
-		foreach ( $bots as $bot ) {
-			$needed[ $bot->ip_address . '|' . $bot->user_agent_hash ] = true;
-		}
-
-		$visits      = $this->visit_repo->get_recent( count( $bots ) * 20 );
-		$ua_map      = array();
-		$country_map = array();
-
-		foreach ( $visits as $visit ) {
-			$hash = hash( 'sha256', $visit->user_agent );
-			$key  = $visit->ip_address . '|' . $hash;
-
-			if ( isset( $needed[ $key ] ) && ! isset( $ua_map[ $key ] ) ) {
-				$ua_map[ $key ] = $visit->user_agent;
-			}
-
-			if ( ! empty( $visit->country_code ) && ! isset( $country_map[ $visit->ip_address ] ) ) {
-				$country_map[ $visit->ip_address ] = $visit->country_code;
-			}
-		}
-
+	private function format_bot( BotScore $bot ): array {
 		return array(
-			'ua'      => $ua_map,
-			'country' => $country_map,
+			'id'                => $bot->id,
+			'ip_address'        => $bot->ip_address,
+			'user_agent'        => '' !== $bot->user_agent ? $bot->user_agent : $bot->user_agent_hash,
+			'score'             => $bot->score,
+			'trap_visits_count' => $bot->trap_visits_count,
+			'max_depth_reached' => $bot->max_depth_reached,
+			'first_seen_at'     => $bot->first_seen_at->format( 'Y-m-d H:i:s' ),
+			'last_seen_at'      => $bot->last_seen_at->format( 'Y-m-d H:i:s' ),
+			'is_blocked'        => $bot->is_blocked,
+			'country_code'      => $bot->country_code,
+			'country_name'      => CountryNames::get( $bot->country_code ),
 		);
 	}
 
@@ -219,9 +184,11 @@ class AnalyticsCollector {
 	 * @since 1.0.0
 	 */
 	public function record_blocked_visit( string $ip_address, string $user_agent_hash, string $user_agent, int $response_code = 403 ): void {
-		$this->score_repo->touch_blocked_visit( $ip_address, $user_agent_hash );
-
+		// Resolve the country before the touch so the score row's
+		// denormalized copies refresh in the same write.
 		$country_code = $this->geo_ip_service->resolve_country( $ip_address );
+
+		$this->score_repo->touch_blocked_visit( $ip_address, $user_agent_hash, $user_agent, $country_code );
 
 		$this->visit_repo->create(
 			array(
@@ -250,7 +217,7 @@ class AnalyticsCollector {
 	}
 
 	/**
-	 * Get blocked bots with resolved user agents, sorting and search.
+	 * Get blocked bots with pagination, sorting and search.
 	 *
 	 * @param int    $limit   Number of results.
 	 * @param int    $offset  Offset for pagination.
@@ -261,30 +228,9 @@ class AnalyticsCollector {
 	 * @since 1.0.0
 	 */
 	public function get_blocked_bots( int $limit = 50, int $offset = 0, string $orderby = 'last_seen_at', string $order = 'DESC', string $search = '' ): array {
-		$bots        = $this->score_repo->get_blocked( $limit, $offset, $orderby, $order, $search );
-		$lookups     = $this->build_bot_lookups( $bots );
-		$ua_map      = $lookups['ua'];
-		$country_map = $lookups['country'];
 		return array_map(
-			function ( $bot ) use ( $ua_map, $country_map ) {
-				$key          = $bot->ip_address . '|' . $bot->user_agent_hash;
-				$ua           = $ua_map[ $key ] ?? $bot->user_agent_hash;
-				$country_code = $country_map[ $bot->ip_address ] ?? '';
-				return array(
-					'id'                => $bot->id,
-					'ip_address'        => $bot->ip_address,
-					'user_agent'        => $ua,
-					'score'             => $bot->score,
-					'trap_visits_count' => $bot->trap_visits_count,
-					'max_depth_reached' => $bot->max_depth_reached,
-					'first_seen_at'     => $bot->first_seen_at->format( 'Y-m-d H:i:s' ),
-					'last_seen_at'      => $bot->last_seen_at->format( 'Y-m-d H:i:s' ),
-					'is_blocked'        => $bot->is_blocked,
-					'country_code'      => $country_code,
-					'country_name'      => CountryNames::get( $country_code ),
-				);
-			},
-			$bots
+			array( $this, 'format_bot' ),
+			$this->score_repo->get_blocked( $limit, $offset, $orderby, $order, $search )
 		);
 	}
 

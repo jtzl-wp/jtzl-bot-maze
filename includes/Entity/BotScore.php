@@ -98,6 +98,22 @@ class BotScore {
 	public bool $is_blocked;
 
 	/**
+	 * Readable user agent (empty when unrecoverable — display falls back to the hash).
+	 *
+	 * @var string
+	 * @since 1.4.0
+	 */
+	public string $user_agent;
+
+	/**
+	 * Latest resolved two-letter country code (empty when never resolved).
+	 *
+	 * @var string
+	 * @since 1.4.0
+	 */
+	public string $country_code;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param int      $id                Score ID.
@@ -109,6 +125,8 @@ class BotScore {
 	 * @param DateTime $first_seen_at     First seen.
 	 * @param DateTime $last_seen_at      Last seen.
 	 * @param bool     $is_blocked        Blocked flag.
+	 * @param string   $user_agent        Readable user agent.
+	 * @param string   $country_code      Latest resolved country code.
 	 * @since 1.0.0
 	 */
 	public function __construct(
@@ -120,7 +138,9 @@ class BotScore {
 		int $max_depth_reached,
 		DateTime $first_seen_at,
 		DateTime $last_seen_at,
-		bool $is_blocked
+		bool $is_blocked,
+		string $user_agent = '',
+		string $country_code = ''
 	) {
 		$this->id                = $id;
 		$this->ip_address        = $ip_address;
@@ -131,5 +151,7 @@ class BotScore {
 		$this->first_seen_at     = $first_seen_at;
 		$this->last_seen_at      = $last_seen_at;
 		$this->is_blocked        = $is_blocked;
+		$this->user_agent        = $user_agent;
+		$this->country_code      = $country_code;
 	}
 }

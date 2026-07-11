@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // @codeCoverageIgnoreEnd
 
-use JTZL\Bot_Maze\Database\Schema;
+use JTZL\Bot_Maze\Database\Migrator;
 
 /**
  * Plugin-scoped cache and schedule utilities.
@@ -29,21 +29,31 @@ use JTZL\Bot_Maze\Database\Schema;
 class PluginCache {
 
 	/**
-	 * Clear DI compiled cache when the plugin version changes.
+	 * Clear DI compiled cache and migrate when the plugin version changes.
 	 *
 	 * Runs before the container is built so it must not depend on DI.
+	 * The migrator records the version as soon as the schema is verified,
+	 * so the cache clear and dbDelta never repeat per request; only an
+	 * unfinished data backfill is retried, gated by its own flag.
 	 *
+	 * @param Migrator|null $migrator Migration runner (defaults to a real one).
 	 * @return void
 	 * @since 1.0.0
 	 */
-	public static function maybe_handle_version_change(): void {
-		$stored_version = (string) get_option( 'jtzl_bm_plugin_version', '' );
+	public static function maybe_handle_version_change( ?Migrator $migrator = null ): void {
+		global $wpdb;
+		$migrator = $migrator ?? new Migrator( $wpdb );
 
-		if ( JTZL_BM_VERSION !== $stored_version ) {
-			self::clear_di_cache();
-			Schema::create_tables();
-			update_option( 'jtzl_bm_plugin_version', JTZL_BM_VERSION );
+		$stored_version = (string) get_option( Migrator::VERSION_OPTION, '' );
+
+		if ( JTZL_BM_VERSION === $stored_version ) {
+			// Cheap retry path: one option read when nothing is pending.
+			$migrator->run_pending_backfill();
+			return;
 		}
+
+		self::clear_di_cache();
+		$migrator->run();
 	}
 
 	/**

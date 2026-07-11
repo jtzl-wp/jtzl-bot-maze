@@ -178,8 +178,9 @@ class BotDetector {
 			)
 		);
 
-		// Find or create a bot score record.
-		$bot_score = $this->score_repo->find_or_create( $ip, $ua_hash );
+		// Find or create a bot score record, keeping its denormalized
+		// user agent and country copies fresh.
+		$bot_score = $this->score_repo->find_or_create( $ip, $ua_hash, $ua, $country_code );
 
 		// Score update is best-effort; visit logging above is more important.
 		if ( null === $bot_score ) {

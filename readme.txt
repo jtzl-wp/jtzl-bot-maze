@@ -4,7 +4,7 @@ Tags: security, bot-protection, anti-scraping, honeypot, ai-bot
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 8.2
-Stable tag: 1.3.0
+Stable tag: 1.4.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -128,6 +128,12 @@ When **ip-api.com** is selected as the GeoIP provider, the plugin sends visitor 
 Geographic tracking is **off by default** and requires explicit opt-in by a site administrator.
 
 == Changelog ==
+
+= 1.4.0 =
+* Every column on the Blocked Bots page is now sortable, including Country and User Agent — full parity with Recent Activity. Country sorts by its two-letter code, matching the other table.
+* The Top Bots by Score table on the analytics dashboard now always shows the real user agent and country. Previously, bots not seen recently could show a long string of letters and digits (an internal hash) and a blank country.
+* Blocked-bot searches match user agents directly and are much lighter on the database; results no longer depend on how much visit history is retained.
+* Under the hood, the readable user agent and latest country are now stored with each bot's score record, kept fresh on every visit, and existing records are upgraded automatically — no action needed.
 
 = 1.3.0 =
 * Recent Activity and Blocked Bots are now fully sortable and searchable. Click any column heading to sort your entire history — not just the page you're looking at — search by IP address or user agent, and page through the results, all handled server-side over the complete dataset.

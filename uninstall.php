@@ -31,6 +31,7 @@ JTZL\Bot_Maze\clear_di_cache();
 // Remove plugin options.
 delete_option( 'jtzl_bm_plugin_version' );
 delete_option( 'jtzl_bm_flush_rewrite_rules_flag' );
+delete_option( 'jtzl_bm_pending_backfill' );
 
 // Remove per-user Cloudflare-notice dismissals (see Admin\CloudflareSetupNotice).
 delete_metadata( 'user', 0, 'jtzl_bm_cf_notice_dismissed', '', true );

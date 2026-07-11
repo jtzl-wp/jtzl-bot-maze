@@ -154,15 +154,21 @@ class Bootstrap {
 	/**
 	 * Plugin activation handler.
 	 *
+	 * Runs the same migration as PluginCache::maybe_handle_version_change()
+	 * so deactivate/update/reactivate flows can't skip a schema upgrade.
+	 * The migrator records the plugin version once the schema is verified;
+	 * a failed step retries on the next request instead of being skipped.
+	 *
+	 * @param Database\Migrator|null $migrator Migration runner (defaults to a real one).
 	 * @return void
 	 * @since 1.0.0
 	 */
-	public function activate(): void {
-		Database\Schema::create_tables();
+	public function activate( ?Database\Migrator $migrator = null ): void {
+		global $wpdb;
+		( $migrator ?? new Database\Migrator( $wpdb ) )->run();
 		Database\Options::set_defaults();
 
 		PluginCache::clear_di_cache();
-		update_option( 'jtzl_bm_plugin_version', JTZL_BM_VERSION );
 		update_option( 'jtzl_bm_flush_rewrite_rules_flag', true );
 
 		if ( ! wp_next_scheduled( 'jtzl_bm_maintenance_cron' ) ) {

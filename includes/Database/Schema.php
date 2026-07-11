@@ -101,10 +101,15 @@ class Schema {
 ) $charset_collate;";
 
 		// SQL for jtzl_bm_bot_scores table - Accumulated risk per IP+UA.
+		// user_agent_hash stays the unique dedup key; user_agent and
+		// country_code are readable denormalized copies for display,
+		// sorting and search (backfilled by Database\Migrator).
 		$sql[] = "CREATE TABLE $bot_scores_table (
   id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   ip_address varchar(45) NOT NULL,
   user_agent_hash varchar(64) NOT NULL,
+  user_agent varchar(512) NOT NULL DEFAULT '',
+  country_code char(2) NOT NULL DEFAULT '',
   score decimal(8,2) NOT NULL DEFAULT 0.00,
   trap_visits_count int(10) UNSIGNED NOT NULL DEFAULT 0,
   max_depth_reached int(10) UNSIGNED NOT NULL DEFAULT 0,
