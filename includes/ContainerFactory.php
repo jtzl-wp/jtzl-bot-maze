@@ -209,6 +209,12 @@ class ContainerFactory {
 				);
 			},
 
+			'JTZL\Bot_Maze\Admin\MigrationHealthCheck'    => function ( Container $c ) {
+				return new Admin\MigrationHealthCheck(
+					new Database\Migrator( $c->get( \wpdb::class ) )
+				);
+			},
+
 			'JTZL\Bot_Maze\Template\ContentPool'          => autowire(),
 
 			'JTZL\Bot_Maze\Service\ContentTemplateEngine' => autowire()

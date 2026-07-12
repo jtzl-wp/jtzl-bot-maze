@@ -84,7 +84,14 @@ class Bootstrap {
 		$blocker = $this->build_blocking_handler();
 		$wp->add_action( 'template_redirect', array( $blocker, 'handle' ), 1 );
 
-		// Admin pages and assets only mount in wp-admin.
+		// Register the migration Site Health status test on every request (via
+		// the container string-get, so no object coupling here) so WordPress's
+		// weekly cron Site Health check — which runs where is_admin() is false —
+		// still includes it and the dashboard widget updates passively.
+		$this->container->get( 'JTZL\Bot_Maze\Admin\MigrationHealthCheck' )->register_status_test();
+
+		// Admin pages and assets (and the admin-only migration hooks) only mount
+		// in wp-admin.
 		if ( $wp->is_admin() ) {
 			( new AdminPagesBootstrap( $this->container ) )->register( $wp );
 		}
@@ -165,7 +172,8 @@ class Bootstrap {
 	 */
 	public function activate( ?Database\Migrator $migrator = null ): void {
 		global $wpdb;
-		( $migrator ?? new Database\Migrator( $wpdb ) )->run();
+		$migrator = $migrator ?? new Database\Migrator( $wpdb );
+		$migrator->run();
 		Database\Options::set_defaults();
 
 		PluginCache::clear_di_cache();
@@ -183,6 +191,13 @@ class Bootstrap {
 
 		if ( ! wp_next_scheduled( 'jtzl_bm_cloudflare_update_cron' ) ) {
 			wp_schedule_event( time(), 'weekly', 'jtzl_bm_cloudflare_update_cron' );
+		}
+
+		// If the migration didn't fully land — missing columns (Branch B),
+		// a pending backfill (Branch A), or a stale version — schedule an hourly
+		// cron to retry it in the background until it completes.
+		if ( $migrator->is_incomplete() && ! wp_next_scheduled( Database\Migrator::BACKFILL_RETRY_HOOK ) ) {
+			wp_schedule_event( time() + HOUR_IN_SECONDS, 'hourly', Database\Migrator::BACKFILL_RETRY_HOOK );
 		}
 
 		if ( (bool) get_option( 'jtzl_bm_enabled', true ) ) {
@@ -222,6 +237,7 @@ class Bootstrap {
 			'jtzl_bm_maintenance_cron',
 			'jtzl_bm_maxmind_update_cron',
 			'jtzl_bm_cloudflare_update_cron',
+			Database\Migrator::BACKFILL_RETRY_HOOK,
 			// Legacy hook names from the jtzl_bl_* era.
 			'jtzl_bl_maintenance_cron',
 			'jtzl_bl_maxmind_update_cron',
@@ -234,6 +250,35 @@ class Bootstrap {
 			if ( $timestamp ) {
 				wp_unschedule_event( $timestamp, $hook );
 			}
+		}
+	}
+
+	/**
+	 * Handle the retry cron: re-run whatever step of the migration is unfinished.
+	 *
+	 * Scheduled hourly whenever the migration is incomplete after activation or
+	 * a version upgrade. When the schema is missing or the version is stale it
+	 * re-runs the full migration (which re-applies dbDelta — Branch B recovery);
+	 * otherwise it just retries the pending backfill (Branch A). Removes itself
+	 * once the migration is fully complete so there is no perpetual overhead.
+	 *
+	 * @return void
+	 * @since 1.4.0
+	 */
+	public function handle_backfill_retry_cron(): void {
+		global $wpdb;
+		$migrator = new Database\Migrator( $wpdb );
+		$status   = $migrator->status();
+
+		if ( ! $status['columns_present'] || JTZL_BM_VERSION !== $status['stored_version'] ) {
+			$migrator->run();
+		} else {
+			$migrator->run_pending_backfill();
+		}
+
+		// Unschedule the retry once the migration is fully complete.
+		if ( ! $migrator->is_incomplete() ) {
+			wp_clear_scheduled_hook( Database\Migrator::BACKFILL_RETRY_HOOK );
 		}
 	}
 

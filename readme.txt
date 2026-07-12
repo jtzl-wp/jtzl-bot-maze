@@ -134,6 +134,7 @@ Geographic tracking is **off by default** and requires explicit opt-in by a site
 * The Top Bots by Score table on the analytics dashboard now always shows the real user agent and country. Previously, bots not seen recently could show a long string of letters and digits (an internal hash) and a blank country.
 * Blocked-bot searches match user agents directly and are much lighter on the database; results no longer depend on how much visit history is retained.
 * Under the hood, the readable user agent and latest country are now stored with each bot's score record, kept fresh on every visit, and existing records are upgraded automatically — no action needed.
+* The one-time database upgrade now reports its status under Tools → Site Health and finishes on its own in the background if it can't complete right away, with a one-click retry — so the readable user agent and country always fill in without any manual step.
 
 = 1.3.0 =
 * Recent Activity and Blocked Bots are now fully sortable and searchable. Click any column heading to sort your entire history — not just the page you're looking at — search by IP address or user agent, and page through the results, all handled server-side over the complete dataset.

@@ -54,6 +54,14 @@ class PluginCache {
 
 		self::clear_di_cache();
 		$migrator->run();
+
+		// If run() didn't fully land the migration — missing columns (Branch B),
+		// a pending backfill (Branch A), or a stale version — schedule an hourly
+		// cron to retry it in the background so it self-heals without per-request
+		// cost.
+		if ( $migrator->is_incomplete() && ! wp_next_scheduled( Migrator::BACKFILL_RETRY_HOOK ) ) {
+			wp_schedule_event( time() + HOUR_IN_SECONDS, 'hourly', Migrator::BACKFILL_RETRY_HOOK );
+		}
 	}
 
 	/**

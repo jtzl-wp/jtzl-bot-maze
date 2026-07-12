@@ -92,6 +92,12 @@ class AdminPagesBootstrap {
 		// composition root's object coupling in check.
 		$this->container->get( 'JTZL\Bot_Maze\Admin\RobotsTxtSetupNotice' )->init();
 
+		// Admin-only migration Site Health hooks (debug info + manual retry).
+		// The status-test filter itself is registered globally in Bootstrap so
+		// the weekly cron Site Health check picks it up. Resolved through the
+		// container (like the notice above) to avoid object coupling here.
+		$this->container->get( 'JTZL\Bot_Maze\Admin\MigrationHealthCheck' )->register_admin_hooks();
+
 		// Re-check robots.txt after the trap path or the toggle changes on save.
 		$robots_verifier = $this->container->get( 'JTZL\Bot_Maze\Service\RobotsTxtVerifier' );
 		$wp->add_action( 'update_option_jtzl_bm_robots_txt_enabled', array( $robots_verifier, 'invalidate' ) );

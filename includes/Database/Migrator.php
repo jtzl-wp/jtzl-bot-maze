@@ -48,6 +48,14 @@ class Migrator {
 	public const PENDING_BACKFILL_OPTION = 'jtzl_bm_pending_backfill';
 
 	/**
+	 * WP-Cron hook that retries an incomplete migration in the background.
+	 *
+	 * @var string
+	 * @since 1.4.0
+	 */
+	public const BACKFILL_RETRY_HOOK = 'jtzl_bm_backfill_retry_cron';
+
+	/**
 	 * WordPress database instance.
 	 *
 	 * @var \wpdb
@@ -161,6 +169,38 @@ class Migrator {
 	 */
 	public function backfill(): bool {
 		return $this->backfill_user_agents() && $this->backfill_country_codes();
+	}
+
+	/**
+	 * Return a snapshot of migration state for Site Health and support diagnostics.
+	 *
+	 * @return array{columns_present: bool, pending: bool, stored_version: string}
+	 * @since 1.4.0
+	 */
+	public function status(): array {
+		return array(
+			'columns_present' => $this->has_denormalized_columns(),
+			'pending'         => (bool) get_option( self::PENDING_BACKFILL_OPTION ),
+			'stored_version'  => (string) get_option( self::VERSION_OPTION, '' ),
+		);
+	}
+
+	/**
+	 * Whether the migration has not fully landed and still needs work.
+	 *
+	 * True when the schema columns are missing (Branch B), a data backfill is
+	 * still pending (Branch A), or the stored version is behind the code — any
+	 * of which warrants scheduling (or keeping) the background retry cron.
+	 *
+	 * @return bool
+	 * @since 1.4.0
+	 */
+	public function is_incomplete(): bool {
+		$status = $this->status();
+
+		return ! $status['columns_present']
+			|| $status['pending']
+			|| JTZL_BM_VERSION !== $status['stored_version'];
 	}
 
 	/**

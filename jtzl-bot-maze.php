@@ -327,6 +327,25 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 		'jtzl_bm_maintenance_cron',
 		__NAMESPACE__ . '\\handle_maintenance_cron',
 	);
+
+	/**
+	 * Handle hourly backfill-retry cron.
+	 *
+	 * Retries the pending 1.4.0 denormalization backfill in the background
+	 * until it succeeds, then unschedules itself.
+	 *
+	 * @return void
+	 */
+	function handle_backfill_retry_cron() {
+		$container = Plugin::get_container();
+		$bootstrap = new Bootstrap( $container );
+		$bootstrap->handle_backfill_retry_cron();
+	}
+
+	add_action(
+		\JTZL\Bot_Maze\Database\Migrator::BACKFILL_RETRY_HOOK,
+		__NAMESPACE__ . '\\handle_backfill_retry_cron',
+	);
 }
 
 /**
