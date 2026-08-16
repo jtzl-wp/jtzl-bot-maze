@@ -56,6 +56,22 @@ class Migrator {
 	public const BACKFILL_RETRY_HOOK = 'jtzl_bm_backfill_retry_cron';
 
 	/**
+	 * Transient that throttles request-path backfill attempts.
+	 *
+	 * @var string
+	 * @since 1.4.0
+	 */
+	public const BACKFILL_LOCK_TRANSIENT = 'jtzl_bm_backfill_lock';
+
+	/**
+	 * Seconds a request-path backfill attempt holds the throttle.
+	 *
+	 * @var int
+	 * @since 1.4.0
+	 */
+	private const BACKFILL_LOCK_TTL = 300;
+
+	/**
 	 * WordPress database instance.
 	 *
 	 * @var \wpdb
@@ -138,11 +154,14 @@ class Migrator {
 	/**
 	 * Run the backfill if one is pending, resolving the flag on success.
 	 *
-	 * Costs a single option read when nothing is pending, so callers may
-	 * invoke it on every request as the cheap retry path. The resolved
-	 * flag is stored as an autoloaded 0 rather than deleted — a missing
-	 * option would cost a dedicated query per request on installs without
-	 * a persistent object cache (uninstall.php removes it for real).
+	 * Costs a single option read when nothing is pending. This is the
+	 * unthrottled entry point, for callers that are already serialized or
+	 * explicitly user-initiated — the retry cron and the Site Health retry
+	 * button. The request path must use run_pending_backfill_throttled()
+	 * instead. The resolved flag is stored as an autoloaded 0 rather than
+	 * deleted — a missing option would cost a dedicated query per request
+	 * on installs without a persistent object cache (uninstall.php removes
+	 * it for real).
 	 *
 	 * @return void
 	 * @since 1.4.0
@@ -155,6 +174,40 @@ class Migrator {
 		if ( $this->backfill() ) {
 			update_option( self::PENDING_BACKFILL_OPTION, 0 );
 		}
+	}
+
+	/**
+	 * Request-path retry: run a pending backfill at most once per throttle window.
+	 *
+	 * The version is recorded before the backfill runs (see run()), so the
+	 * pending window is open to every incoming request — without this guard
+	 * each one would launch its own full backfill concurrently, with no lock
+	 * between them. And if the backfill is slow enough to be cut short by a
+	 * request timeout, the flag clearing it never runs, so the window never
+	 * closes and every subsequent request pays the full cost again.
+	 *
+	 * The transient is deliberately left to expire rather than released after
+	 * a run. On success the pending flag already stops further work; on
+	 * failure — including a request killed mid-query — the remaining TTL is
+	 * what caps the retry rate. It is a throttle, not a mutex: requests
+	 * arriving in the same instant can still overlap, which is why the queries
+	 * themselves stay idempotent and only ever touch blank rows.
+	 *
+	 * @return void
+	 * @since 1.4.0
+	 */
+	public function run_pending_backfill_throttled(): void {
+		if ( ! get_option( self::PENDING_BACKFILL_OPTION ) ) {
+			return;
+		}
+
+		if ( get_transient( self::BACKFILL_LOCK_TRANSIENT ) ) {
+			return;
+		}
+
+		set_transient( self::BACKFILL_LOCK_TRANSIENT, 1, self::BACKFILL_LOCK_TTL );
+
+		$this->run_pending_backfill();
 	}
 
 	/**
@@ -244,11 +297,24 @@ class Migrator {
 	}
 
 	/**
-	 * Copy the most recent non-empty country onto blank score rows.
+	 * Copy the most recently recorded non-empty country onto blank score rows.
 	 *
-	 * Uses the latest matching visit by (visited_at, id) so the stored
-	 * country reflects where the identity was last resolved. Identities
-	 * with no resolved visits stay blank.
+	 * Resolves the winning visit once per identity in a grouped derived table,
+	 * then reads its country through a primary-key join. The obvious shape —
+	 * a correlated "ORDER BY visited_at DESC, id DESC LIMIT 1" subquery — is
+	 * not used: whenever ip_address cardinality is low (a bot farm cycling
+	 * many user agents through a handful of IPs, which is exactly the traffic
+	 * this plugin collects) the optimizer abandons the ip_address index for a
+	 * backward scan of idx_visited_at, turning the backfill into a full index
+	 * scan per score row. Measured on 200k visits / 20k scores that plan costs
+	 * ~11 minutes against ~0.5s for this one.
+	 *
+	 * "Most recent" is the highest visit id rather than the greatest
+	 * (visited_at, id): id is AUTO_INCREMENT and visited_at is stamped at
+	 * insert, so the two agree except when the site clock or timezone moves
+	 * backwards — where the highest id is the better answer anyway, being the
+	 * last country actually recorded. Identities with no resolved visits are
+	 * left blank by the inner join.
 	 *
 	 * @return bool True on success.
 	 * @since 1.4.0
@@ -257,18 +323,19 @@ class Migrator {
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$result = $this->wpdb->query(
 			"UPDATE {$this->scores_table} scores
-			 SET scores.country_code = COALESCE(
-			     (
-			         SELECT visits.country_code
-			         FROM {$this->visits_table} visits
-			         WHERE visits.ip_address = scores.ip_address
-			           AND SHA2( visits.user_agent, 256 ) = scores.user_agent_hash
-			           AND visits.country_code <> ''
-			         ORDER BY visits.visited_at DESC, visits.id DESC
-			         LIMIT 1
-			     ),
-			     ''
-			 )
+			 INNER JOIN (
+			     SELECT visits.ip_address AS ip_address,
+			            SHA2( visits.user_agent, 256 ) AS user_agent_hash,
+			            MAX( visits.id ) AS visit_id
+			     FROM {$this->visits_table} visits
+			     WHERE visits.country_code <> ''
+			     GROUP BY visits.ip_address, SHA2( visits.user_agent, 256 )
+			 ) latest
+			         ON latest.ip_address = scores.ip_address
+			        AND latest.user_agent_hash = scores.user_agent_hash
+			 INNER JOIN {$this->visits_table} resolved
+			         ON resolved.id = latest.visit_id
+			 SET scores.country_code = resolved.country_code
 			 WHERE scores.country_code = ''"
 		);
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared

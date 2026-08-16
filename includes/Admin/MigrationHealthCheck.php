@@ -139,7 +139,7 @@ class MigrationHealthCheck {
 				__( 'Bot Maze is finishing a one-time upgrade', 'jtzl-bot-maze' ),
 				sprintf(
 					'<p>%s</p>%s',
-					esc_html__( 'The schema upgrade completed but a one-time data backfill is still in progress. Analytics may show shortened identifiers until it finishes. This resolves automatically on the next page load.', 'jtzl-bot-maze' ),
+					esc_html__( 'The schema upgrade completed but a one-time data backfill is still in progress. Analytics may show shortened identifiers until it finishes. It finishes automatically on a following page load, or in the background within the hour.', 'jtzl-bot-maze' ),
 					$this->retry_action_html()
 				)
 			);

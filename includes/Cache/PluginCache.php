@@ -47,8 +47,10 @@ class PluginCache {
 		$stored_version = (string) get_option( Migrator::VERSION_OPTION, '' );
 
 		if ( JTZL_BM_VERSION === $stored_version ) {
-			// Cheap retry path: one option read when nothing is pending.
-			$migrator->run_pending_backfill();
+			// Cheap retry path: one option read when nothing is pending, and
+			// throttled when something is, so a slow backfill can't be started
+			// concurrently by every request in the pending window.
+			$migrator->run_pending_backfill_throttled();
 			return;
 		}
 
