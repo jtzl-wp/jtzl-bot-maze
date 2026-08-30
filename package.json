@@ -24,7 +24,10 @@
 		"format": "prettier --write .",
 		"format:check": "prettier --check .",
 		"format:all": "prettier --write . && eslint . --ext .js,.ts,.tsx --fix",
-		"prepare": "husky"
+		"prepare": "husky",
+		"env:start": "npx -y @wordpress/env@11.0.0 start",
+		"env:stop": "npx -y @wordpress/env@11.0.0 stop",
+		"env:destroy": "npx -y @wordpress/env@11.0.0 destroy"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.58.2",

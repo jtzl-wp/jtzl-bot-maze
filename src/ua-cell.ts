@@ -53,8 +53,24 @@ function toggleExpanded(textEl: HTMLElement): void {
 	textEl.setAttribute('aria-expanded', expanded ? 'true' : 'false');
 }
 
+interface CopyFeedbackState {
+	baseTitle: string | null;
+	timer: number;
+}
+
+/**
+ * Tracks the tooltip a copy button carries when it is not showing feedback, so
+ * the transient message can be swapped back out rather than deleted.
+ */
+const copyFeedback = new WeakMap<HTMLElement, CopyFeedbackState>();
+
 /**
  * Briefly reflect the copy result on the button via colour and tooltip.
+ *
+ * The button carries a permanent "Copy user agent to clipboard" tooltip, so the
+ * feedback message has to be restored, not removed. Clicking again inside the
+ * feedback window must neither capture the transient message as the base title
+ * nor let the earlier timer cut the new message short.
  * @param button The copy button.
  * @param message Feedback message.
  * @param ok Whether the copy succeeded.
@@ -64,12 +80,26 @@ function showCopyFeedback(
 	message: string,
 	ok: boolean
 ): void {
+	const pending = copyFeedback.get(button);
+	const baseTitle = pending ? pending.baseTitle : button.getAttribute('title');
+	if (pending) {
+		window.clearTimeout(pending.timer);
+	}
+
 	button.classList.toggle('is-copied', ok);
 	button.setAttribute('title', message);
-	window.setTimeout(() => {
+
+	const timer = window.setTimeout(() => {
+		copyFeedback.delete(button);
 		button.classList.remove('is-copied');
-		button.removeAttribute('title');
+		if (baseTitle === null) {
+			button.removeAttribute('title');
+		} else {
+			button.setAttribute('title', baseTitle);
+		}
 	}, 1500);
+
+	copyFeedback.set(button, { baseTitle, timer });
 }
 
 /**

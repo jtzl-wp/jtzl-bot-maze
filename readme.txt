@@ -2,9 +2,9 @@
 Contributors: jtzl, yoren
 Tags: security, bot-protection, anti-scraping, honeypot, ai-bot
 Requires at least: 6.9
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 1.4.0
+Stable tag: 1.4.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -128,6 +128,10 @@ When **ip-api.com** is selected as the GeoIP provider, the plugin sends visitor 
 Geographic tracking is **off by default** and requires explicit opt-in by a site administrator.
 
 == Changelog ==
+
+= 1.4.1 =
+* The copy button on user-agent cells now shows a tooltip on hover, matching the filter button next to it.
+* Bumped "Tested up to" to WordPress 7.1.
 
 = 1.4.0 =
 * Every column on the Blocked Bots page is now sortable, including Country and User Agent — full parity with Recent Activity. Country sorts by its two-letter code, matching the other table.

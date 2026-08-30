@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 $jtzl_bm_ua = isset( $jtzl_bm_ua ) ? (string) $jtzl_bm_ua : '';
 ?>
 <span class="jtzl-bm-ua-text" title="<?php echo esc_attr( $jtzl_bm_ua ); ?>" role="button" tabindex="0" aria-expanded="false"><?php echo esc_html( $jtzl_bm_ua ); ?></span>
-<button type="button" class="jtzl-bm-ua-copy" data-clipboard-text="<?php echo esc_attr( $jtzl_bm_ua ); ?>">
+<button type="button" class="jtzl-bm-ua-copy" title="<?php echo esc_attr__( 'Copy user agent to clipboard', 'jtzl-bot-maze' ); ?>" data-clipboard-text="<?php echo esc_attr( $jtzl_bm_ua ); ?>">
 	<span class="dashicons dashicons-clipboard" aria-hidden="true"></span>
 	<span class="screen-reader-text"><?php echo esc_html__( 'Copy user agent to clipboard', 'jtzl-bot-maze' ); ?></span>
 </button>

@@ -182,10 +182,15 @@ function createUaCell(ua: string): HTMLElement {
 	text.textContent = ua;
 	td.appendChild(text);
 
+	const copyLabel =
+		(typeof jtzlBbgAdmin !== 'undefined' && jtzlBbgAdmin.i18n?.copyLabel) ||
+		'Copy user agent to clipboard';
+
 	const button = document.createElement('button');
 	button.type = 'button';
 	button.className = 'jtzl-bm-ua-copy';
 	button.setAttribute('data-clipboard-text', ua);
+	button.setAttribute('title', copyLabel);
 
 	const icon = document.createElement('span');
 	icon.className = 'dashicons dashicons-clipboard';
@@ -194,9 +199,7 @@ function createUaCell(ua: string): HTMLElement {
 
 	const label = document.createElement('span');
 	label.className = 'screen-reader-text';
-	label.textContent =
-		(typeof jtzlBbgAdmin !== 'undefined' && jtzlBbgAdmin.i18n?.copyLabel) ||
-		'Copy user agent to clipboard';
+	label.textContent = copyLabel;
 	button.appendChild(label);
 
 	td.appendChild(button);
