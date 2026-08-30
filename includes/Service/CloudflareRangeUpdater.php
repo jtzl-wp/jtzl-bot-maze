@@ -42,7 +42,7 @@ class CloudflareRangeUpdater {
 	 * @var string
 	 * @since 1.1.0
 	 */
-	private const URL_V4 = 'https://www.cloudflare.com/ips-v4';
+	private const URL_V4 = 'https://www.cloudflare.com/ips-v4'; // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- Cloudflare's own published IP range list, fetched server-side for trusted-proxy validation; no asset is offloaded.
 
 	/**
 	 * Cloudflare's published IPv6 range list (one CIDR per line).
@@ -50,7 +50,7 @@ class CloudflareRangeUpdater {
 	 * @var string
 	 * @since 1.1.0
 	 */
-	private const URL_V6 = 'https://www.cloudflare.com/ips-v6';
+	private const URL_V6 = 'https://www.cloudflare.com/ips-v6'; // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- Cloudflare's own published IP range list, fetched server-side for trusted-proxy validation; no asset is offloaded.
 
 	/**
 	 * Per-request timeout in seconds.

@@ -85,7 +85,7 @@ class CloudflareSetupNotice {
 	 * @var string
 	 * @since 1.1.0
 	 */
-	private const DOCS_URL = 'https://developers.cloudflare.com/fundamentals/security/protect-your-origin-server/';
+	private const DOCS_URL = 'https://developers.cloudflare.com/fundamentals/security/protect-your-origin-server/'; // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- Documentation link rendered as an anchor in an admin notice; nothing is loaded from Cloudflare.
 
 	/**
 	 * Cloudflare request detector.
