@@ -23,8 +23,9 @@ use JTZL\Bot_Maze\WordPress\ContextInterface;
  *
  * Previously an 85-line inline closure inside Bootstrap::register_hooks(),
  * now a first-class service so its responsibilities (block vs light
- * tarpit vs full tarpit vs blocked-activity tracking) are testable in
- * isolation and don't bloat the hook-registration method.
+ * tarpit vs full tarpit vs blocked-activity tracking vs AbuseIPDB
+ * reporting) are testable in isolation and don't bloat the
+ * hook-registration method.
  *
  * @since 1.0.0
  */
@@ -142,7 +143,7 @@ class BlockingRequestHandler {
 		}
 
 		// Default 'block' behavior (also the tarpit fallback when no trap pages exist).
-		$this->track_blocked_visit( 403 );
+		$this->handle_blocked_trap_hit( 403 );
 		$this->wp->wp_die(
 			'<h1>' . esc_html__( 'Access Denied', 'jtzl-bot-maze' ) . '</h1>' .
 			'<p>' . esc_html__( 'Your IP address has been blocked due to suspicious activity.', 'jtzl-bot-maze' ) . '</p>',
@@ -170,7 +171,7 @@ class BlockingRequestHandler {
 			return false;
 		}
 
-		$this->track_blocked_visit( 200 );
+		$this->handle_blocked_trap_hit( 200 );
 
 		$generator                         = $this->container->get( TrapPageGenerator::class );
 		$GLOBALS['jtzl_bm_trap_page']      = $page;
@@ -191,18 +192,33 @@ class BlockingRequestHandler {
 	}
 
 	/**
-	 * Record a blocked visit when blocked-activity tracking is on and the
-	 * request is for a trap URL.
+	 * Record and report a blocked visitor still walking the maze.
 	 *
-	 * Non-trap visits from blocked bots intentionally don't get logged —
-	 * the analytics only care about maze traversal.
+	 * Because handle() ends the request at template_redirect priority 1, a
+	 * blocked identity never reaches BotDetector::record_visit() again.
+	 * This is therefore the only place a returning bot's continued
+	 * traversal can be observed, and the only place its re-offence can be
+	 * reported.
+	 *
+	 * Analytics tracking and AbuseIPDB reporting are gated independently:
+	 * they answer to separate settings, and consenting to one is not
+	 * consent to the other.
+	 *
+	 * Neither acts on a non-trap request. The analytics only care about
+	 * maze traversal, and a report asserts the address crawled the trap
+	 * pages, so a blocked address merely requesting the homepage is not
+	 * fresh evidence for either.
 	 *
 	 * @param int $response_code HTTP status being returned to the visitor.
 	 * @return void
-	 * @since 1.0.0
+	 * @since 1.5.1
 	 */
-	private function track_blocked_visit( int $response_code ): void {
-		if ( ! (bool) $this->wp->get_option( 'jtzl_bm_track_blocked_activity', false ) ) {
+	private function handle_blocked_trap_hit( int $response_code ): void {
+		$tracking  = (bool) $this->wp->get_option( 'jtzl_bm_track_blocked_activity', false );
+		$reporter  = $this->container->get( AbuseIpDbReporterInterface::class );
+		$reporting = $reporter->is_active();
+
+		if ( ! $tracking && ! $reporting ) {
 			return;
 		}
 
@@ -212,13 +228,23 @@ class BlockingRequestHandler {
 			return;
 		}
 
-		$analytics = $this->container->get( AnalyticsCollector::class );
-		$analytics->record_blocked_visit(
-			$ip_tracker->get_client_ip(),
-			$ip_tracker->get_user_agent_hash(),
-			$ip_tracker->get_user_agent(),
-			$response_code
-		);
+		if ( $tracking ) {
+			$analytics = $this->container->get( AnalyticsCollector::class );
+			$analytics->record_blocked_visit(
+				$ip_tracker->get_client_ip(),
+				$ip_tracker->get_user_agent_hash(),
+				$ip_tracker->get_user_agent(),
+				$response_code
+			);
+		}
+
+		// The observation is stamped now, not carried over from the score
+		// row: the report must describe this request, which happened after
+		// the administrator turned reporting on. The queue's 24-hour per-IP
+		// cooldown keeps a hammering bot to one report a day.
+		if ( $reporting ) {
+			$reporter->queue_if_eligible( $ip_tracker->get_client_ip(), current_time( 'mysql', true ) );
+		}
 	}
 
 	/**
