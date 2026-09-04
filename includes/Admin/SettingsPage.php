@@ -16,7 +16,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // @codeCoverageIgnoreEnd
 
-use JTZL\Bot_Maze\Admin\Settings\SectionRegistrarFactory;
 use JTZL\Bot_Maze\Admin\Settings\SectionRegistrarInterface;
 
 /**
@@ -61,12 +60,11 @@ class SettingsPage {
 	/**
 	 * Constructor.
 	 *
-	 * @param SectionRegistrarInterface[] $registrars Optional list of registrars.
-	 *                                                Defaults to the built-in set.
+	 * @param SectionRegistrarInterface[] $registrars Required list of registrars.
 	 * @since 1.0.0
 	 */
-	public function __construct( array $registrars = array() ) {
-		$this->registrars = empty( $registrars ) ? SectionRegistrarFactory::create_default() : $registrars;
+	public function __construct( array $registrars ) {
+		$this->registrars = $registrars;
 	}
 
 	/**

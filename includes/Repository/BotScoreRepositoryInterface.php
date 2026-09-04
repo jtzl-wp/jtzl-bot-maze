@@ -123,6 +123,22 @@ interface BotScoreRepositoryInterface {
 	public function touch_blocked_visit( string $ip_address, string $user_agent_hash, string $user_agent, string $country_code ): bool;
 
 	/**
+	 * Record that an address was reported to AbuseIPDB.
+	 *
+	 * Marks every row sharing the address, since a report is per-IP while an
+	 * identity is (IP, UA hash).
+	 *
+	 * This is a local mirror for the admin tables, not the system of record —
+	 * AbuseIPDB holds that per account. Callers treat a false return as a lost
+	 * badge rather than a lost report, in the same best-effort spirit as
+	 * touch_blocked_visit().
+	 *
+	 * @param string $ip_address Reported IP address.
+	 * @return bool True on success.
+	 */
+	public function mark_abuseipdb_reported( string $ip_address ): bool;
+
+	/**
 	 * Get blocked bots with pagination, sorting and search.
 	 *
 	 * @param int    $limit   Number of results.

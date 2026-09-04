@@ -69,6 +69,14 @@ class Bootstrap {
 		// Weekly cron schedule interval (WP only ships hourly/twicedaily/daily).
 		PluginCache::register_weekly_schedule();
 
+		$scheduler = $this->container->get( 'JTZL\Bot_Maze\Service\AbuseIpDbScheduler' );
+		$processor = $this->container->get( 'JTZL\Bot_Maze\Service\AbuseIpDbReportProcessor' );
+		$wp->add_filter( 'cron_schedules', array( $scheduler, 'add_schedule' ) );
+		$wp->add_action( 'jtzl_bm_abuseipdb_report_cron', array( $processor, 'process' ) );
+		$wp->add_action( 'update_option_jtzl_bm_abuseipdb_enabled', array( $scheduler, 'handle_enabled_change' ), 10, 2 );
+		$wp->add_action( 'update_option_jtzl_bm_abuseipdb_api_key', array( $scheduler, 'handle_api_key_change' ), 10, 2 );
+		$scheduler->sync();
+
 		// Flush rewrite rules at a late priority after trap routes are registered.
 		$wp->add_action( 'init', array( $this, 'maybe_flush_rewrite_rules' ), 99 );
 
@@ -175,6 +183,10 @@ class Bootstrap {
 		$migrator = $migrator ?? new Database\Migrator( $wpdb );
 		$migrator->run();
 		Database\Options::set_defaults();
+		$scheduler = $this->container->get( 'JTZL\Bot_Maze\Service\AbuseIpDbScheduler' );
+		// phpcs:ignore WordPress.WP.CronInterval.ChangeDetected -- The callback defines the 300-second interval in AbuseIpDbScheduler::add_schedule().
+		add_filter( 'cron_schedules', array( $scheduler, 'add_schedule' ) );
+		$scheduler->sync();
 
 		PluginCache::clear_di_cache();
 		update_option( 'jtzl_bm_flush_rewrite_rules_flag', true );
@@ -238,6 +250,7 @@ class Bootstrap {
 			'jtzl_bm_maxmind_update_cron',
 			'jtzl_bm_cloudflare_update_cron',
 			Database\Migrator::BACKFILL_RETRY_HOOK,
+			'jtzl_bm_abuseipdb_report_cron',
 			// Legacy hook names from the jtzl_bl_* era.
 			'jtzl_bl_maintenance_cron',
 			'jtzl_bl_maxmind_update_cron',
@@ -246,10 +259,7 @@ class Bootstrap {
 			'jtzl_bbg_maxmind_update_cron',
 		);
 		foreach ( $hooks as $hook ) {
-			$timestamp = wp_next_scheduled( $hook );
-			if ( $timestamp ) {
-				wp_unschedule_event( $timestamp, $hook );
-			}
+			wp_clear_scheduled_hook( $hook );
 		}
 	}
 
@@ -270,7 +280,7 @@ class Bootstrap {
 		$migrator = new Database\Migrator( $wpdb );
 		$status   = $migrator->status();
 
-		if ( ! $status['columns_present'] || JTZL_BM_VERSION !== $status['stored_version'] ) {
+		if ( ! $status['columns_present'] || ! $status['report_queue_present'] || JTZL_BM_VERSION !== $status['stored_version'] ) {
 			$migrator->run();
 		} else {
 			$migrator->run_pending_backfill();

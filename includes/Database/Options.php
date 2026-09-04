@@ -24,6 +24,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @since 1.0.0
  */
 class Options {
+	/** Defaults which must not be loaded on every request. */
+	private const NON_AUTOLOAD_DEFAULTS = array(
+		'jtzl_bm_abuseipdb_api_key' => '',
+	);
 
 	/**
 	 * Apply default plugin options.
@@ -41,6 +45,12 @@ class Options {
 				add_option( $option_name, $default_value );
 			}
 		}
+
+		foreach ( self::NON_AUTOLOAD_DEFAULTS as $option_name => $default_value ) {
+			if ( null === get_option( $option_name, null ) ) {
+				add_option( $option_name, $default_value, '', false );
+			}
+		}
 	}
 
 	/**
@@ -55,6 +65,11 @@ class Options {
 		$options[] = 'jtzl_bm_plugin_version';
 		$options[] = 'jtzl_bm_flush_rewrite_rules_flag';
 		$options[] = 'jtzl_bm_cloudflare_ranges';
+		$options[] = 'jtzl_bm_abuseipdb_api_key';
+		$options[] = 'jtzl_bm_abuseipdb_last_success_at';
+		$options[] = 'jtzl_bm_abuseipdb_last_error';
+		$options[] = 'jtzl_bm_abuseipdb_last_error_at';
+		$options[] = 'jtzl_bm_abuseipdb_pause_until';
 
 		foreach ( $options as $option_name ) {
 			delete_option( $option_name );
@@ -115,6 +130,7 @@ class Options {
 
 			// Maintenance.
 			'jtzl_bm_retention_days'         => 30,
+			'jtzl_bm_abuseipdb_enabled'      => false,
 
 			// robots.txt.
 			'jtzl_bm_robots_txt_enabled'     => true,

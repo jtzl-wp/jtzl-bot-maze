@@ -85,7 +85,7 @@ class BlockedBotQuery {
 	 * @since 1.4.0
 	 */
 	public function rows( int $limit, int $offset, string $orderby, string $order, string $search ): array {
-		$allowed  = array( 'ip_address', 'country_code', 'user_agent', 'score', 'trap_visits_count', 'max_depth_reached', 'first_seen_at', 'last_seen_at' );
+		$allowed  = array( 'ip_address', 'country_code', 'user_agent', 'score', 'trap_visits_count', 'max_depth_reached', 'first_seen_at', 'last_seen_at', 'abuseipdb_reported_at' );
 		$orderby  = in_array( $orderby, $allowed, true ) ? $orderby : 'last_seen_at';
 		$order    = 'ASC' === strtoupper( $order ) ? 'ASC' : 'DESC';
 		$order_by = $this->order_expression( $orderby );

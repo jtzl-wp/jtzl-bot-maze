@@ -70,6 +70,13 @@ class BotDetector {
 	private GeoIpService $geo_ip_service;
 
 	/**
+	 * AbuseIPDB report queue boundary.
+	 *
+	 * @var AbuseIpDbReporterInterface
+	 */
+	private AbuseIpDbReporterInterface $abuseipdb_reporter;
+
+	/**
 	 * Base points added per trap page visit.
 	 *
 	 * @var int
@@ -96,14 +103,18 @@ class BotDetector {
 	/**
 	 * Constructor.
 	 *
+	 * Dependencies and scoring inputs are intentionally explicit.
+	 *
 	 * @param BotScoreRepositoryInterface  $score_repo       Bot score repository.
 	 * @param TrapVisitRepositoryInterface $visit_repo       Trap visit repository.
 	 * @param IPTrackerInterface           $ip_tracker       IP tracker service.
 	 * @param CrawlerVerifierInterface     $crawler_verifier Crawler verifier service.
 	 * @param GeoIpService                 $geo_ip_service   GeoIP lookup service.
+	 * @param AbuseIpDbReporterInterface   $abuseipdb_reporter AbuseIPDB reporter.
 	 * @param int                          $points_per_visit Base points per visit.
 	 * @param int                          $depth_bonus      Depth-level bonus multiplier.
 	 * @param int                          $block_threshold  Auto-block threshold.
+	 * @SuppressWarnings("PHPMD.ExcessiveParameterList")
 	 * @since 1.0.0
 	 */
 	public function __construct(
@@ -112,18 +123,20 @@ class BotDetector {
 		IPTrackerInterface $ip_tracker,
 		CrawlerVerifierInterface $crawler_verifier,
 		GeoIpService $geo_ip_service,
+		AbuseIpDbReporterInterface $abuseipdb_reporter,
 		int $points_per_visit,
 		int $depth_bonus,
 		int $block_threshold
 	) {
-		$this->score_repo       = $score_repo;
-		$this->visit_repo       = $visit_repo;
-		$this->ip_tracker       = $ip_tracker;
-		$this->crawler_verifier = $crawler_verifier;
-		$this->geo_ip_service   = $geo_ip_service;
-		$this->points_per_visit = $points_per_visit;
-		$this->depth_bonus      = $depth_bonus;
-		$this->block_threshold  = $block_threshold;
+		$this->score_repo         = $score_repo;
+		$this->visit_repo         = $visit_repo;
+		$this->ip_tracker         = $ip_tracker;
+		$this->crawler_verifier   = $crawler_verifier;
+		$this->geo_ip_service     = $geo_ip_service;
+		$this->abuseipdb_reporter = $abuseipdb_reporter;
+		$this->points_per_visit   = $points_per_visit;
+		$this->depth_bonus        = $depth_bonus;
+		$this->block_threshold    = $block_threshold;
 	}
 
 	/**
@@ -191,12 +204,35 @@ class BotDetector {
 		$points = $this->points_per_visit + ( $this->depth_bonus * $trap_page->depth_level );
 
 		// Update score and compute blocking atomically in SQL to avoid TOCTOU races.
-		$this->score_repo->update_score(
+		$updated = $this->score_repo->update_score(
 			$bot_score->id,
 			(float) $points,
 			$trap_page->depth_level,
 			$this->block_threshold
 		);
+
+		$this->maybe_report_blocked( $ip, $ua_hash, $updated );
+	}
+
+	/**
+	 * Queue a newly blocked identity for AbuseIPDB reporting.
+	 *
+	 * The blocked-state read serves reporting alone, so it is gated on an active
+	 * integration: with reporting off the trap path keeps costing one write.
+	 *
+	 * @param string $ip      Visitor IP.
+	 * @param string $ua_hash Visitor user agent hash.
+	 * @param bool   $updated Whether the score update succeeded.
+	 * @return void
+	 */
+	private function maybe_report_blocked( string $ip, string $ua_hash, bool $updated ): void {
+		if ( ! $updated || ! $this->abuseipdb_reporter->is_active() ) {
+			return;
+		}
+
+		if ( $this->score_repo->is_blocked( $ip, $ua_hash ) ) {
+			$this->abuseipdb_reporter->queue_if_eligible( $ip, current_time( 'mysql', true ) );
+		}
 	}
 
 	/**

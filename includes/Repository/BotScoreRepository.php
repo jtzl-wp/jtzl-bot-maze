@@ -14,7 +14,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // @codeCoverageIgnoreEnd
 
-use DateTime;
 use JTZL\Bot_Maze\Entity\BotScore;
 
 /**
@@ -164,7 +163,7 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 			return null;
 		}
 
-		return $this->hydrate( $row );
+		return BotScoreHydrator::from_row( $row );
 	}
 
 	/**
@@ -186,7 +185,7 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 			return null;
 		}
 
-		return $this->hydrate( $row );
+		return BotScoreHydrator::from_row( $row );
 	}
 
 	/**
@@ -242,6 +241,29 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 	}
 
 	/**
+	 * Record that an address was reported to AbuseIPDB.
+	 *
+	 * A report is per-IP while an identity is (IP, UA hash), so every row
+	 * sharing the address is marked: the address was reported, whichever user
+	 * agent tripped the threshold. The timestamp is site-local for parity with
+	 * first_seen_at / last_seen_at on the same row.
+	 *
+	 * @param string $ip_address Reported IP address.
+	 * @return bool True on success.
+	 */
+	public function mark_abuseipdb_reported( string $ip_address ): bool {
+		$sql = $this->wpdb->prepare(
+			"UPDATE {$this->table_name} SET abuseipdb_reported_at = %s WHERE ip_address = %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			current_time( 'mysql' ),
+			$ip_address
+		);
+
+		$result = $this->wpdb->query( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+		return false !== $result;
+	}
+
+	/**
 	 * Get top bots by score.
 	 *
 	 * @param int $limit Number of results.
@@ -256,7 +278,7 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 
 		$rows = $this->wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
-		return empty( $rows ) ? array() : array_map( array( $this, 'hydrate' ), $rows );
+		return empty( $rows ) ? array() : array_map( array( BotScoreHydrator::class, 'from_row' ), $rows );
 	}
 
 	/**
@@ -324,7 +346,7 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 	 */
 	public function get_blocked( int $limit = 50, int $offset = 0, string $orderby = 'last_seen_at', string $order = 'DESC', string $search = '' ): array {
 		return array_map(
-			array( $this, 'hydrate' ),
+			array( BotScoreHydrator::class, 'from_row' ),
 			$this->blocked_query->rows( $limit, $offset, $orderby, $order, $search )
 		);
 	}
@@ -348,28 +370,5 @@ class BotScoreRepository implements BotScoreRepositoryInterface {
 		$result = $this->wpdb->query( $query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 		return false !== $result ? (int) $result : 0;
-	}
-
-	/**
-	 * Hydrate a database row into a BotScore entity.
-	 *
-	 * @param array $row Database row.
-	 * @return BotScore Bot score entity.
-	 * @since 1.0.0
-	 */
-	private function hydrate( array $row ): BotScore {
-		return new BotScore(
-			(int) $row['id'],
-			$row['ip_address'],
-			$row['user_agent_hash'],
-			(float) $row['score'],
-			(int) $row['trap_visits_count'],
-			(int) $row['max_depth_reached'],
-			new DateTime( $row['first_seen_at'] ),
-			new DateTime( $row['last_seen_at'] ),
-			(bool) $row['is_blocked'],
-			(string) $row['user_agent'],
-			(string) $row['country_code']
-		);
 	}
 }

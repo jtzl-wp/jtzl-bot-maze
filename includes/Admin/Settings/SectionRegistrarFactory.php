@@ -8,6 +8,8 @@
 
 namespace JTZL\Bot_Maze\Admin\Settings;
 
+use JTZL\Bot_Maze\Service\AbuseIpDbStatus;
+
 // @codeCoverageIgnoreStart
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -29,15 +31,17 @@ class SectionRegistrarFactory {
 	 * Build the default set of section registrars in the order they
 	 * should appear on the settings page.
 	 *
+	 * @param AbuseIpDbStatus $status Aggregate AbuseIPDB reporting status.
 	 * @return SectionRegistrarInterface[]
 	 * @since 1.0.0
 	 */
-	public static function create_default(): array {
+	public static function create_default( AbuseIpDbStatus $status ): array {
 		return array(
 			new GeneralSectionRegistrar(),
 			new TrapLinkSectionRegistrar(),
 			new TrapMazeSectionRegistrar(),
 			new ScoringSectionRegistrar(),
+			new AbuseIpDbSectionRegistrar( $status ),
 			new GeoSectionRegistrar(),
 			new MaintenanceSectionRegistrar(),
 			new RobotsSectionRegistrar(),

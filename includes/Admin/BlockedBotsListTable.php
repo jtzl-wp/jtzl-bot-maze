@@ -88,6 +88,7 @@ class BlockedBotsListTable extends \WP_List_Table {
 			'max_depth'   => __( 'Max Depth', 'jtzl-bot-maze' ),
 			'first_seen'  => __( 'First Seen', 'jtzl-bot-maze' ),
 			'last_seen'   => __( 'Last Seen', 'jtzl-bot-maze' ),
+			'reported'    => __( 'Reported', 'jtzl-bot-maze' ),
 		);
 	}
 
@@ -109,6 +110,7 @@ class BlockedBotsListTable extends \WP_List_Table {
 			'max_depth'  => array( 'max_depth_reached', false ),
 			'first_seen' => array( 'first_seen_at', false ),
 			'last_seen'  => array( 'last_seen_at', true ),
+			'reported'   => array( 'abuseipdb_reported_at', false ),
 		);
 	}
 
@@ -169,9 +171,37 @@ class BlockedBotsListTable extends \WP_List_Table {
 				return esc_html( (string) $item['first_seen_at'] );
 			case 'last_seen':
 				return esc_html( (string) $item['last_seen_at'] );
+			case 'reported':
+				return $this->reported_cell( $item['abuseipdb_reported_at'] ?? null );
 			default:
 				return '';
 		}
+	}
+
+	/**
+	 * Reported cell: when this address was sent to AbuseIPDB, or a dash.
+	 *
+	 * A dash is not "never reported" — reporting may simply be off, or the
+	 * address may have been reported before the marker column existed. The
+	 * title attribute says so rather than implying a negative.
+	 *
+	 * @param string|null $reported_at Site-local SQL timestamp, or null.
+	 * @return string
+	 */
+	private function reported_cell( ?string $reported_at ): string {
+		if ( null === $reported_at || '' === $reported_at ) {
+			return sprintf(
+				'<span aria-hidden="true" title="%s">&mdash;</span><span class="screen-reader-text">%s</span>',
+				esc_attr__( 'No AbuseIPDB report recorded for this address', 'jtzl-bot-maze' ),
+				esc_html__( 'No AbuseIPDB report recorded for this address', 'jtzl-bot-maze' )
+			);
+		}
+
+		return sprintf(
+			'<span class="jtzl-bm-reported" title="%s">%s</span>',
+			esc_attr__( 'Reported to AbuseIPDB', 'jtzl-bot-maze' ),
+			esc_html( $reported_at )
+		);
 	}
 
 	/**

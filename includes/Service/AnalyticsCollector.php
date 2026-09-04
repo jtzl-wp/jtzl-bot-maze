@@ -157,17 +157,18 @@ class AnalyticsCollector {
 	 */
 	private function format_bot( BotScore $bot ): array {
 		return array(
-			'id'                => $bot->id,
-			'ip_address'        => $bot->ip_address,
-			'user_agent'        => '' !== $bot->user_agent ? $bot->user_agent : $bot->user_agent_hash,
-			'score'             => $bot->score,
-			'trap_visits_count' => $bot->trap_visits_count,
-			'max_depth_reached' => $bot->max_depth_reached,
-			'first_seen_at'     => $bot->first_seen_at->format( 'Y-m-d H:i:s' ),
-			'last_seen_at'      => $bot->last_seen_at->format( 'Y-m-d H:i:s' ),
-			'is_blocked'        => $bot->is_blocked,
-			'country_code'      => $bot->country_code,
-			'country_name'      => CountryNames::get( $bot->country_code ),
+			'id'                    => $bot->id,
+			'ip_address'            => $bot->ip_address,
+			'user_agent'            => '' !== $bot->user_agent ? $bot->user_agent : $bot->user_agent_hash,
+			'score'                 => $bot->score,
+			'trap_visits_count'     => $bot->trap_visits_count,
+			'max_depth_reached'     => $bot->max_depth_reached,
+			'first_seen_at'         => $bot->first_seen_at->format( 'Y-m-d H:i:s' ),
+			'last_seen_at'          => $bot->last_seen_at->format( 'Y-m-d H:i:s' ),
+			'is_blocked'            => $bot->is_blocked,
+			'country_code'          => $bot->country_code,
+			'country_name'          => CountryNames::get( $bot->country_code ),
+			'abuseipdb_reported_at' => $bot->abuseipdb_reported_at,
 		);
 	}
 

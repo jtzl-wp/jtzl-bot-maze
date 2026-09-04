@@ -96,15 +96,24 @@ class Migrator {
 	private string $visits_table;
 
 	/**
+	 * Schema verification helper.
+	 *
+	 * @var SchemaVerifier
+	 */
+	private SchemaVerifier $verifier;
+
+	/**
 	 * Constructor.
 	 *
-	 * @param \wpdb $wpdb WordPress database instance.
+	 * @param \wpdb               $wpdb     WordPress database instance.
+	 * @param SchemaVerifier|null $verifier Schema verification helper.
 	 * @since 1.4.0
 	 */
-	public function __construct( \wpdb $wpdb ) {
-		$this->wpdb         = $wpdb;
+	public function __construct( \wpdb $wpdb, ?SchemaVerifier $verifier = null ) {
+		$this->wpdb          = $wpdb;
 		$this->scores_table = $wpdb->prefix . 'jtzl_bm_bot_scores';
 		$this->visits_table = $wpdb->prefix . 'jtzl_bm_trap_visits';
+		$this->verifier     = $verifier ?? new SchemaVerifier( $wpdb );
 	}
 
 	/**
@@ -148,7 +157,7 @@ class Migrator {
 	protected function upgrade_schema(): bool {
 		Schema::create_tables();
 
-		return $this->has_denormalized_columns();
+		return $this->verifier->has_denormalized_columns() && $this->verifier->has_report_queue_table() && $this->verifier->has_reported_marker_column();
 	}
 
 	/**
@@ -227,14 +236,16 @@ class Migrator {
 	/**
 	 * Return a snapshot of migration state for Site Health and support diagnostics.
 	 *
-	 * @return array{columns_present: bool, pending: bool, stored_version: string}
+	 * @return array{columns_present: bool, report_queue_present: bool, reported_marker_present: bool, pending: bool, stored_version: string}
 	 * @since 1.4.0
 	 */
 	public function status(): array {
 		return array(
-			'columns_present' => $this->has_denormalized_columns(),
-			'pending'         => (bool) get_option( self::PENDING_BACKFILL_OPTION ),
-			'stored_version'  => (string) get_option( self::VERSION_OPTION, '' ),
+			'columns_present'         => $this->verifier->has_denormalized_columns(),
+			'report_queue_present'    => $this->verifier->has_report_queue_table(),
+			'reported_marker_present' => $this->verifier->has_reported_marker_column(),
+			'pending'                 => (bool) get_option( self::PENDING_BACKFILL_OPTION ),
+			'stored_version'          => (string) get_option( self::VERSION_OPTION, '' ),
 		);
 	}
 
@@ -252,21 +263,10 @@ class Migrator {
 		$status = $this->status();
 
 		return ! $status['columns_present']
+			|| ! $status['report_queue_present']
+			|| ! $status['reported_marker_present']
 			|| $status['pending']
 			|| JTZL_BM_VERSION !== $status['stored_version'];
-	}
-
-	/**
-	 * Verify dbDelta() actually added the denormalized columns.
-	 *
-	 * @return bool True when both columns exist on bot_scores.
-	 * @since 1.4.0
-	 */
-	private function has_denormalized_columns(): bool {
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$columns = $this->wpdb->get_col( "SHOW COLUMNS FROM {$this->scores_table}" );
-
-		return in_array( 'user_agent', $columns, true ) && in_array( 'country_code', $columns, true );
 	}
 
 	/**

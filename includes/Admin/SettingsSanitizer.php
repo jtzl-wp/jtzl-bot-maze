@@ -254,6 +254,26 @@ class SettingsSanitizer {
 	}
 
 	/**
+	 * Sanitize the administrator-owned AbuseIPDB API key.
+	 *
+	 * @param mixed $value The submitted value.
+	 * @return string The replacement, preserved, or cleared key.
+	 */
+	public static function sanitize_abuseipdb_api_key( $value ): string {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified by the Settings API.
+		if ( ! empty( $_POST['jtzl_bm_clear_abuseipdb_key'] ) ) {
+			return '';
+		}
+
+		$key = sanitize_text_field( $value );
+		if ( '' === $key ) {
+			return (string) get_option( 'jtzl_bm_abuseipdb_api_key', '' );
+		}
+
+		return $key;
+	}
+
+	/**
 	 * Sanitize the blocking behavior.
 	 *
 	 * @param mixed $value The value to sanitize.

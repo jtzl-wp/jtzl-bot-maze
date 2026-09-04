@@ -114,19 +114,30 @@ class BotScore {
 	public string $country_code;
 
 	/**
+	 * Site-local SQL timestamp of the AbuseIPDB report, or null.
+	 *
+	 * Null means this address has not been reported — either because
+	 * reporting is off, or because it never crossed the threshold.
+	 *
+	 * @var string|null
+	 */
+	public ?string $abuseipdb_reported_at;
+
+	/**
 	 * Constructor.
 	 *
-	 * @param int      $id                Score ID.
-	 * @param string   $ip_address        Visitor IP.
-	 * @param string   $user_agent_hash   UA hash.
-	 * @param float    $score             Accumulated score.
-	 * @param int      $trap_visits_count Total visits.
-	 * @param int      $max_depth_reached Max depth.
-	 * @param DateTime $first_seen_at     First seen.
-	 * @param DateTime $last_seen_at      Last seen.
-	 * @param bool     $is_blocked        Blocked flag.
-	 * @param string   $user_agent        Readable user agent.
-	 * @param string   $country_code      Latest resolved country code.
+	 * @param int         $id                    Score ID.
+	 * @param string      $ip_address            Visitor IP.
+	 * @param string      $user_agent_hash       UA hash.
+	 * @param float       $score                 Accumulated score.
+	 * @param int         $trap_visits_count     Total visits.
+	 * @param int         $max_depth_reached     Max depth.
+	 * @param DateTime    $first_seen_at         First seen.
+	 * @param DateTime    $last_seen_at          Last seen.
+	 * @param bool        $is_blocked            Blocked flag.
+	 * @param string      $user_agent            Readable user agent.
+	 * @param string      $country_code          Latest resolved country code.
+	 * @param string|null $abuseipdb_reported_at Site-local time this address was reported.
 	 * @since 1.0.0
 	 */
 	public function __construct(
@@ -140,7 +151,8 @@ class BotScore {
 		DateTime $last_seen_at,
 		bool $is_blocked,
 		string $user_agent = '',
-		string $country_code = ''
+		string $country_code = '',
+		?string $abuseipdb_reported_at = null
 	) {
 		$this->id                = $id;
 		$this->ip_address        = $ip_address;
@@ -153,5 +165,7 @@ class BotScore {
 		$this->is_blocked        = $is_blocked;
 		$this->user_agent        = $user_agent;
 		$this->country_code      = $country_code;
+
+		$this->abuseipdb_reported_at = $abuseipdb_reported_at;
 	}
 }

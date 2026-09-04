@@ -15,6 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // @codeCoverageIgnoreEnd
 
 use JTZL\Bot_Maze\Database\Migrator;
+use JTZL\Bot_Maze\Database\Options;
 
 /**
  * Plugin-scoped cache and schedule utilities.
@@ -56,6 +57,7 @@ class PluginCache {
 
 		self::clear_di_cache();
 		$migrator->run();
+		Options::set_defaults();
 
 		// If run() didn't fully land the migration — missing columns (Branch B),
 		// a pending backfill (Branch A), or a stale version — schedule an hourly

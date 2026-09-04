@@ -2,7 +2,7 @@
 /**
  * Migration Health Check
  *
- * Exposes 1.4.0 migration state through WordPress Site Health.
+ * Exposes database migration state through WordPress Site Health.
  *
  * @package JTZL\Bot_Maze
  * @since 1.4.0
@@ -20,12 +20,12 @@ use JTZL\Bot_Maze\Database\Migrator;
 
 /**
  * Registers a Site Health Status test and debug-information section for
- * the 1.4.0 denormalization migration.
+ * the plugin's schema migrations.
  *
  * Three verdicts map to the three possible states:
  *   - good        : columns present, no backfill pending (healthy).
  *   - recommended : columns present, backfill still pending (finishing up).
- *   - critical    : columns missing (schema ALTER failed — protection degraded).
+ *   - critical    : schema missing (a table or ALTER failed — protection degraded).
  *
  * A one-click "Retry upgrade" admin-post action lets an administrator
  * manually re-run the migration without WP-CLI or a page reload loop.
@@ -126,8 +126,20 @@ class MigrationHealthCheck {
 				__( 'Bot Maze database upgrade didn\'t finish', 'jtzl-bot-maze' ),
 				sprintf(
 					'<p>%s</p><p>%s</p>%s',
-					esc_html__( 'The 1.4.0 database schema upgrade did not complete. New bot activity is not being scored, so bot protection may be silently degraded.', 'jtzl-bot-maze' ),
+					esc_html__( 'The database schema upgrade did not complete. New bot activity is not being scored, so bot protection may be silently degraded.', 'jtzl-bot-maze' ),
 					esc_html__( 'This usually means the database user lacks the ALTER TABLE permission. Check that the database user can alter tables, then use the button below to retry.', 'jtzl-bot-maze' ),
+					$this->retry_action_html()
+				)
+			);
+		}
+
+		if ( ! $status['report_queue_present'] || ! $status['reported_marker_present'] ) {
+			return $this->make_result(
+				'critical',
+				__( 'Bot Maze database upgrade didn\'t finish', 'jtzl-bot-maze' ),
+				sprintf(
+					'<p>%s</p>%s',
+					esc_html__( 'The AbuseIPDB schema is incomplete, so security reports cannot be stored for background delivery or recorded against the bots they came from.', 'jtzl-bot-maze' ),
 					$this->retry_action_html()
 				)
 			);
@@ -148,7 +160,7 @@ class MigrationHealthCheck {
 		return $this->make_result(
 			'good',
 			__( 'Bot Maze database upgrade complete', 'jtzl-bot-maze' ),
-			'<p>' . esc_html__( 'The 1.4.0 database upgrade finished successfully.', 'jtzl-bot-maze' ) . '</p>'
+			'<p>' . esc_html__( 'The database upgrade finished successfully.', 'jtzl-bot-maze' ) . '</p>'
 		);
 	}
 
@@ -165,19 +177,27 @@ class MigrationHealthCheck {
 		$info['jtzl_bm_migration'] = array(
 			'label'  => __( 'JTZL Bot Maze — migration', 'jtzl-bot-maze' ),
 			'fields' => array(
-				'plugin_version'  => array(
+				'plugin_version'       => array(
 					'label' => __( 'Installed version', 'jtzl-bot-maze' ),
 					'value' => JTZL_BM_VERSION,
 				),
-				'stored_version'  => array(
+				'stored_version'       => array(
 					'label' => __( 'Stored (applied) version', 'jtzl-bot-maze' ),
 					'value' => '' !== $status['stored_version'] ? $status['stored_version'] : __( '(not set)', 'jtzl-bot-maze' ),
 				),
-				'columns_present' => array(
+				'columns_present'      => array(
 					'label' => __( 'Denormalized columns present', 'jtzl-bot-maze' ),
 					'value' => $status['columns_present'] ? __( 'Yes', 'jtzl-bot-maze' ) : __( 'No', 'jtzl-bot-maze' ),
 				),
-				'backfill_pending' => array(
+				'report_queue_present' => array(
+					'label' => __( 'AbuseIPDB queue present', 'jtzl-bot-maze' ),
+					'value' => $status['report_queue_present'] ? __( 'Yes', 'jtzl-bot-maze' ) : __( 'No', 'jtzl-bot-maze' ),
+				),
+				'reported_marker'      => array(
+					'label' => __( 'AbuseIPDB reported marker present', 'jtzl-bot-maze' ),
+					'value' => $status['reported_marker_present'] ? __( 'Yes', 'jtzl-bot-maze' ) : __( 'No', 'jtzl-bot-maze' ),
+				),
+				'backfill_pending'     => array(
 					'label' => __( 'Backfill pending', 'jtzl-bot-maze' ),
 					'value' => $status['pending'] ? __( 'Yes', 'jtzl-bot-maze' ) : __( 'No', 'jtzl-bot-maze' ),
 				),

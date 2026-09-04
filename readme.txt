@@ -4,7 +4,7 @@ Tags: security, bot-protection, anti-scraping, honeypot, ai-bot
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 1.4.1
+Stable tag: 1.5.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,7 @@ JTZL's Bot Maze protects your WordPress site from unwanted AI crawlers and scrap
 * Geographic heat map of bot activity by country with two GeoIP provider options
 * MaxMind GeoLite2 local database — all lookups on your server, GDPR-friendly (recommended)
 * ip-api.com external API — simple setup, no license key required
+* Optional AbuseIPDB reporting for eligible blocked public IP addresses
 * Lightweight — minimal footprint, geographic tracking is fully optional
 
 == Installation ==
@@ -43,6 +44,8 @@ JTZL's Bot Maze protects your WordPress site from unwanted AI crawlers and scrap
 1. Upload the `jtzl-bot-maze` folder to `/wp-content/plugins/`.
 2. Activate the plugin through the **Plugins** menu in WordPress.
 3. Go to **Settings > Bot Maze** to configure trap link injection, scoring thresholds, and blocking behavior.
+
+Optional AbuseIPDB reporting is configured under **Settings > Bot Maze > AbuseIPDB Reporting**.
 
 The plugin works out of the box with sensible defaults. Trap pages are generated automatically on first visit.
 
@@ -101,7 +104,7 @@ To lock the origin down, use any one of: Cloudflare Tunnel (your server has no p
 
 == Third-Party Services ==
 
-This plugin offers optional geographic tracking with two provider options. No data is sent to any external service unless a site administrator explicitly enables one of these providers.
+Every external service listed below is optional and off by default. No data is sent to any of them unless a site administrator explicitly enables the corresponding feature.
 
 = MaxMind GeoLite2 (Recommended) =
 
@@ -127,7 +130,20 @@ When **ip-api.com** is selected as the GeoIP provider, the plugin sends visitor 
 
 Geographic tracking is **off by default** and requires explicit opt-in by a site administrator.
 
+= AbuseIPDB Reporting =
+
+AbuseIPDB reporting is **off by default**. It requires explicit enablement plus an administrator-owned [AbuseIPDB account](https://www.abuseipdb.com/register) and API key from the [API dashboard](https://www.abuseipdb.com/account/api). Protect the API key like a password.
+
+Only after a non-verified crawler's persisted score crosses the configured blocking threshold does the plugin queue an eligible public IP address. The report sends only the public IP address, category 19 ([Bad Web Bot](https://www.abuseipdb.com/categories)), the threshold-crossing event time, and a generic explanation for security reporting. It sends these four fields over HTTPS to the [AbuseIPDB service](https://www.abuseipdb.com/). It never sends the user agent, referrer, trap URL, session, score, or traversal depth.
+
+The plugin limits reports to once per IP address in any 24-hour period. Queued reports expire after seven days. Delivery runs in the background through WP-Cron, so reports may wait on low-traffic sites and are not real-time. Disabling reporting or clearing the key stops delivery and deletes queued reports.
+
+The current free Individual plan includes 1,000 IP checks and reports per day. See [AbuseIPDB pricing](https://www.abuseipdb.com/pricing); your account limit may differ. Review AbuseIPDB's [terms](https://www.abuseipdb.com/terms) and [privacy policy](https://www.abuseipdb.com/privacy) before enabling reporting.
+
 == Changelog ==
+
+= 1.5.0 =
+* Added optional AbuseIPDB reporting for eligible public IP addresses after a bot crosses the blocking threshold, with durable WP-Cron delivery, per-IP limits, bounded retention, and privacy-focused setup guidance.
 
 = 1.4.1 =
 * The copy button on user-agent cells now shows a tooltip on hover, matching the filter button next to it.

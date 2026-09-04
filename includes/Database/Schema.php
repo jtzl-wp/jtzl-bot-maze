@@ -55,6 +55,7 @@ class Schema {
 		$trap_pages_table  = $this->wpdb->prefix . 'jtzl_bm_trap_pages';
 		$trap_visits_table = $this->wpdb->prefix . 'jtzl_bm_trap_visits';
 		$bot_scores_table  = $this->wpdb->prefix . 'jtzl_bm_bot_scores';
+		$reports_table     = $this->wpdb->prefix . 'jtzl_bm_abuseipdb_reports';
 
 		$sql = array();
 
@@ -104,6 +105,9 @@ class Schema {
 		// user_agent_hash stays the unique dedup key; user_agent and
 		// country_code are readable denormalized copies for display,
 		// sorting and search (backfilled by Database\Migrator).
+		// abuseipdb_reported_at mirrors the report AbuseIPDB holds for this
+		// address, and lives here rather than in the report queue so it shares
+		// the row's retention instead of the queue's 24-hour cooldown prune.
 		$sql[] = "CREATE TABLE $bot_scores_table (
   id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   ip_address varchar(45) NOT NULL,
@@ -116,11 +120,33 @@ class Schema {
   first_seen_at datetime NOT NULL,
   last_seen_at datetime NOT NULL,
   is_blocked tinyint(1) NOT NULL DEFAULT 0,
+  abuseipdb_reported_at datetime DEFAULT NULL,
   PRIMARY KEY  (id),
   UNIQUE KEY idx_ip_ua (ip_address,user_agent_hash),
   KEY idx_score (score),
   KEY idx_is_blocked (is_blocked),
-  KEY idx_last_seen_at (last_seen_at)
+  KEY idx_last_seen_at (last_seen_at),
+  KEY idx_abuseipdb_reported_at (abuseipdb_reported_at)
+) $charset_collate;";
+
+		$sql[] = "CREATE TABLE $reports_table (
+  id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+  ip_address varchar(45) NOT NULL,
+  status varchar(20) NOT NULL DEFAULT 'queued',
+  observed_at datetime NOT NULL,
+  attempts smallint(5) UNSIGNED NOT NULL DEFAULT 0,
+  next_attempt_at datetime NOT NULL,
+  lease_token varchar(64) NOT NULL DEFAULT '',
+  lease_until datetime DEFAULT NULL,
+  reported_at datetime DEFAULT NULL,
+  cooldown_until datetime DEFAULT NULL,
+  last_error varchar(255) NOT NULL DEFAULT '',
+  created_at datetime NOT NULL,
+  updated_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  UNIQUE KEY idx_ip_address (ip_address),
+  KEY idx_status_next_attempt (status,next_attempt_at),
+  KEY idx_lease_until (lease_until)
 ) $charset_collate;";
 
 		return $sql;
@@ -147,6 +173,7 @@ class Schema {
 	public function drop(): void {
 		$tables = array(
 			// Current tables.
+			$this->wpdb->prefix . 'jtzl_bm_abuseipdb_reports',
 			$this->wpdb->prefix . 'jtzl_bm_trap_visits',
 			$this->wpdb->prefix . 'jtzl_bm_bot_scores',
 			$this->wpdb->prefix . 'jtzl_bm_trap_pages',
