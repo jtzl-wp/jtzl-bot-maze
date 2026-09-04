@@ -19,6 +19,15 @@ interface AbuseIpDbReporterInterface {
 	public function queue_if_eligible( string $ip_address, string $observed_at ): bool;
 
 	/**
+	 * Whether an address is one AbuseIPDB would accept a report for.
+	 *
+	 * @param string $ip_address Candidate IP address.
+	 * @return bool True when a report for this address could be delivered.
+	 * @since 1.6.0
+	 */
+	public function is_reportable( string $ip_address ): bool;
+
+	/**
 	 * Whether reporting is enabled and configured.
 	 *
 	 * Callers use this to skip the work that only feeds a report, so an

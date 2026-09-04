@@ -80,15 +80,15 @@ class BlockedBotsListTable extends \WP_List_Table {
 	 */
 	public function get_columns(): array {
 		return array(
-			'ip_address'  => __( 'IP Address', 'jtzl-bot-maze' ),
-			'country'     => __( 'Country', 'jtzl-bot-maze' ),
-			'user_agent'  => __( 'User Agent', 'jtzl-bot-maze' ),
-			'score'       => __( 'Score', 'jtzl-bot-maze' ),
-			'visits'      => __( 'Visits', 'jtzl-bot-maze' ),
-			'max_depth'   => __( 'Max Depth', 'jtzl-bot-maze' ),
-			'first_seen'  => __( 'First Seen', 'jtzl-bot-maze' ),
-			'last_seen'   => __( 'Last Seen', 'jtzl-bot-maze' ),
-			'reported'    => __( 'Reported', 'jtzl-bot-maze' ),
+			'ip_address' => __( 'IP Address', 'jtzl-bot-maze' ),
+			'country'    => __( 'Country', 'jtzl-bot-maze' ),
+			'user_agent' => __( 'User Agent', 'jtzl-bot-maze' ),
+			'score'      => __( 'Score', 'jtzl-bot-maze' ),
+			'visits'     => __( 'Visits', 'jtzl-bot-maze' ),
+			'max_depth'  => __( 'Max Depth', 'jtzl-bot-maze' ),
+			'first_seen' => __( 'First Seen', 'jtzl-bot-maze' ),
+			'last_seen'  => __( 'Last Seen', 'jtzl-bot-maze' ),
+			'reported'   => __( 'Reported', 'jtzl-bot-maze' ),
 		);
 	}
 

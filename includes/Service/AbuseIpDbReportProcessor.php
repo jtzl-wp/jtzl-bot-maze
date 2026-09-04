@@ -14,12 +14,22 @@ use JTZL\Bot_Maze\Repository\BotScoreRepositoryInterface;
 /** Process a bounded batch of queued AbuseIPDB reports. */
 final class AbuseIpDbReportProcessor {
 
-	private const MAX_BATCH         = 5;
-	private const MAX_ATTEMPTS      = 6;
-	private const LEASE_SECONDS     = 600;
-	private const RETENTION_SECONDS = 7 * DAY_IN_SECONDS;
-	private const COOLDOWN_SECONDS  = DAY_IN_SECONDS;
-	private const RETRY_DELAYS      = array( 300, 1800, 7200, 21600, 86400 );
+	private const MAX_BATCH     = 5;
+	private const MAX_ATTEMPTS  = 6;
+	private const LEASE_SECONDS = 600;
+
+	/**
+	 * How long an observation stays reportable.
+	 *
+	 * Public because AbuseIpDbBackfill queues historical observations and must
+	 * not offer the administrator rows this processor would prune unsent.
+	 *
+	 * @var int
+	 */
+	public const RETENTION_SECONDS = 7 * DAY_IN_SECONDS;
+
+	private const COOLDOWN_SECONDS = DAY_IN_SECONDS;
+	private const RETRY_DELAYS     = array( 300, 1800, 7200, 21600, 86400 );
 
 	public const LAST_SUCCESS_OPTION  = 'jtzl_bm_abuseipdb_last_success_at';
 	public const LAST_ERROR_OPTION    = 'jtzl_bm_abuseipdb_last_error';

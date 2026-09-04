@@ -75,8 +75,15 @@ class AdminPagesBootstrap {
 		);
 		$analytics_dashboard->init();
 
+		// The catch-up control renders on the Blocked Bots listing but owns its
+		// own admin-post handler, so it is initialised whether or not that page
+		// is the one being viewed.
+		$backfill_action = $this->container->get( 'JTZL\Bot_Maze\Admin\AbuseIpDbBackfillAction' );
+		$backfill_action->init();
+
 		$blocked_bots_page = new BlockedBotsPage(
-			$this->container->get( 'JTZL\Bot_Maze\Service\AnalyticsCollector' )
+			$this->container->get( 'JTZL\Bot_Maze\Service\AnalyticsCollector' ),
+			$backfill_action
 		);
 		$blocked_bots_page->init();
 

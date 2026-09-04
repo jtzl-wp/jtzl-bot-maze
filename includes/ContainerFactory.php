@@ -234,6 +234,19 @@ class ContainerFactory {
 				);
 			},
 
+			'JTZL\Bot_Maze\Service\AbuseIpDbBackfill'      => function ( Container $c ) {
+				return new Service\AbuseIpDbBackfill(
+					new Repository\AbuseIpDbBackfillQuery( $c->get( \wpdb::class ) ),
+					$c->get( AbuseIpDbReporterInterface::class )
+				);
+			},
+
+			'JTZL\Bot_Maze\Admin\AbuseIpDbBackfillAction'  => function ( Container $c ) {
+				return new Admin\AbuseIpDbBackfillAction(
+					$c->get( 'JTZL\Bot_Maze\Service\AbuseIpDbBackfill' )
+				);
+			},
+
 			'JTZL\Bot_Maze\Admin\MigrationHealthCheck'     => function ( Container $c ) {
 				return new Admin\MigrationHealthCheck(
 					new Database\Migrator( $c->get( \wpdb::class ) )

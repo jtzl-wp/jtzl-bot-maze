@@ -34,13 +34,23 @@ class BlockedBotsPage {
 	private AnalyticsCollector $collector;
 
 	/**
+	 * AbuseIPDB catch-up control.
+	 *
+	 * @var AbuseIpDbBackfillAction
+	 * @since 1.6.0
+	 */
+	private AbuseIpDbBackfillAction $backfill_action;
+
+	/**
 	 * Constructor.
 	 *
-	 * @param AnalyticsCollector $collector Analytics collector service.
+	 * @param AnalyticsCollector      $collector       Analytics collector service.
+	 * @param AbuseIpDbBackfillAction $backfill_action AbuseIPDB catch-up control.
 	 * @since 1.0.0
 	 */
-	public function __construct( AnalyticsCollector $collector ) {
-		$this->collector = $collector;
+	public function __construct( AnalyticsCollector $collector, AbuseIpDbBackfillAction $backfill_action ) {
+		$this->collector       = $collector;
+		$this->backfill_action = $backfill_action;
 	}
 
 	/**
@@ -84,14 +94,15 @@ class BlockedBotsPage {
 		$list_table = new BlockedBotsListTable( $this->collector );
 		$list_table->prepare_items();
 
-		$countries   = $this->collector->get_visits_by_country();
-		$geo_enabled = 'none' !== (string) get_option( 'jtzl_bm_geo_provider', 'none' );
+		$countries       = $this->collector->get_visits_by_country();
+		$geo_enabled     = 'none' !== (string) get_option( 'jtzl_bm_geo_provider', 'none' );
+		$backfill_action = $this->backfill_action;
 
 		$template_path = JTZL_BM_PLUGIN_DIR . 'templates/admin-blocked-bots.php';
 
 		if ( file_exists( $template_path ) ) {
 			// phpcs:ignore WordPress.PHP.DontExtract.extract_extract -- Template variable extraction is intentional.
-			extract( compact( 'list_table', 'countries', 'geo_enabled' ) );
+			extract( compact( 'list_table', 'countries', 'geo_enabled', 'backfill_action' ) );
 			include $template_path; // @phpstan-ignore include.fileNotFound
 		}
 	}

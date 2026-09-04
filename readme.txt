@@ -4,7 +4,7 @@ Tags: security, bot-protection, anti-scraping, honeypot, ai-bot
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 1.5.1
+Stable tag: 1.6.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,13 +134,16 @@ Geographic tracking is **off by default** and requires explicit opt-in by a site
 
 AbuseIPDB reporting is **off by default**. It requires explicit enablement plus an administrator-owned [AbuseIPDB account](https://www.abuseipdb.com/register) and API key from the [API dashboard](https://www.abuseipdb.com/account/api). Protect the API key like a password.
 
-Only after a non-verified crawler's persisted score crosses the configured blocking threshold does the plugin queue an eligible public IP address. An address that is already blocked is queued again whenever it requests a trap page while reporting is on, since that request is fresh evidence it is still crawling the maze. Either way the report sends only the public IP address, category 19 ([Bad Web Bot](https://www.abuseipdb.com/categories)), the time of the observation being reported, and a generic explanation for security reporting. It sends these four fields over HTTPS to the [AbuseIPDB service](https://www.abuseipdb.com/). It never sends the user agent, referrer, trap URL, session, score, or traversal depth.
+Only after a non-verified crawler's persisted score crosses the configured blocking threshold does the plugin queue an eligible public IP address. An address that is already blocked is queued again whenever it requests a trap page while reporting is on, since that request is fresh evidence it is still crawling the maze. An administrator can also press the catch-up button on the Blocked Bots page to queue addresses blocked before reporting was switched on, reported against the time each was last seen and limited to the last seven days. Either way the report sends only the public IP address, category 19 ([Bad Web Bot](https://www.abuseipdb.com/categories)), the time of the observation being reported, and a generic explanation for security reporting. It sends these four fields over HTTPS to the [AbuseIPDB service](https://www.abuseipdb.com/). It never sends the user agent, referrer, trap URL, session, score, or traversal depth.
 
 The plugin limits reports to once per IP address in any 24-hour period. Queued reports expire after seven days. Delivery runs in the background through WP-Cron, so reports may wait on low-traffic sites and are not real-time. Disabling reporting or clearing the key stops delivery and deletes queued reports.
 
 The current free Individual plan includes 1,000 IP checks and reports per day. See [AbuseIPDB pricing](https://www.abuseipdb.com/pricing); your account limit may differ. Review AbuseIPDB's [terms](https://www.abuseipdb.com/terms) and [privacy policy](https://www.abuseipdb.com/privacy) before enabling reporting.
 
 == Changelog ==
+
+= 1.6.0 =
+* The Blocked Bots page now offers a one-press catch-up that reports bots blocked before you switched AbuseIPDB reporting on. Version 1.5.1 only covered bots that came back to a trap page after being blocked, which in Block mode almost never happens: a blocked bot is refused every page, so it never receives a trap link again and has nothing left to come back to. The button names exactly how many addresses it will report, covers those seen within the last seven days — the window the reporting queue can still deliver — and reports each one against the time it was actually last seen, never the time you pressed the button. It disappears as soon as you press it, and addresses that could never be reported are never offered.
 
 = 1.5.1 =
 * AbuseIPDB reporting now also covers bots that were already blocked before you enabled it. Previously only a bot crossing the blocking threshold for the first time was ever reported, so an established bot could keep crawling your trap pages every day without a single report being sent. Now any blocked address that requests a trap page is reported too, at most once per address in any 24-hour period.

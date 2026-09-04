@@ -110,7 +110,7 @@ class Migrator {
 	 * @since 1.4.0
 	 */
 	public function __construct( \wpdb $wpdb, ?SchemaVerifier $verifier = null ) {
-		$this->wpdb          = $wpdb;
+		$this->wpdb         = $wpdb;
 		$this->scores_table = $wpdb->prefix . 'jtzl_bm_bot_scores';
 		$this->visits_table = $wpdb->prefix . 'jtzl_bm_trap_visits';
 		$this->verifier     = $verifier ?? new SchemaVerifier( $wpdb );
