@@ -54,11 +54,25 @@ class AbuseIpDbReportQueueRepository implements AbuseIpDbReportQueueRepositoryIn
 	 * row except cooldown_until, which is assigned last and deliberately keys off
 	 * the status this statement has already written.
 	 *
+	 * observed_at carries the age of the evidence, while created_at,
+	 * updated_at and next_attempt_at all record queue activity and are stamped
+	 * now. They coincide for a report queued as the abuse happens, and must not
+	 * for a catch-up of older evidence: stamping created_at with the
+	 * observation would make the batch arrive already past the processor's
+	 * stuck-work cutoff, and the next tick would delete it unsent.
+	 *
+	 * A reset makes the row new work, so created_at restarts with it. Delivery
+	 * normally prunes a settled row within a day of its cooldown ending, long
+	 * before it could look stuck — but delivery is exactly what has stopped on
+	 * a site whose cron has stalled, and a row re-opened during that stall must
+	 * not be discarded by the tick that resumes it.
+	 *
 	 * @param string $ip_address  Canonical IP address.
 	 * @param string $observed_at UTC SQL observation timestamp.
 	 */
 	public function enqueue( string $ip_address, string $observed_at ): bool {
 		$reset = self::RESET_WHEN;
+		$now   = gmdate( 'Y-m-d H:i:s' );
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$sql = $this->wpdb->prepare(
@@ -74,14 +88,15 @@ class AbuseIpDbReportQueueRepository implements AbuseIpDbReportQueueRepositoryIn
 			 reported_at = IF({$reset}, NULL, reported_at),
 			 last_error = IF({$reset}, '', last_error),
 			 updated_at = IF({$reset}, VALUES(updated_at), updated_at),
+			 created_at = IF({$reset}, VALUES(created_at), created_at),
 			 status = IF({$reset}, 'queued', status),
 			 cooldown_until = IF(status = 'queued' AND cooldown_until <= VALUES(observed_at), NULL, cooldown_until)",
 			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			$ip_address,
 			$observed_at,
-			$observed_at,
-			$observed_at,
-			$observed_at
+			$now,
+			$now,
+			$now
 		);
 
 		$result = $this->wpdb->query( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared

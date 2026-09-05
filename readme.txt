@@ -4,7 +4,7 @@ Tags: security, bot-protection, anti-scraping, honeypot, ai-bot
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 1.6.1
+Stable tag: 1.6.2
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -164,6 +164,9 @@ The plugin limits reports to once per IP address in any 24-hour period. A queued
 The current free Individual plan includes 1,000 IP checks and reports per day. See [AbuseIPDB pricing](https://www.abuseipdb.com/pricing); your account limit may differ. Review AbuseIPDB's [terms](https://www.abuseipdb.com/terms) and [privacy policy](https://www.abuseipdb.com/privacy) before enabling reporting.
 
 == Changelog ==
+
+= 1.6.2 =
+* Fixed the AbuseIPDB catch-up silently discarding everything it queued. Each queued report recorded the time of the observation as the time it entered the queue, so a catch-up of older evidence arrived already past the point the plugin abandons undelivered work, and the next background run deleted the whole batch before sending any of it. The button then reappeared with the same count, as if nothing had happened. A queued report now records when it was queued, separately from the observation it reports, and the confirmation counts only what the queue actually accepted.
 
 = 1.6.1 =
 * The AbuseIPDB catch-up now covers everything within your data retention period (30 days by default) instead of a fixed seven days. The seven-day limit was never a judgement about how old an observation may be — it was the queue's own "give up on undeliverable work" timeout, which the catch-up had inherited by accident. Those are now separate: the queue still abandons a report it has failed to send for a week, measured from when it was queued, while how far back the catch-up reaches is your retention setting. On a site left at the default, a press now reaches four times further back.

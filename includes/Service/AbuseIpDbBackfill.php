@@ -58,23 +58,27 @@ final class AbuseIpDbBackfill {
 	}
 
 	/**
-	 * Queue every eligible address, returning how many were submitted.
+	 * Queue every eligible address, returning how many reached the queue.
 	 *
-	 * The count is exact because it comes from the same list the control
-	 * offered: an address that cannot be reported was never in it, and one
-	 * already waiting in the queue was excluded by the query.
+	 * Counted from what the queue accepted rather than from what was offered.
+	 * Every reason an address might be turned away — unreportable, or already
+	 * waiting — is filtered before this point, so a refusal here is a real
+	 * failure and the administrator should see a smaller number rather than a
+	 * reassuring one.
 	 */
 	public function run(): int {
-		$eligible = $this->eligible();
+		$queued = 0;
 
-		foreach ( $eligible as $ip_address => $last_seen_at ) {
+		foreach ( $this->eligible() as $ip_address => $last_seen_at ) {
 			// last_seen_at is stored in the site's timezone while the queue
 			// works in UTC, so an unconverted value would misdate the report
 			// by the site's offset and skew its own cooldown arithmetic.
-			$this->reporter->queue_if_eligible( (string) $ip_address, get_gmt_from_date( $last_seen_at ) );
+			if ( $this->reporter->queue_if_eligible( (string) $ip_address, get_gmt_from_date( $last_seen_at ) ) ) {
+				++$queued;
+			}
 		}
 
-		return count( $eligible );
+		return $queued;
 	}
 
 	/**

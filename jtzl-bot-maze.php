@@ -3,7 +3,7 @@
  * Plugin Name: JTZL's Bot Maze
  * Plugin URI: https://wordpress.org/plugins/jtzl-bot-maze
  * Description: AI bot protection through invisible trap link mazes — hidden links lure bots into a maze of fake content for detection and blocking
- * Version: 1.6.1
+ * Version: 1.6.2
  * Requires at least: 6.9
  * Requires PHP: 8.2
  * Author: JTZL
@@ -27,7 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define plugin constants.
-define( 'JTZL_BM_VERSION', '1.6.1' );
+define( 'JTZL_BM_VERSION', '1.6.2' );
 define( 'JTZL_BM_PLUGIN_FILE', __FILE__ );
 define( 'JTZL_BM_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'JTZL_BM_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
