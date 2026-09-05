@@ -123,7 +123,7 @@ Every external service listed below is optional and off by default. No data is s
 
 When **MaxMind GeoLite2** is selected as the GeoIP provider (Settings > Bot Maze > Geographic Tracking), the plugin downloads the GeoLite2-Country database from MaxMind and performs all IP-to-country lookups locally. **No visitor data leaves your server.**
 
-* **What is downloaded:** The GeoLite2-Country database (~60 MB), updated weekly via WP-Cron.
+* **What is downloaded:** The GeoLite2-Country database (~60 MB), downloaded weekly via WP-Cron from [download.maxmind.com](https://download.maxmind.com).
 * **What is sent to MaxMind:** Only your license key during database downloads. No visitor IP addresses are shared.
 * **Requires:** A free MaxMind license key from [maxmind.com/en/geolite2/signup](https://www.maxmind.com/en/geolite2/signup).
 * **Service website:** [https://www.maxmind.com](https://www.maxmind.com)
@@ -162,6 +162,17 @@ In all three cases the report sends only the public IP address, category 19 ([Ba
 The plugin limits reports to once per IP address in any 24-hour period. A queued report that cannot be delivered for seven days is abandoned. Delivery runs in the background through WP-Cron, so reports may wait on low-traffic sites and are not real-time. Disabling reporting or clearing the key stops delivery and deletes queued reports.
 
 The current free Individual plan includes 1,000 IP checks and reports per day. See [AbuseIPDB pricing](https://www.abuseipdb.com/pricing); your account limit may differ. Review AbuseIPDB's [terms](https://www.abuseipdb.com/terms) and [privacy policy](https://www.abuseipdb.com/privacy) before enabling reporting.
+
+= Cloudflare IP Ranges =
+
+When the **Trusted Client IP Header** is set to **Cloudflare (CF-Connecting-IP)** (Settings > Bot Maze > Trusted Proxy), the plugin fetches Cloudflare's published edge IP range lists from cloudflare.com to keep the trusted-proxy allowlist current without any manual action.
+
+* **What is requested:** Two public plain-text files — [cloudflare.com/ips-v4](https://www.cloudflare.com/ips-v4) and [cloudflare.com/ips-v6](https://www.cloudflare.com/ips-v6) — fetched weekly via WP-Cron.
+* **What is sent:** No visitor or user data. The HTTP request reveals only your server's own IP address to Cloudflare.
+* **Service website:** [https://www.cloudflare.com](https://www.cloudflare.com)
+* **Terms of service:** [https://www.cloudflare.com/terms/](https://www.cloudflare.com/terms/)
+
+This fetch only runs while the Cloudflare trusted client IP header is selected. If the fetch fails validation, the previously stored list (or a bundled fallback) is kept — a failed response never narrows or widens the trusted set.
 
 == Changelog ==
 
