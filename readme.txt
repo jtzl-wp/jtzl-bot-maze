@@ -4,7 +4,7 @@ Tags: security, bot-protection, anti-scraping, honeypot, ai-bot
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 1.6.0
+Stable tag: 1.6.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,7 +36,7 @@ JTZL's Bot Maze protects your WordPress site from unwanted AI crawlers and scrap
 * Geographic heat map of bot activity by country with two GeoIP provider options
 * MaxMind GeoLite2 local database — all lookups on your server, GDPR-friendly (recommended)
 * ip-api.com external API — simple setup, no license key required
-* Optional AbuseIPDB reporting for eligible blocked public IP addresses
+* Optional AbuseIPDB reporting for eligible blocked public IP addresses, with a one-press catch-up for bots blocked before you enabled it
 * Lightweight — minimal footprint, geographic tracking is fully optional
 
 == Installation ==
@@ -94,6 +94,19 @@ Trap pages are generated from a built-in content template engine that produces r
 
 Check the **Bot Maze** analytics dashboard in the WordPress admin. It shows total trap visits, unique bot IPs, score distribution, and top offenders.
 
+= Why does a blocked bot show no AbuseIPDB report? =
+
+A dash in the Reported column on the Blocked Bots page means no report has been accepted for that address yet. The usual reasons, in the order worth checking:
+
+1. **Reporting is off, or has no API key.** Nothing is ever queued until both are set.
+2. **The bot was blocked before you switched reporting on.** Reporting fires when a score crosses the blocking threshold, and a bot that crossed it earlier will not cross it again. Use the catch-up button on the Blocked Bots page.
+3. **It was last seen longer ago than your data retention period** (Settings > Bot Maze > Maintenance, 30 days by default). The catch-up only offers addresses inside that window, because past it the plugin deletes the bot's record anyway. An address that falls outside will not be offered again, since a blocked bot stops accumulating visits.
+4. **It was reported in the last 24 hours already**, under a different user agent for the same address.
+5. **The address is not publicly routable** — a private, loopback, reserved, documentation or multicast address. AbuseIPDB only accepts reports about addresses reachable on the public internet. This usually means the site is behind a proxy and the trusted proxy settings need attention, since the recorded address is the proxy's rather than the visitor's.
+6. **Delivery has not caught up.** Reports leave in small batches through WP-Cron, so a large catch-up takes hours. Settings > Bot Maze > AbuseIPDB Reporting shows how many are still pending.
+
+Verified search engine crawlers are never scored, so they never reach the Blocked Bots page at all.
+
 = Is the Cloudflare trusted client IP setting safe to enable? =
 
 Cloudflare mode trusts the `CF-Connecting-IP` header only when the request comes from Cloudflare's published edge IP ranges. Because those edge IPs are **shared by every Cloudflare customer**, this proves a request came from some Cloudflare edge, not specifically from your zone.
@@ -134,16 +147,30 @@ Geographic tracking is **off by default** and requires explicit opt-in by a site
 
 AbuseIPDB reporting is **off by default**. It requires explicit enablement plus an administrator-owned [AbuseIPDB account](https://www.abuseipdb.com/register) and API key from the [API dashboard](https://www.abuseipdb.com/account/api). Protect the API key like a password.
 
-Only after a non-verified crawler's persisted score crosses the configured blocking threshold does the plugin queue an eligible public IP address. An address that is already blocked is queued again whenever it requests a trap page while reporting is on, since that request is fresh evidence it is still crawling the maze. An administrator can also press the catch-up button on the Blocked Bots page to queue addresses blocked before reporting was switched on, reported against the time each was last seen and limited to the last seven days. Either way the report sends only the public IP address, category 19 ([Bad Web Bot](https://www.abuseipdb.com/categories)), the time of the observation being reported, and a generic explanation for security reporting. It sends these four fields over HTTPS to the [AbuseIPDB service](https://www.abuseipdb.com/). It never sends the user agent, referrer, trap URL, session, score, or traversal depth.
+An address is queued for reporting in exactly three situations:
 
-The plugin limits reports to once per IP address in any 24-hour period. Queued reports expire after seven days. Delivery runs in the background through WP-Cron, so reports may wait on low-traffic sites and are not real-time. Disabling reporting or clearing the key stops delivery and deletes queued reports.
+1. A non-verified crawler's persisted score crosses the configured blocking threshold.
+2. An address that is already blocked requests a trap page while reporting is on, which is fresh evidence it is still crawling the maze.
+3. An administrator presses the catch-up button on the Blocked Bots page, which covers addresses blocked before reporting was switched on.
+
+Every queued address must also be publicly routable. Private, loopback, reserved, documentation and multicast addresses are never reported, because AbuseIPDB only accepts reports about addresses reachable on the public internet. Verified search engine crawlers are never scored in the first place, so they are never candidates.
+
+The catch-up in (3) reports each address against the time it was actually last seen, rather than the time the button was pressed, and covers addresses seen within your configured data retention period (Settings > Bot Maze > Maintenance, 30 days by default). That is the period you have declared this evidence meaningful for, and the same period after which the plugin deletes the record, so the catch-up offers exactly the blocked addresses your site still holds evidence for. It reports up to 500 addresses per press.
+
+In all three cases the report sends only the public IP address, category 19 ([Bad Web Bot](https://www.abuseipdb.com/categories)), the time of the observation being reported, and a generic explanation for security reporting. It sends these four fields over HTTPS to the [AbuseIPDB service](https://www.abuseipdb.com/). It never sends the user agent, referrer, trap URL, session, score, or traversal depth.
+
+The plugin limits reports to once per IP address in any 24-hour period. A queued report that cannot be delivered for seven days is abandoned. Delivery runs in the background through WP-Cron, so reports may wait on low-traffic sites and are not real-time. Disabling reporting or clearing the key stops delivery and deletes queued reports.
 
 The current free Individual plan includes 1,000 IP checks and reports per day. See [AbuseIPDB pricing](https://www.abuseipdb.com/pricing); your account limit may differ. Review AbuseIPDB's [terms](https://www.abuseipdb.com/terms) and [privacy policy](https://www.abuseipdb.com/privacy) before enabling reporting.
 
 == Changelog ==
 
+= 1.6.1 =
+* The AbuseIPDB catch-up now covers everything within your data retention period (30 days by default) instead of a fixed seven days. The seven-day limit was never a judgement about how old an observation may be — it was the queue's own "give up on undeliverable work" timeout, which the catch-up had inherited by accident. Those are now separate: the queue still abandons a report it has failed to send for a week, measured from when it was queued, while how far back the catch-up reaches is your retention setting. On a site left at the default, a press now reaches four times further back.
+* Documented exactly which addresses get reported and why one might not, including the requirement that an address be publicly routable — a rule that previously had no mention at all. See the new "Why does a blocked bot show no AbuseIPDB report?" entry under Frequently Asked Questions.
+
 = 1.6.0 =
-* The Blocked Bots page now offers a one-press catch-up that reports bots blocked before you switched AbuseIPDB reporting on. Version 1.5.1 only covered bots that came back to a trap page after being blocked, which in Block mode almost never happens: a blocked bot is refused every page, so it never receives a trap link again and has nothing left to come back to. The button names exactly how many addresses it will report, covers those seen within the last seven days — the window the reporting queue can still deliver — and reports each one against the time it was actually last seen, never the time you pressed the button. It disappears as soon as you press it, and addresses that could never be reported are never offered.
+* The Blocked Bots page now offers a one-press catch-up that reports bots blocked before you switched AbuseIPDB reporting on. Version 1.5.1 only covered bots that came back to a trap page after being blocked, which in Block mode almost never happens: a blocked bot is refused every page, so it never receives a trap link again and has nothing left to come back to. The button names exactly how many addresses it will report, covers those seen within the last seven days (widened to your retention period in 1.6.1) and reports each one against the time it was actually last seen, never the time you pressed the button. It disappears as soon as you press it, and addresses that could never be reported are never offered.
 
 = 1.5.1 =
 * AbuseIPDB reporting now also covers bots that were already blocked before you enabled it. Previously only a bot crossing the blocking threshold for the first time was ever reported, so an established bot could keep crawling your trap pages every day without a single report being sent. Now any blocked address that requests a trap page is reported too, at most once per address in any 24-hour period.

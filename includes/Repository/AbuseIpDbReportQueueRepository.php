@@ -200,16 +200,22 @@ class AbuseIpDbReportQueueRepository implements AbuseIpDbReportQueueRepositoryIn
 	}
 
 	/**
-	 * Drop settled rows past their cooldown and observations past retention.
+	 * Drop settled rows past their cooldown and rows stuck in the queue.
 	 *
-	 * @param string $now           UTC SQL timestamp for "now".
-	 * @param string $expiry_cutoff UTC SQL retention cutoff.
+	 * Staleness is measured from created_at, not observed_at: this clause
+	 * exists to stop undeliverable work sitting in the queue forever, which is
+	 * a fact about the row's age, not about how old the abuse it describes is.
+	 * The two coincide for a report queued as the abuse happens, and diverge
+	 * for the catch-up, which deliberately queues older observations.
+	 *
+	 * @param string $now          UTC SQL timestamp for "now".
+	 * @param string $stuck_before UTC SQL cutoff for how long a row may wait.
 	 */
-	public function prune( string $now, string $expiry_cutoff ): int {
+	public function prune( string $now, string $stuck_before ): int {
 		$query = $this->wpdb->prepare(
-			"DELETE FROM {$this->table_name} WHERE (status IN ('reported','failed') AND cooldown_until <= %s) OR observed_at < %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			"DELETE FROM {$this->table_name} WHERE (status IN ('reported','failed') AND cooldown_until <= %s) OR created_at < %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			$now,
-			$expiry_cutoff
+			$stuck_before
 		);
 
 		$result = $this->wpdb->query( $query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared

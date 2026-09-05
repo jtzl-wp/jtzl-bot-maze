@@ -21,9 +21,9 @@ use JTZL\Bot_Maze\Repository\AbuseIpDbBackfillQuery;
  *
  * The observation reported is the address's own last_seen_at, which is a real
  * recorded event rather than the time the administrator pressed the button.
- * That accuracy is what bounds the feature: nothing older than the report
- * queue's retention window is offered, because the processor would prune it
- * unsent.
+ * How far back that may reach is the site's own data retention setting: the
+ * period the administrator has declared this evidence meaningful for, and the
+ * period after which the maintenance cron deletes the rows anyway.
  */
 final class AbuseIpDbBackfill {
 
@@ -40,25 +40,16 @@ final class AbuseIpDbBackfill {
 	public const MAX_PER_RUN = 500;
 
 	/**
-	 * Slack between the cutoff and the processor's prune.
-	 *
-	 * The processor prunes on observed_at at the start of every tick and runs
-	 * up to five minutes after a row is queued, so a cutoff sitting exactly on
-	 * the retention boundary would offer rows deleted before they are claimed.
-	 *
-	 * @var int
-	 */
-	private const SAFETY_MARGIN = HOUR_IN_SECONDS;
-
-	/**
 	 * Constructor.
 	 *
-	 * @param AbuseIpDbBackfillQuery     $candidates Eligible-address lookup.
-	 * @param AbuseIpDbReporterInterface $reporter   Report queue gateway.
+	 * @param AbuseIpDbBackfillQuery     $candidates     Eligible-address lookup.
+	 * @param AbuseIpDbReporterInterface $reporter       Report queue gateway.
+	 * @param int                        $retention_days How long the site keeps bot data.
 	 */
 	public function __construct(
 		private AbuseIpDbBackfillQuery $candidates,
-		private AbuseIpDbReporterInterface $reporter
+		private AbuseIpDbReporterInterface $reporter,
+		private int $retention_days
 	) {}
 
 	/** Count addresses a run would queue. */
@@ -108,10 +99,16 @@ final class AbuseIpDbBackfill {
 		);
 	}
 
-	/** Oldest site-local observation the report queue will still deliver. */
+	/**
+	 * Oldest observation still worth offering, in the site's timezone.
+	 *
+	 * The site's own data retention setting decides this. It is the period an
+	 * administrator has declared this evidence meaningful for, and the same
+	 * period after which the maintenance cron deletes the score rows, so the
+	 * catch-up offers exactly the blocked addresses the site still holds
+	 * evidence for — no more, and nothing it would have to explain away.
+	 */
 	private function cutoff(): string {
-		$retention_starts = time() - AbuseIpDbReportProcessor::RETENTION_SECONDS + self::SAFETY_MARGIN;
-
-		return get_date_from_gmt( gmdate( 'Y-m-d H:i:s', $retention_starts ) );
+		return get_date_from_gmt( gmdate( 'Y-m-d H:i:s', time() - ( $this->retention_days * DAY_IN_SECONDS ) ) );
 	}
 }

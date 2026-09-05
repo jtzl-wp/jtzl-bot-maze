@@ -19,14 +19,15 @@ final class AbuseIpDbReportProcessor {
 	private const LEASE_SECONDS = 600;
 
 	/**
-	 * How long an observation stays reportable.
+	 * How long a row may sit in the queue before it is abandoned.
 	 *
-	 * Public because AbuseIpDbBackfill queues historical observations and must
-	 * not offer the administrator rows this processor would prune unsent.
+	 * A report nobody could deliver in a week is not going to be delivered,
+	 * and holding it only makes the queue lie about what is pending. This
+	 * bounds the wait, not the age of the observation being reported.
 	 *
 	 * @var int
 	 */
-	public const RETENTION_SECONDS = 7 * DAY_IN_SECONDS;
+	private const STUCK_AFTER_SECONDS = 7 * DAY_IN_SECONDS;
 
 	private const COOLDOWN_SECONDS = DAY_IN_SECONDS;
 	private const RETRY_DELAYS     = array( 300, 1800, 7200, 21600, 86400 );
@@ -58,7 +59,7 @@ final class AbuseIpDbReportProcessor {
 		}
 
 		$now = time();
-		$this->queue->prune( $this->format_time( $now ), $this->format_time( $now - self::RETENTION_SECONDS ) );
+		$this->queue->prune( $this->format_time( $now ), $this->format_time( $now - self::STUCK_AFTER_SECONDS ) );
 
 		// A 429 exhausts the account quota, not one row's allowance, so the
 		// pause is global: without it every tick would burn one more

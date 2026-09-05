@@ -237,7 +237,8 @@ class ContainerFactory {
 			'JTZL\Bot_Maze\Service\AbuseIpDbBackfill'      => function ( Container $c ) {
 				return new Service\AbuseIpDbBackfill(
 					new Repository\AbuseIpDbBackfillQuery( $c->get( \wpdb::class ) ),
-					$c->get( AbuseIpDbReporterInterface::class )
+					$c->get( AbuseIpDbReporterInterface::class ),
+					$c->get( 'config.jtzl_bm_retention_days' )
 				);
 			},
 
