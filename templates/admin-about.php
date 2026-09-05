@@ -85,6 +85,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<li><?php echo esc_html__( 'Automatic log retention and maintenance via WP-Cron.', 'jtzl-bot-maze' ); ?></li>
 			<li><?php echo esc_html__( 'Geographic heat map of bot activity by country with interactive choropleth visualization.', 'jtzl-bot-maze' ); ?></li>
 			<li><?php echo esc_html__( 'Two GeoIP provider options: MaxMind GeoLite2 local database (GDPR-friendly, recommended) or ip-api.com external API.', 'jtzl-bot-maze' ); ?></li>
+			<li><?php echo esc_html__( 'Optional AbuseIPDB reporting for blocked public IP addresses, with a one-press catch-up for bots blocked before you enabled it.', 'jtzl-bot-maze' ); ?></li>
 			<li><?php echo esc_html__( 'Privacy policy suggestion for GDPR compliance.', 'jtzl-bot-maze' ); ?></li>
 			<li><?php echo esc_html__( 'Lightweight — geographic tracking is fully optional, and the MaxMind option keeps all data on your server.', 'jtzl-bot-maze' ); ?></li>
 		</ul>
@@ -122,6 +123,95 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</ol>
 	</div>
 
+	<?php
+	$jtzl_bm_per_run   = \JTZL\Bot_Maze\Service\AbuseIpDbReportProcessor::MAX_BATCH;
+	$jtzl_bm_run_every = \JTZL\Bot_Maze\Service\AbuseIpDbScheduler::INTERVAL_SECONDS;
+	$jtzl_bm_per_hour  = (int) ( $jtzl_bm_per_run * HOUR_IN_SECONDS / $jtzl_bm_run_every );
+	?>
+	<div class="card" style="max-width: 800px;">
+		<h2><?php echo esc_html__( 'AbuseIPDB Reporting', 'jtzl-bot-maze' ); ?></h2>
+		<p><?php echo esc_html__( 'JTZL\'s Bot Maze can report the addresses it blocks to AbuseIPDB, a shared database of abusive IP addresses. This feature is optional and disabled by default. It uses your own AbuseIPDB account and API key; the plugin does not provide a shared key.', 'jtzl-bot-maze' ); ?></p>
+
+		<h3><?php echo esc_html__( 'What Gets Reported', 'jtzl-bot-maze' ); ?></h3>
+		<p><?php echo esc_html__( 'A report sends four things over HTTPS: the public IP address, category 19 (Bad Web Bot), the time of the observation being reported, and a generic explanation. It never sends the user agent, referrer, trap URL, session, score, or traversal depth.', 'jtzl-bot-maze' ); ?></p>
+		<p><?php echo esc_html__( 'An address is queued for reporting in exactly three situations:', 'jtzl-bot-maze' ); ?></p>
+		<ul style="list-style: disc; padding-left: 20px;">
+			<li><?php echo esc_html__( 'A non-verified crawler\'s score crosses the blocking threshold.', 'jtzl-bot-maze' ); ?></li>
+			<li><?php echo esc_html__( 'An address that is already blocked requests a trap page, which is fresh evidence it is still crawling the maze.', 'jtzl-bot-maze' ); ?></li>
+			<li>
+				<?php
+				printf(
+					/* translators: %d: maximum number of addresses one catch-up press reports */
+					esc_html__( 'You press the catch-up button on the Blocked Bots page, which covers addresses blocked before you switched reporting on. One press reports up to %d addresses, each against the time it was actually last seen rather than the time you pressed.', 'jtzl-bot-maze' ),
+					absint( \JTZL\Bot_Maze\Service\AbuseIpDbBackfill::MAX_PER_RUN )
+				);
+				?>
+			</li>
+		</ul>
+		<p><?php echo esc_html__( 'The address must also be publicly routable. Private, loopback, reserved, documentation and multicast addresses are never reported, because AbuseIPDB only accepts reports about addresses reachable on the public internet. Verified search engine crawlers are never scored in the first place, so they are never candidates.', 'jtzl-bot-maze' ); ?></p>
+
+		<h3><?php echo esc_html__( 'How Quickly Reports Are Sent', 'jtzl-bot-maze' ); ?></h3>
+		<p>
+			<?php
+			printf(
+				/* translators: 1: reports sent per background run, 2: minutes between runs, 3: resulting reports per hour */
+				esc_html__( 'Queued addresses are never sent all at once. A background run sends at most %1$d reports, and a run is scheduled every %2$d minutes — a ceiling of roughly %3$d reports per hour. A full catch-up therefore takes several hours to clear, and the queue drains in small batches rather than in one burst.', 'jtzl-bot-maze' ),
+				absint( $jtzl_bm_per_run ),
+				absint( $jtzl_bm_run_every / MINUTE_IN_SECONDS ),
+				absint( $jtzl_bm_per_hour )
+			);
+			?>
+		</p>
+		<p><?php echo esc_html__( 'Individual batches are often smaller than that ceiling, and the gaps between them are rarely even:', 'jtzl-bot-maze' ); ?></p>
+		<ul style="list-style: disc; padding-left: 20px;">
+			<li><?php echo esc_html__( 'A run stops at the first delivery failure, so a batch can be a single report when AbuseIPDB or the network is unhappy.', 'jtzl-bot-maze' ); ?></li>
+			<li><?php echo esc_html__( 'When your daily AbuseIPDB quota runs out, delivery pauses entirely until the time AbuseIPDB says to retry. Nothing is lost; it resumes on its own.', 'jtzl-bot-maze' ); ?></li>
+			<li>
+				<?php
+				printf(
+					/* translators: %d: minutes between background runs */
+					esc_html__( 'WP-Cron only fires on a page request after a run is due, so on a low-traffic site runs land at irregular intervals. The first run comes no sooner than %d minutes after you enable reporting.', 'jtzl-bot-maze' ),
+					absint( $jtzl_bm_run_every / MINUTE_IN_SECONDS )
+				);
+				?>
+			</li>
+			<li><?php echo esc_html__( 'Each address is reported at most once in any 24-hour period, so a bot that keeps crawling does not generate repeat reports.', 'jtzl-bot-maze' ); ?></li>
+			<li><?php echo esc_html__( 'A queued report that could not be delivered for seven days is abandoned rather than held forever.', 'jtzl-bot-maze' ); ?></li>
+		</ul>
+		<p>
+			<?php
+			printf(
+				/* translators: %s: link to the settings page */
+				esc_html__( 'The Delivery Status panel in %s shows how many reports are still pending, when the last one was delivered, and the most recent error.', 'jtzl-bot-maze' ),
+				'<a href="' . esc_url( admin_url( 'admin.php?page=jtzl-bot-maze-settings' ) ) . '">' . esc_html__( 'Settings > AbuseIPDB Reporting', 'jtzl-bot-maze' ) . '</a>'
+			);
+			?>
+		</p>
+
+		<h3><?php echo esc_html__( 'Setup', 'jtzl-bot-maze' ); ?></h3>
+		<ol>
+			<li>
+				<?php
+				printf(
+					/* translators: %s: link to the AbuseIPDB registration page */
+					esc_html__( 'Create your own free account at %s and generate an API key in the API dashboard.', 'jtzl-bot-maze' ),
+					'<a href="' . esc_url( 'https://www.abuseipdb.com/register' ) . '">abuseipdb.com</a>'
+				);
+				?>
+			</li>
+			<li>
+				<?php
+				printf(
+					/* translators: %s: link to the settings page */
+					esc_html__( 'Paste the key into %s and save changes. Treat it like a password.', 'jtzl-bot-maze' ),
+					'<a href="' . esc_url( admin_url( 'admin.php?page=jtzl-bot-maze-settings' ) ) . '">' . esc_html__( 'Settings > AbuseIPDB Reporting', 'jtzl-bot-maze' ) . '</a>'
+				);
+				?>
+			</li>
+			<li><?php echo esc_html__( 'Review the data-sharing consent, then tick "Enable Automatic Reporting". Clearing the key or switching reporting off stops delivery and discards anything still queued.', 'jtzl-bot-maze' ); ?></li>
+		</ol>
+	</div>
+
 	<div class="card" style="max-width: 800px;">
 		<h2><?php echo esc_html__( 'Frequently Asked Questions', 'jtzl-bot-maze' ); ?></h2>
 
@@ -143,6 +233,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<h3><?php echo esc_html__( 'Why don\'t my visits show in the analytics?', 'jtzl-bot-maze' ); ?></h3>
 		<p><?php echo esc_html__( 'The analytics dashboard only counts visits to trap pages, not your real site pages. Normal browsing of your site (including the WordPress admin) will not increment any counters. Only bots that follow the hidden trap links will generate visits.', 'jtzl-bot-maze' ); ?></p>
+
+		<h3><?php echo esc_html__( 'Why does a blocked bot show no AbuseIPDB report?', 'jtzl-bot-maze' ); ?></h3>
+		<p><?php echo esc_html__( 'A dash in the Reported column on the Blocked Bots page means no report has been accepted for that address yet. The usual reasons, in the order worth checking:', 'jtzl-bot-maze' ); ?></p>
+		<ol>
+			<li><?php echo esc_html__( 'Reporting is off, or has no API key. Nothing is ever queued until both are set.', 'jtzl-bot-maze' ); ?></li>
+			<li><?php echo esc_html__( 'The bot was blocked before you switched reporting on. Reporting fires when a score crosses the blocking threshold, and a bot that crossed it earlier will not cross it again. Use the catch-up button on the Blocked Bots page.', 'jtzl-bot-maze' ); ?></li>
+			<li><?php echo esc_html__( 'It was last seen longer ago than your data retention period (Settings > Maintenance, 30 days by default). The catch-up only offers addresses inside that window, because past it the plugin deletes the record anyway.', 'jtzl-bot-maze' ); ?></li>
+			<li><?php echo esc_html__( 'It was reported in the last 24 hours already, under a different user agent for the same address. Reports are limited per address, while this table lists each address and user agent separately.', 'jtzl-bot-maze' ); ?></li>
+			<li><?php echo esc_html__( 'The address is not publicly routable — a private, loopback, reserved, documentation or multicast address. This usually means the site is behind a proxy and the trusted proxy settings need attention, since the recorded address is the proxy\'s rather than the visitor\'s.', 'jtzl-bot-maze' ); ?></li>
+			<li><?php echo esc_html__( 'Delivery has not caught up. Reports leave in small batches, so a large catch-up takes hours — see "How Quickly Reports Are Sent" above, and the pending count under Settings > AbuseIPDB Reporting.', 'jtzl-bot-maze' ); ?></li>
+		</ol>
 	</div>
 
 	<div class="card" style="max-width: 800px;">

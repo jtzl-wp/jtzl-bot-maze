@@ -14,7 +14,16 @@ use JTZL\Bot_Maze\Repository\BotScoreRepositoryInterface;
 /** Process a bounded batch of queued AbuseIPDB reports. */
 final class AbuseIpDbReportProcessor {
 
-	private const MAX_BATCH     = 5;
+	/**
+	 * Reports delivered per background run.
+	 *
+	 * Public because the About page states the delivery rate, and a figure
+	 * quoted there has to be the figure the loop actually uses.
+	 *
+	 * @var int
+	 */
+	public const MAX_BATCH = 5;
+
 	private const MAX_ATTEMPTS  = 6;
 	private const LEASE_SECONDS = 600;
 

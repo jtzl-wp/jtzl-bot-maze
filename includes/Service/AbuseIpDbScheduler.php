@@ -15,6 +15,17 @@ final class AbuseIpDbScheduler {
 	public const INTERVAL  = 'jtzl_bm_five_minutes';
 
 	/**
+	 * Seconds between report runs.
+	 *
+	 * Public for the same reason as AbuseIpDbReportProcessor::MAX_BATCH: the
+	 * About page quotes the delivery rate, and the two halves of that rate
+	 * must come from the schedule rather than from prose that can drift.
+	 *
+	 * @var int
+	 */
+	public const INTERVAL_SECONDS = 300;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param AbuseIpDbReportQueueRepositoryInterface $queue Report queue.
@@ -28,7 +39,7 @@ final class AbuseIpDbScheduler {
 	 */
 	public function add_schedule( array $schedules ): array {
 		$schedules[ self::INTERVAL ] = array(
-			'interval' => 300,
+			'interval' => self::INTERVAL_SECONDS,
 			'display'  => __( 'Every five minutes', 'jtzl-bot-maze' ),
 		);
 		return $schedules;
