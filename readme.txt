@@ -36,7 +36,7 @@ JTZL's Bot Maze protects your WordPress site from unwanted AI crawlers and scrap
 * Geographic heat map of bot activity by country with two GeoIP provider options
 * MaxMind GeoLite2 local database — all lookups on your server, GDPR-friendly (recommended)
 * ip-api.com external API — simple setup, no license key required
-* Optional AbuseIPDB reporting for eligible blocked public IP addresses, with a one-press catch-up for bots blocked before you enabled it
+* Optional AbuseIPDB reporting for eligible blocked public IP addresses, with a one-press catch-up for blocked bots that carry no report yet
 * Lightweight — minimal footprint, geographic tracking is fully optional
 
 == Installation ==
@@ -151,7 +151,7 @@ An address is queued for reporting in exactly three situations:
 
 1. A non-verified crawler's persisted score crosses the configured blocking threshold.
 2. An address that is already blocked requests a trap page while reporting is on, which is fresh evidence it is still crawling the maze.
-3. An administrator presses the catch-up button on the Blocked Bots page, which covers addresses blocked before reporting was switched on.
+3. An administrator presses the catch-up button on the Blocked Bots page, which covers blocked addresses AbuseIPDB has not accepted a report for, whatever the reason.
 
 Every queued address must also be publicly routable. Private, loopback, reserved, documentation and multicast addresses are never reported, because AbuseIPDB only accepts reports about addresses reachable on the public internet. Verified search engine crawlers are never scored in the first place, so they are never candidates.
 

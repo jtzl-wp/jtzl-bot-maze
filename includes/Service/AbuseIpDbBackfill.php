@@ -10,14 +10,15 @@ namespace JTZL\Bot_Maze\Service;
 use JTZL\Bot_Maze\Repository\AbuseIpDbBackfillQuery;
 
 /**
- * Queue blocked addresses that predate the reporting opt-in.
+ * Queue blocked addresses that carry no accepted report.
  *
  * Reporting normally fires the moment a score crosses the blocking threshold.
- * Addresses blocked before an administrator enabled reporting never see that
- * moment again: the blocking response ends their requests before any scoring
- * runs, and in 'block' mode they stop receiving trap links altogether, so they
- * cannot re-offend in a way the site can observe. Without a catch-up they stay
- * unreported forever.
+ * An address that missed that moment — blocked before an administrator enabled
+ * reporting, or queued and then abandoned after a week of failed delivery —
+ * never sees it again: the blocking response ends its requests before any
+ * scoring runs, and in 'block' mode it stops receiving trap links altogether,
+ * so it cannot re-offend in a way the site can observe. Without a catch-up it
+ * stays unreported forever.
  *
  * The observation reported is the address's own last_seen_at, which is a real
  * recorded event rather than the time the administrator pressed the button.

@@ -84,8 +84,8 @@ final class AbuseIpDbBackfillAction {
 				sprintf(
 					/* translators: %d: number of blocked addresses eligible for reporting. */
 					_n(
-						'%d address was blocked before AbuseIPDB reporting was switched on, and was seen recently enough to still be worth reporting.',
-						'%d addresses were blocked before AbuseIPDB reporting was switched on, and were seen recently enough to still be worth reporting.',
+						'%d blocked address has not been reported to AbuseIPDB, and was seen recently enough to still be worth reporting.',
+						'%d blocked addresses have not been reported to AbuseIPDB, and were seen recently enough to still be worth reporting.',
 						$eligible,
 						'jtzl-bot-maze'
 					),

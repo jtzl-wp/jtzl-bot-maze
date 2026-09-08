@@ -85,7 +85,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<li><?php echo esc_html__( 'Automatic log retention and maintenance via WP-Cron.', 'jtzl-bot-maze' ); ?></li>
 			<li><?php echo esc_html__( 'Geographic heat map of bot activity by country with interactive choropleth visualization.', 'jtzl-bot-maze' ); ?></li>
 			<li><?php echo esc_html__( 'Two GeoIP provider options: MaxMind GeoLite2 local database (GDPR-friendly, recommended) or ip-api.com external API.', 'jtzl-bot-maze' ); ?></li>
-			<li><?php echo esc_html__( 'Optional AbuseIPDB reporting for blocked public IP addresses, with a one-press catch-up for bots blocked before you enabled it.', 'jtzl-bot-maze' ); ?></li>
+			<li><?php echo esc_html__( 'Optional AbuseIPDB reporting for blocked public IP addresses, with a one-press catch-up for blocked bots that carry no report yet.', 'jtzl-bot-maze' ); ?></li>
 			<li><?php echo esc_html__( 'Privacy policy suggestion for GDPR compliance.', 'jtzl-bot-maze' ); ?></li>
 			<li><?php echo esc_html__( 'Lightweight — geographic tracking is fully optional, and the MaxMind option keeps all data on your server.', 'jtzl-bot-maze' ); ?></li>
 		</ul>
@@ -142,7 +142,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<?php
 				printf(
 					/* translators: %d: maximum number of addresses one catch-up press reports */
-					esc_html__( 'You press the catch-up button on the Blocked Bots page, which covers addresses blocked before you switched reporting on. One press reports up to %d addresses, each against the time it was actually last seen rather than the time you pressed.', 'jtzl-bot-maze' ),
+					esc_html__( 'You press the catch-up button on the Blocked Bots page, which covers blocked addresses AbuseIPDB has not accepted a report for, whatever the reason. One press reports up to %d addresses, each against the time it was actually last seen rather than the time you pressed.', 'jtzl-bot-maze' ),
 					absint( \JTZL\Bot_Maze\Service\AbuseIpDbBackfill::MAX_PER_RUN )
 				);
 				?>

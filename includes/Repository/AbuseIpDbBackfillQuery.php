@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // @codeCoverageIgnoreEnd
 
 /**
- * Finds blocked addresses that predate the AbuseIPDB reporting opt-in.
+ * Finds blocked addresses that carry no accepted AbuseIPDB report.
  *
  * Owns the eligibility predicate — blocked, never reported, not already
  * waiting in the report queue, and seen recently enough that the queue would
