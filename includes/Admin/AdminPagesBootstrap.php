@@ -173,7 +173,7 @@ class AdminPagesBootstrap {
 				/* translators: 1: AbuseIPDB privacy policy URL, 2: AbuseIPDB terms URL */
 				wp_kses_post( __( 'While this feature is enabled, two further records are kept on this site. An address waiting to be reported is held in a queue together with its delivery state; that entry is deleted 24 hours after the report is sent, or after seven days if it is never sent, and the whole queue is deleted as soon as an administrator turns reporting off or removes the API key. Separately, the date and time a report was sent is stored on the visitor records for that address, and is deleted with them at the end of the retention period above. That date is a local copy of a report AbuseIPDB holds; removing it here does not withdraw the report, which is managed through the AbuseIPDB account that sent it. See the <a href="%1$s">AbuseIPDB privacy policy</a> and <a href="%2$s">AbuseIPDB terms</a>.', 'jtzl-bot-maze' ) ),
 				esc_url( 'https://www.abuseipdb.com/privacy' ),
-				esc_url( 'https://www.abuseipdb.com/terms' )
+				esc_url( 'https://www.abuseipdb.com/legal' )
 			)
 		);
 

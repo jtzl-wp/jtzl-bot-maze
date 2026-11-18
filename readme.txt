@@ -145,7 +145,7 @@ Geographic tracking is **off by default** and requires explicit opt-in by a site
 
 = AbuseIPDB Reporting =
 
-AbuseIPDB reporting is **off by default**. It requires explicit enablement plus an administrator-owned [AbuseIPDB account](https://www.abuseipdb.com/register) and API key from the [API dashboard](https://www.abuseipdb.com/account/api). Protect the API key like a password.
+AbuseIPDB reporting is **off by default**. It requires explicit enablement plus an administrator-owned [AbuseIPDB account](https://www.abuseipdb.com/register) and API key from the [API dashboard](https://www.abuseipdb.com/account/api/keys). Protect the API key like a password.
 
 An address is queued for reporting in exactly three situations:
 
@@ -161,7 +161,7 @@ In all three cases the report sends only the public IP address, category 19 ([Ba
 
 The plugin limits reports to once per IP address in any 24-hour period. A queued report that cannot be delivered for seven days is abandoned. Delivery runs in the background through WP-Cron, so reports may wait on low-traffic sites and are not real-time. Disabling reporting or clearing the key stops delivery and deletes queued reports.
 
-The current free Individual plan includes 1,000 IP checks and reports per day. See [AbuseIPDB pricing](https://www.abuseipdb.com/pricing); your account limit may differ. Review AbuseIPDB's [terms](https://www.abuseipdb.com/terms) and [privacy policy](https://www.abuseipdb.com/privacy) before enabling reporting.
+The current free Individual plan includes 1,000 IP checks and reports per day. See [AbuseIPDB pricing](https://www.abuseipdb.com/pricing); your account limit may differ. Review AbuseIPDB's [terms](https://www.abuseipdb.com/legal) and [privacy policy](https://www.abuseipdb.com/privacy) before enabling reporting.
 
 = Cloudflare IP Ranges =
 
