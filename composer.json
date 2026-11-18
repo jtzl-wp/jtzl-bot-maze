@@ -61,6 +61,7 @@
 			"@metrics:size",
 			"@php ./bin/check-phpmetrics-thresholds"
 		],
+		"links:check": "@php ./bin/check-external-links",
 		"anomaly": [
 			"@deptrac",
 			"@metrics:phpmd"
