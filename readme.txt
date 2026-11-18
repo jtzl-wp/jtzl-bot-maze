@@ -4,7 +4,7 @@ Tags: security, bot-protection, anti-scraping, honeypot, ai-bot
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 1.6.2
+Stable tag: 1.6.3
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -175,6 +175,12 @@ When the **Trusted Client IP Header** is set to **Cloudflare (CF-Connecting-IP)*
 This fetch only runs while the Cloudflare trusted client IP header is selected. If the fetch fails validation, the previously stored list (or a bundled fallback) is kept — a failed response never narrows or widens the trusted set.
 
 == Changelog ==
+
+= 1.6.3 =
+* Fixed two AbuseIPDB links that led to a "page not found" error. In Settings > Bot Maze, the "Generate an API key" step now opens AbuseIPDB's API key page, and "AbuseIPDB Terms" now opens their Terms of Use. The suggested privacy-policy text and this readme had the same broken Terms link; both are corrected.
+* The About page now explains AbuseIPDB reporting: what a report contains, when an address is queued, and how quickly queued reports are sent. Reports go out in small batches on a background schedule, so a large catch-up can take hours. The page states the rate, so a slow catch-up no longer looks stalled.
+* The Blocked Bots catch-up notice no longer says the addresses it offers were blocked before you switched reporting on. That is one reason a blocked address can be unreported, but not the only one; a report AbuseIPDB never accepted is another. The notice now says only that these blocked addresses have not been reported. The button and the count are unchanged.
+* The suggested privacy-policy text now states that, while Geographic Tracking is on, a visitor's country code is stored with their visit and bot score records. The Third-Party Services section of this readme now covers the weekly fetch of Cloudflare's published IP ranges.
 
 = 1.6.2 =
 * Fixed the AbuseIPDB catch-up silently discarding everything it queued. Each queued report recorded the time of the observation as the time it entered the queue, so a catch-up of older evidence arrived already past the point the plugin abandons undelivered work, and the next background run deleted the whole batch before sending any of it. The button then reappeared with the same count, as if nothing had happened. A queued report now records when it was queued, separately from the observation it reports, and the confirmation counts only what the queue actually accepted.
